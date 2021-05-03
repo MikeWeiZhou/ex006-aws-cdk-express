@@ -3,10 +3,13 @@ FROM node:14.16.1-alpine
 WORKDIR /api
 COPY . .
 
+# Build API server
 RUN npm install
-RUN npm run lint
-RUN npm run build
+RUN npx eslint "src/**"
+RUN npx tsc
 
-EXPOSE $API_PORT
+# Expose API port to linked services (not host)
+EXPOSE $EAR_API_PORT
 
-CMD ["npm", "start"]
+# Run API server
+CMD node ./dist/main.js

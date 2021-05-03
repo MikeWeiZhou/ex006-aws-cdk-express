@@ -1,12 +1,13 @@
 version: '3'
 
 services:
+
   api:
-    container_name: ref-cdk-express
+    container_name: express-api-ref
     build:
       context: .
       dockerfile: Dockerfile
     env_file:
       - .env
     ports:
-      - $API_PORT:$API_PORT
+      - $EAR_API_PORT:$EAR_API_PORT

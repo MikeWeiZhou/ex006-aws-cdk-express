@@ -5,4 +5,5 @@ COPY . .
 
 RUN npm install
 
-CMD ["npm", "run", "db-migrate"]
+# Run db-migrate up and exit
+CMD npx db-migrate up

@@ -1,5 +1,5 @@
 {
-  "name": "ref-cdk-express-api",
+  "name": "express-api-ref-cdk",
   "version": "0.1.0",
   "bin": {
     "ref-cdk-express-api": "main.js"
@@ -16,6 +16,7 @@
     "@aws-cdk/aws-ec2": "^1.101.0",
     "@aws-cdk/aws-ecs": "^1.101.0",
     "@aws-cdk/aws-ecs-patterns": "^1.101.0",
+    "@aws-cdk/aws-ssm": "^1.101.0",
     "@aws-cdk/core": "1.101.0",
     "dotenv": "^8.2.0",
     "source-map-support": "^0.5.16"

@@ -1,10 +1,9 @@
 {
-  "name": "ref-cdk-express-api-db",
+  "name": "express-api-ref-db",
   "version": "0.1.0",
   "scripts": {
-    "db-migrate": "db-migrate up",
     "container:db": "docker-compose up db",
-    "container:db-migrate": "docker-compose up db-migrate",
+    "container:db-migrate": "docker-compose up --build --force-recreate db-migrate",
     "container:clean": "docker-compose down --rmi local"
   },
   "author": "Mike Zhou",
