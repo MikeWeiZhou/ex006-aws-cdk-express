@@ -1,0 +1,16 @@
+{
+  "name": "ref-cdk-express-api-db",
+  "version": "0.1.0",
+  "scripts": {
+    "db-migrate": "db-migrate up",
+    "container:db": "docker-compose up db",
+    "container:db-migrate": "docker-compose up db-migrate",
+    "container:clean": "docker-compose down --rmi local"
+  },
+  "author": "Mike Zhou",
+  "license": "ISC",
+  "devDependencies": {
+    "db-migrate": "^0.11.12",
+    "db-migrate-mysql": "^2.1.2"
+  }
+}

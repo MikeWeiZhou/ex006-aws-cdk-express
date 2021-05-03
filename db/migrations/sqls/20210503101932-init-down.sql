@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS `sales_products`;
+DROP TABLE IF EXISTS `sales`;
+DROP TABLE IF EXISTS `products`;
+DROP TABLE IF EXISTS `customers`;
+DROP TABLE IF EXISTS `companies`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `roles`;
