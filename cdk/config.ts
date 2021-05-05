@@ -2,6 +2,7 @@ import * as path from 'path';
 
 type AwsEnvironment = 'dev';
 type EnvironmentSpecificSettings = {
+  // eslint-disable-next-line no-unused-vars
   [key in AwsEnvironment]: {
     /**
      * AWS account ID for the environment.
@@ -15,7 +16,7 @@ type EnvironmentSpecificSettings = {
  */
 const environmentSpecificSettings: EnvironmentSpecificSettings = {
   dev: {
-    AWS_ACCOUNT_ID: "743667830804",
+    AWS_ACCOUNT_ID: '743667830804',
   },
 };
 
@@ -26,7 +27,7 @@ export default {
   /**
    * Absolute path to API Dockerfile directory.
    */
-  API_DOCKERFILE_DIR: path.join(__dirname, '../api'),
+  API_DOCKERFILE_DIR: path.join(__dirname, '../'),
   /**
    * Max Availibility Zones (AZs) for selected region, defaults to 3.
    * Minimum of two AZs required for successful deployment.
@@ -36,5 +37,5 @@ export default {
   /**
   * Environment specific settings.
   */
- env: environmentSpecificSettings,
+  env: environmentSpecificSettings,
 };

@@ -13,6 +13,6 @@ export class VpcNestedStack extends cdk.NestedStack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.NestedStackProps) {
     super(scope, id, props);
 
-    this.vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: config.AWS_MAX_AZ_COUNT});
+    this.vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: config.AWS_MAX_AZ_COUNT });
   }
 }

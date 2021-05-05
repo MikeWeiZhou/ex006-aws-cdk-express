@@ -1,6 +1,11 @@
-*.js
-/node_modules
+node_modules
+.env
 
+# API distribution
+/dist
+
+# CDK
+/cdk/*.js
 # CDK asset staging directory
 .cdk.staging
 cdk.out

@@ -20,7 +20,7 @@ export class MainStack extends cdk.Stack {
       'EAR_DB_USER',
     ]);
     const secureEnv = parameterStore.getSecureStrings(this, {
-      'EAR_DB_PASSWORD': 1,
+      EAR_DB_PASSWORD: 1,
     });
     const secretEnv = parameterStore.getSecrets(this, [
       'EAR_DB_PASSWORD',
@@ -32,25 +32,25 @@ export class MainStack extends cdk.Stack {
     // Create DbNestedStack
     const dbNestedStack = new DbNestedStack(this, 'DbNestedStack', {
       vpcNestedStack,
-      defaultDatabaseName: env['EAR_DB_NAME'],
-      adminUserName: env['EAR_DB_USER'],
-      adminPassword: new cdk.SecretValue(secureEnv['EAR_DB_PASSWORD']),
+      defaultDatabaseName: env.EAR_DB_NAME,
+      adminUserName: env.EAR_DB_USER,
+      adminPassword: new cdk.SecretValue(secureEnv.EAR_DB_PASSWORD),
     });
 
     // Create ApiNestedStack
-    const apiNestedStack = new ApiNestedStack(this, 'ApiNestedStack', {
+    new ApiNestedStack(this, 'ApiNestedStack', {
       vpcNestedStack,
       dbNestedStack,
-      apiPort: Number.parseInt(env['EAR_API_PORT']),
+      apiPort: Number.parseInt(env.EAR_API_PORT, 10),
       apiEnvironment: {
-        'EAR_API_PORT': env['EAR_API_PORT'],
-        'EAR_DB_HOST': dbNestedStack.db.clusterEndpoint.hostname.toString(),
-        'EAR_DB_PORT': env['EAR_DB_PORT'],
-        'EAR_DB_NAME': env['EAR_DB_NAME'],
-        'EAR_DB_USER': env['EAR_DB_USER'],
+        EAR_API_PORT: env.EAR_API_PORT,
+        EAR_DB_HOST: dbNestedStack.db.clusterEndpoint.hostname.toString(),
+        EAR_DB_PORT: env.EAR_DB_PORT,
+        EAR_DB_NAME: env.EAR_DB_NAME,
+        EAR_DB_USER: env.EAR_DB_USER,
       },
       apiSecrets: {
-        'EAR_DB_PASSWORD': secretEnv['EAR_DB_PASSWORD'],
+        EAR_DB_PASSWORD: secretEnv.EAR_DB_PASSWORD,
       },
     });
   }

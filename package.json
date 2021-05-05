@@ -4,14 +4,17 @@
   "main": "dist/main.js",
   "scripts": {
     "dev": "ts-node-dev -r dotenv/config src/main.ts",
-    "lint": "eslint 'src/**'",
+    "lint": "eslint './**/*.ts'",
+    "lint:fix": "eslint './**/*.ts' --fix",
     "build": "tsc",
     "start": "node -r dotenv/config ./dist/main.js",
     "container": "docker-compose up --build --force-recreate",
-    "container:clean": "docker-compose down --rmi local -v"
+    "container:clean": "docker-compose down --rmi local -v",
+    "install:all": "npm install && npm run install:cdk && npm run install:db",
+    "install:cdk": "cd cdk && npm install && cd ..",
+    "install:db": "cd db && npm install && cd .."
   },
   "author": "Mike Zhou",
-  "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.11",
     "@typescript-eslint/eslint-plugin": "^4.22.0",

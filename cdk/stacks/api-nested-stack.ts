@@ -5,16 +5,28 @@ import config from '../config';
 import { DbNestedStack } from './db-nested-stack';
 import { VpcNestedStack } from './vpc-nested-stack';
 
-const ENV = [
-  'EAR_API_PORT',
-  'EAR_DB_HOST',
-  'EAR_DB_PORT',
-  'EAR_DB_NAME',
-  'EAR_DB_USER',
-];
-const ENV_SECRET = [
-  'EAR_DB_PASSWORD',
-];
+export interface ApiNestedStackProps extends cdk.NestedStackProps {
+  /**
+   * An instance of `VpcNestedStack`.
+   */
+  vpcNestedStack: VpcNestedStack;
+  /**
+   * An instance of `DbNestedStack`.
+   */
+  dbNestedStack: DbNestedStack;
+  /**
+   * API container port.
+   */
+  apiPort: number;
+  /**
+   * API container environment variables.
+   */
+  apiEnvironment: { [key: string]: string };
+  /**
+   * API container secret environment variables.
+   */
+  apiSecrets: { [key: string]: ecs.Secret };
+}
 
 /**
  * Create a Fargate service running the API server from a Dockerfile.
@@ -46,27 +58,4 @@ export class ApiNestedStack extends cdk.NestedStack {
     // Allow API to access DB
     this.api.service.connections.allowToDefaultPort(props.dbNestedStack.db);
   }
-}
-
-export interface ApiNestedStackProps extends cdk.NestedStackProps {
-  /**
-   * An instance of `VpcNestedStack`.
-   */
-  vpcNestedStack: VpcNestedStack;
-  /**
-   * An instance of `DbNestedStack`.
-   */
-  dbNestedStack: DbNestedStack;
-  /**
-   * API container port.
-   */
-  apiPort: number;
-  /**
-   * API container environment variables.
-   */
-  apiEnvironment: { [key: string]: string };
-  /**
-   * API container secret environment variables.
-   */
-  apiSecrets: { [key: string]: ecs.Secret };
 }
