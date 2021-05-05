@@ -5,11 +5,9 @@
   "scripts": {
     "dev": "ts-node-dev -r dotenv/config src/main.ts",
     "lint": "eslint './**/*.ts'",
-    "lint:fix": "eslint './**/*.ts' --fix",
-    "build": "tsc",
+    "build": "npm run clean:build && tsc",
     "start": "node -r dotenv/config ./dist/main.js",
-    "container": "docker-compose up --build --force-recreate",
-    "container:clean": "docker-compose down --rmi local -v",
+    "clean:build": "rimraf dist",
     "install:all": "npm install && npm run install:cdk && npm run install:db",
     "install:cdk": "cd cdk && npm install && cd ..",
     "install:db": "cd db && npm install && cd .."
@@ -23,6 +21,7 @@
     "eslint": "^7.25.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
+    "rimraf": "^3.0.2",
     "ts-node-dev": "^1.1.6",
     "typescript": "^4.2.4"
   },

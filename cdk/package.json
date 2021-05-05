@@ -1,14 +1,21 @@
 {
   "name": "express-api-ref-cdk",
   "version": "0.1.0",
-  "bin": {
-    "express-api-ref": "main.js"
+  "scripts": {
+    "build": "npm run clean:build && tsc",
+    "bootstrap": "cdk bootstrap",
+    "synth": "cdk synth",
+    "deploy:dev": "npm run clean:cache && cdk deploy dev-api-usw2",
+    "destroy:dev": "cdk destroy dev-api-usw2",
+    "clean:all": "npm run clean:build && npm run clean:cache",
+    "clean:build": "rimraf \"!(node_modules)/**/*+(.js|.d.ts)\" \"*.js\" \"*.d.ts\"",
+    "clean:cache": "rimraf \"./cdk.out\" \"./cdk.context.json\""
   },
-  "scripts": {},
   "devDependencies": {
     "@aws-cdk/assert": "^1.102.0",
     "@types/node": "10.17.27",
     "aws-cdk": "^1.102.0",
+    "rimraf": "^3.0.2",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"
   },

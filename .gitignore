@@ -5,7 +5,8 @@ node_modules
 /dist
 
 # CDK
-/cdk/*.js
+/cdk/**/*.js
+/cdk/**/*.d.ts
 # CDK asset staging directory
 .cdk.staging
 cdk.out

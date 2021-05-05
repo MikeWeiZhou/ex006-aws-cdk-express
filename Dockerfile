@@ -5,7 +5,6 @@ COPY . .
 
 # Build API server
 RUN npm install
-RUN npx eslint "src/**"
 RUN npx tsc
 
 # Expose API port to linked services (not host)

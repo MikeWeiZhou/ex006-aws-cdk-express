@@ -2,12 +2,11 @@
   "name": "express-api-ref-db",
   "version": "0.1.0",
   "scripts": {
-    "container:db": "docker-compose up db",
-    "container:db-migrate": "docker-compose up --build --force-recreate db-migrate",
-    "container:clean": "docker-compose down --rmi local"
+    "db": "docker-compose up db",
+    "db-migrate": "docker-compose up --build --force-recreate db-migrate",
+    "clean": "docker-compose down --rmi local",
+    "destroy": "docker-compose down --rmi local -v"
   },
-  "author": "Mike Zhou",
-  "license": "ISC",
   "devDependencies": {
     "db-migrate": "^0.11.12",
     "db-migrate-mysql": "^2.1.2"
