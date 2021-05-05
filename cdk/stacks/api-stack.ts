@@ -3,7 +3,7 @@ import * as ecs from '@aws-cdk/aws-ecs';
 import * as ecsPatterns from '@aws-cdk/aws-ecs-patterns';
 import config from '../config';
 import parameterStore from '../lib/parameter-store';
-import { StackPropsWithVpc } from './vpc-stack';
+import { StackPropsWithDb } from './db-stack';
 
 const ENV = [
   'EAR_API_PORT',
@@ -21,14 +21,14 @@ const ENV_SECRET = [
  * https://docs.aws.amazon.com/AmazonECS/latest/userguide/what-is-fargate.html
  */
 export class ApiStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: StackPropsWithVpc) {
+  constructor(scope: cdk.Construct, id: string, props: StackPropsWithDb) {
     super(scope, id, props);
 
     const environment = parameterStore.getStrings(this, ENV);
     const secrets = parameterStore.getSecrets(this, ENV_SECRET);
     const cluster = new ecs.Cluster(this, 'ApiCluster', { vpc: props.vpc });
 
-    new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'ApiFargateService', {
+    const api = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'ApiFargateService', {
       cluster,
       taskImageOptions: {
         image: ecs.ContainerImage.fromAsset(config.API_DOCKERFILE_DIR),
@@ -37,5 +37,8 @@ export class ApiStack extends cdk.Stack {
         secrets,
       },
     });
+
+    // Allow API to access DB
+    api.service.connections.allowToDefaultPort(props.db);
   }
 }
