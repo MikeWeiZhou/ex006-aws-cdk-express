@@ -1,29 +1,40 @@
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
-import * as ssm from '@aws-cdk/aws-ssm';
 import * as ecsPatterns from '@aws-cdk/aws-ecs-patterns';
 import config from '../config';
-import { CustomStackProps } from './custom-stack-props.interface';
+import parameterStore from '../lib/parameter-store';
+import { StackPropsWithVpc } from './vpc-stack';
+
+const ENV = [
+  'EAR_API_PORT',
+  'EAR_DB_HOST',
+  'EAR_DB_PORT',
+  'EAR_DB_NAME',
+  'EAR_DB_USER',
+];
+const ENV_SECRET = [
+  'EAR_DB_PASSWORD',
+];
 
 /**
  * Create a Fargate service running the API server from a Dockerfile.
- *
  * https://docs.aws.amazon.com/AmazonECS/latest/userguide/what-is-fargate.html
  */
 export class ApiStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: CustomStackProps) {
+  constructor(scope: cdk.Construct, id: string, props: StackPropsWithVpc) {
     super(scope, id, props);
 
-    const apiPort = ssm.StringParameter.valueFromLookup(this, 'EAR_API_PORT');
+    const environment = parameterStore.getStrings(this, ENV);
+    const secrets = parameterStore.getSecrets(this, ENV_SECRET);
     const cluster = new ecs.Cluster(this, 'ApiCluster', { vpc: props.vpc });
+
     new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'ApiFargateService', {
       cluster,
       taskImageOptions: {
         image: ecs.ContainerImage.fromAsset(config.API_DOCKERFILE_DIR),
-        containerPort: Number.parseInt(apiPort),
-        environment: {
-          EAR_API_PORT: apiPort,
-        },
+        containerPort: Number.parseInt(environment.EAR_API_PORT),
+        environment,
+        secrets,
       },
     });
   }

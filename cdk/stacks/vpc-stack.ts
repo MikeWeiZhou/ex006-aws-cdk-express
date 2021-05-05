@@ -8,11 +8,18 @@ import config from '../config';
  */
 export class VpcStack extends cdk.Stack {
   /** Virtual Private Cloud. */
-  public vpc: ec2.Vpc;
+  public readonly vpc: ec2.Vpc;
 
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     this.vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: config.AWS_AZ_COUNT});
   }
+}
+
+/**
+ * Stack props with VPC `ec2.Vpc` object.
+ */
+export interface StackPropsWithVpc extends cdk.StackProps {
+  readonly vpc: ec2.Vpc;
 }
