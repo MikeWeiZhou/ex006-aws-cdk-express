@@ -7,10 +7,7 @@
     "lint": "eslint './**/*.ts'",
     "build": "npm run clean:build && tsc",
     "start": "node -r dotenv/config ./dist/main.js",
-    "clean:build": "rimraf dist",
-    "install:all": "npm install && npm run install:cdk && npm run install:db",
-    "install:cdk": "cd cdk && npm install && cd ..",
-    "install:db": "cd db && npm install && cd .."
+    "clean:build": "rimraf dist"
   },
   "author": "Mike Zhou",
   "devDependencies": {

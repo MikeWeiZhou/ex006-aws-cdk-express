@@ -1,56 +1,100 @@
 import * as cdk from '@aws-cdk/core';
-import parameterStore from '../lib/parameter-store';
+import * as sm from '@aws-cdk/aws-secretsmanager';
+import * as ecs from '@aws-cdk/aws-ecs';
 import { VpcNestedStack } from './vpc-nested-stack';
 import { DbNestedStack } from './db-nested-stack';
+import { DbMigrationNestedStack } from './db-migration-nested-stack';
 import { ApiNestedStack } from './api-nested-stack';
 
 /**
+ * Deployment environment for the `MainStack`.
+ */
+export interface MainEnvironment extends cdk.Environment {
+  /**
+   * The target database schema version.
+   *
+   * Database versions follows this format: "{TIMESTAMP}-{NAME}".
+   * For example, it could be "20210503101932-init"
+   */
+  readonly dbSchemaVersion: string;
+  /**
+   * Name of the secret (AWS Secrets Manager) containing key-value pairs as environment variables.
+   */
+  readonly secret: string;
+  /**
+   * Maximum number of Availability Zones (AZs) in the region.
+   */
+  readonly maxAzs: number;
+}
+
+/**
+ * Properties for a MainStack.
+ */
+export interface MainStackProps extends cdk.StackProps {
+  /**
+   * Environment settings for stack.
+   */
+  env: MainEnvironment;
+}
+
+/**
  * Creates a new API server with all necessary resources.
- * https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html
+ *
+ * Will create and run these services in order:
+ *  1. Virtual Private Cloud (VPC) - every other services will run inside this VPC
+ *  2. Aurora Serverless database cluster
+ *  3. Run database migrations - by creating Lambda function and custom resources
+ *  4. Creates API server running on Fargate
  */
 export class MainStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, props: MainStackProps) {
     super(scope, id, props);
 
-    // Retrieve variables from Parameter Store
-    const env = parameterStore.getStrings(this, [
-      'EAR_API_PORT',
-      'EAR_DB_PORT',
-      'EAR_DB_NAME',
-      'EAR_DB_USER',
-    ]);
-    const secureEnv = parameterStore.getSecureStrings(this, {
-      EAR_DB_PASSWORD: 1,
+    // Retrieve values from secret (can be used as strings easily)
+    const secret = sm.Secret.fromSecretNameV2(this, 'Secret', props.env.secret);
+    const dbName = secret.secretValueFromJson('EAR_DB_NAME');
+    const dbUser = secret.secretValueFromJson('EAR_DB_USER');
+    const dbPassword = secret.secretValueFromJson('EAR_DB_PASSWORD');
+    // Retrieve values as secret environment variables (cannot convert above values)
+    const dbNameSecret = ecs.Secret.fromSecretsManager(secret, 'EAR_DB_NAME');
+    const dbUserSecret = ecs.Secret.fromSecretsManager(secret, 'EAR_DB_USER');
+    const dbPasswordSecret = ecs.Secret.fromSecretsManager(secret, 'EAR_DB_PASSWORD');
+
+    // Create VPC
+    const vpcNestedStack = new VpcNestedStack(this, 'VpcNestedStack', {
+      maxAzs: props.env.maxAzs,
     });
-    const secretEnv = parameterStore.getSecrets(this, [
-      'EAR_DB_PASSWORD',
-    ]);
 
-    // Create VpcNestedStack
-    const vpcNestedStack = new VpcNestedStack(this, 'VpcNestedStack');
-
-    // Create DbNestedStack
+    // Create database
     const dbNestedStack = new DbNestedStack(this, 'DbNestedStack', {
       vpcNestedStack,
-      defaultDatabaseName: env.EAR_DB_NAME,
-      adminUserName: env.EAR_DB_USER,
-      adminPassword: new cdk.SecretValue(secureEnv.EAR_DB_PASSWORD),
+      defaultDatabaseName: dbName,
+      adminUser: dbUser,
+      adminPassword: dbPassword,
     });
 
-    // Create ApiNestedStack
+    // Run database migrations
+    new DbMigrationNestedStack(this, 'DbMigrationNestedStack', {
+      vpcNestedStack,
+      dbNestedStack,
+      dbSchemaVersion: props.env.dbSchemaVersion,
+      dbName,
+      dbUser,
+      dbPassword,
+    });
+
+    // Create API server
     new ApiNestedStack(this, 'ApiNestedStack', {
       vpcNestedStack,
       dbNestedStack,
-      apiPort: Number.parseInt(env.EAR_API_PORT, 10),
       apiEnvironment: {
-        EAR_API_PORT: env.EAR_API_PORT,
         EAR_DB_HOST: dbNestedStack.db.clusterEndpoint.hostname.toString(),
-        EAR_DB_PORT: env.EAR_DB_PORT,
-        EAR_DB_NAME: env.EAR_DB_NAME,
-        EAR_DB_USER: env.EAR_DB_USER,
+        EAR_DB_PORT: cdk.Token.asString(dbNestedStack.db.clusterEndpoint.port),
       },
       apiSecrets: {
-        EAR_DB_PASSWORD: secretEnv.EAR_DB_PASSWORD,
+        EAR_DB_NAME: dbNameSecret,
+        EAR_DB_USER: dbUserSecret,
+        EAR_DB_PASSWORD: dbPasswordSecret,
       },
     });
   }

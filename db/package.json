@@ -3,11 +3,21 @@
   "version": "0.1.0",
   "scripts": {
     "db": "docker-compose up db",
-    "db-migrate": "docker-compose up --build --force-recreate db-migrate",
-    "clean": "docker-compose down --rmi local",
-    "destroy": "docker-compose down --rmi local -v"
+    "migrate": "npx ts-node -r dotenv/config --prefer-ts-exts migrate.ts",
+    "migrate:lambda": "docker-compose up",
+    "clean:all": "docker-compose down --rmi local -v",
+    "clean:containers": "docker-compose down --rmi local",
+    "clean:db-data": "docker-compose down -v"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.76",
+    "@types/node": "^15.0.2",
+    "dotenv": "^9.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "aws-lambda": "^1.0.6",
     "db-migrate": "^0.11.12",
     "db-migrate-mysql": "^2.1.2"
   }

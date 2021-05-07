@@ -1,9 +1,10 @@
-FROM node:14.16.1-alpine
+FROM amazon/aws-lambda-nodejs:14
 
-WORKDIR /db-migrate
 COPY . .
 
 RUN npm install
+RUN npx tsc
 
-# Run db-migrate up and exit
-CMD npx db-migrate up
+# Specify lambda function handler
+# file "lambda.js", "runMigration" function
+CMD ["lambda.runMigration"]
