@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+  api:
+    container_name: express-api-ref
+    build:
+      context: .
+    env_file: .env
+    environment:
+      - EAR_DB_HOST=db
+    ports:
+      - $EAR_API_PORT:$EAR_API_PORT
+    networks:
+      - express_api_ref
+
+networks:
+  express_api_ref:
+    name: express_api_ref

@@ -1,19 +1,13 @@
 {
-  "name": "express-api-ref-cdk",
+  "name": "ear-cdk",
   "version": "0.1.0",
   "scripts": {
-    "bootstrap": "cdk bootstrap",
-    "synth": "cdk synth",
-    "diff": "cdk diff",
-    "deploy:dev": "npm run clean:cache && cdk deploy dev-api-usw2",
-    "destroy:dev": "cdk destroy dev-api-usw2",
-    "clean:cache": "rimraf \"./cdk.out\" \"./cdk.context.json\""
+    "clean": "rimraf \"./cdk.out\" \"./cdk.context.json\""
   },
   "devDependencies": {
     "@aws-cdk/assert": "^1.102.0",
     "@types/node": "10.17.27",
     "aws-cdk": "^1.102.0",
-    "dotenv": "^9.0.0",
     "rimraf": "^3.0.2",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"

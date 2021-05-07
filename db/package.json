@@ -1,13 +1,8 @@
 {
-  "name": "express-api-ref-db",
+  "name": "ear-db",
   "version": "0.1.0",
   "scripts": {
-    "db": "docker-compose up db",
-    "migrate": "npx ts-node -r dotenv/config --prefer-ts-exts migrate.ts",
-    "migrate:lambda": "docker-compose up",
-    "clean:all": "docker-compose down --rmi local -v",
-    "clean:containers": "docker-compose down --rmi local",
-    "clean:db-data": "docker-compose down -v"
+    "migrate": "npx ts-node -r dotenv/config --prefer-ts-exts migrate.ts"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.76",

@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  devcontainer:
+    container_name: ear-devcontainer
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    env_file: .env
+    volumes:
+      - ..:/workspace:cached # VSCode workspace
+      - ~/.aws:/home/node/.aws:cached # AWS credentials
+      - /var/run/docker.sock:/var/run/docker.sock # host's Docker daemon
+    networks:
+      - express_api_ref
+
+networks:
+  express_api_ref:
+    name: express_api_ref

@@ -1,0 +1,30 @@
+{
+	"name": "ear devcontainer",
+	"dockerComposeFile": [
+		"docker-compose.yml",
+		"../docker-compose.yml",
+		"../db/docker-compose.yml"
+	],
+	"workspaceFolder": "/workspace",
+	"service": "devcontainer",
+	"runServices": ["devcontainer", "db"],
+
+	"settings": { 
+		"terminal.integrated.defaultProfile.linux": "/bin/bash",
+		"resmon.show.battery": false
+	},
+
+	"extensions": [
+		"dbaeumer.vscode-eslint",
+		"eamodio.gitlens",
+		"mhutchie.git-graph",
+		"mutantdino.resourcemonitor"
+	],
+
+	"initializeCommand": "sh .devcontainer/precreate.sh",
+	"postCreateCommand": "sh .devcontainer/postcreate.sh",
+
+	"shutdownAction": "stopCompose",
+
+	"remoteUser": "node"
+}
