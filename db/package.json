@@ -2,12 +2,11 @@
   "name": "ear-db",
   "version": "0.1.0",
   "scripts": {
-    "migrate": "npx ts-node -r dotenv/config --prefer-ts-exts migrate.ts"
+    "migrate": "npx ts-node --prefer-ts-exts migrate.ts"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.76",
     "@types/node": "^15.0.2",
-    "dotenv": "^9.0.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   },

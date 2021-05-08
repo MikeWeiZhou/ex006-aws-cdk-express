@@ -6,14 +6,13 @@ services:
     container_name: ear-db
     image: mysql:5.7
     command: mysqld --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    env_file: .env
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=true
       - MYSQL_DATABASE=$EAR_DB_NAME
       - MYSQL_USER=$EAR_DB_USER
       - MYSQL_PASSWORD=$EAR_DB_PASSWORD
     ports:
-      - $EAR_DB_PORT:$EAR_DB_PORT
+      - "$EAR_DB_PORT:$EAR_DB_PORT"
     volumes:
       - db-storage:/var/lib/mysql:cached
     networks:
@@ -23,9 +22,13 @@ services:
     container_name: ear-db-migrate
     build:
       context: .
-    env_file: .env
     environment:
       - EAR_DB_HOST=db
+      - EAR_DB_PORT=$EAR_DB_PORT
+      - EAR_DB_NAME=$EAR_DB_NAME
+      - EAR_DB_USER=$EAR_DB_USER
+      - EAR_DB_PASSWORD=$EAR_DB_PASSWORD
+      - EAR_DB_VERSION=$EAR_DB_VERSION
     ports:
       - 8080:8080
     networks:

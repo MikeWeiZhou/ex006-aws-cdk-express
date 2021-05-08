@@ -27,8 +27,14 @@ An exercise in creating a small Express.js API with AWS Cloud Development Kit (C
 ### Prerequisites
 - [Install VSCode](https://code.visualstudio.com)
 - [Install VSCode extension: Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-- [Install Docker Engine](https://docs.docker.com/engine/install)
-- [Install Docker Compose](https://docs.docker.com/compose/instal)
+- [Install Docker Engine](https://docs.docker.com/engine/install) (tested version 20.10.2)
+  - If you don't have sufficient permissions to reach Docker daemon, [create docker user group]https://stackoverflow.com/questions/48957195/how-to-fix-docker-got-permission-denied-issue)
+- [Install Docker Compose](https://docs.docker.com/compose/install) (tested version 1.29.1)
+- [Configure AWS credentials](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites)
+  - Ensure `.devcontainer/.env` `AWS_DEV_ACCOUNT_ID` is set, all development deployments will push to that account
+  - Using credential files in `~/.aws`, is the recommended way for storing credentials
+  - Restart VSCode after setting credentials (ensure devcontainer Docker processes have exited before starting VSCode again by waiting 30 seconds)
+- Account admin needs to [grant the user some permissions](docs/aws-deployment-account-permissions.md)
 
 ### Setup Development Environment
 1. Open folder in VSCode
@@ -64,12 +70,6 @@ TODO.
 ## Deployments
 
 ### Prerequisites
-- [Configure AWS credentials](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites)
-  - Ensure `.devcontainer/.env` `AWS_DEV_ACCOUNT_ID` is set, all development deployments will push to that account
-  - If credential files already in `~/.aws`, no need to setup environment variables
-  - If using environment variables, put it in `.devcontainer/.env` and restart VSCode
-    - environment variables has higher precedence over credential files, comment out env vars if not using
-- Account admin needs to [grant the user some permissions](docs/aws-deployment-account-permissions.md)
 - [Create new Secret](https://us-west-2.console.aws.amazon.com/secretsmanager/home?region=us-west-2#!/listSecrets) named `dev/api/usw2` (the values are arbitrary, change it as you please):
     ```json
     {
@@ -118,7 +118,7 @@ new MainStack(app, 'dev-api-usw1', {
 ```
 
 ### Migration in Local
-For the local development environment, it must be done manually by defining the database schema target version in [db/.env](db/.env):
+For the local development environment, it must be done manually by defining the database schema target version in [.devcontainer/.env](.devcontainer/.env):
 ```
 EAR_DB_VERSION=20210503101932-init
 ```
@@ -142,7 +142,7 @@ npm run migrate
     db/migrations/sqls/20210503101932-init-up.sql
     ```
 2. Add SQL code to the migration up and down script.
-3. Change the target database schma version for local development environment ([db/.env](db/.env)) and deployments ([cdk/main.ts](cdk/main.ts)).
+3. Change the target database schma version for local development environment ([.devcontainer/.env](.devcontainer/.env)) and deployments ([cdk/main.ts](cdk/main.ts)).
     ```
     The schema version is the the filename of the js file without extension:
     20210503101932-init-up.sql

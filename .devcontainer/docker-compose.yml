@@ -7,9 +7,13 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
+    env_file: .env
+    environment:
+      - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+      - AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
     # Overrides default command so things don't shut down after the process ends.
     command: /bin/sh -c "while sleep 1000; do :; done"
-    env_file: .env
     volumes:
       - ..:/workspace:cached # VSCode workspace
       - ~/.aws:/home/node/.aws:cached # AWS credentials
