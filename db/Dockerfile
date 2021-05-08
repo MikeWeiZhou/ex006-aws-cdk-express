@@ -1,3 +1,6 @@
+#
+# This database migration Lambda Dockerfile is used during CDK deployment.
+#
 FROM amazon/aws-lambda-nodejs:14
 
 COPY . .
