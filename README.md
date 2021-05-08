@@ -22,13 +22,19 @@ An exercise in creating a small Express.js API with AWS Cloud Development Kit (C
 ## Development Setup
 > If using git *signed commits*, do not commit inside the devcontainer. See existing [bug](https://github.com/microsoft/vscode-remote-release/issues/2925).
 
-> This has been tested on Linux environments (Ubuntu 20.04, WSL2) but not directly running on Windows.
+> This has been tested only on Ubuntu 20.04 (also works inside WSL2).
+
+> If you encounter issues when starting/building the devcontainer, ensure your Docker- engine and compose versions are no older than the one stated.
 
 ### Prerequisites
 - [Install VSCode](https://code.visualstudio.com)
 - [Install VSCode extension: Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - [Install Docker Engine](https://docs.docker.com/engine/install) (tested version 20.10.2)
-  - If you don't have sufficient permissions to reach Docker daemon, [create docker user group]https://stackoverflow.com/questions/48957195/how-to-fix-docker-got-permission-denied-issue)
+  - If you don't have sufficient permissions to reach Docker daemon, [create docker user group](https://docs.docker.com/engine/install/linux-postinstall)
+    ```
+    sudo groupadd docker
+    sudo usermod -aG docker $USER
+    ```
 - [Install Docker Compose](https://docs.docker.com/compose/install) (tested version 1.29.1)
 - [Configure AWS credentials](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites)
   - Ensure `.devcontainer/.env` `AWS_DEV_ACCOUNT_ID` is set, all development deployments will push to that account
@@ -57,7 +63,11 @@ In VSCode, run **Remote-Containers: Open Folder in Container** from command pale
 - Run API normally
     ```
     npm run build
-    npm start
+    npm run start
+    ```
+- Run in Docker container (deployments deploy this to AWS)
+    ```
+    npm run start:container
     ```
 
 Database migrations must be manually run.
@@ -70,7 +80,7 @@ TODO.
 ## Deployments
 
 ### Prerequisites
-- [Create new Secret](https://us-west-2.console.aws.amazon.com/secretsmanager/home?region=us-west-2#!/listSecrets) named `dev/api/usw2` (the values are arbitrary, change it as you please):
+- [Create new AWS Secret](https://us-west-2.console.aws.amazon.com/secretsmanager/home?region=us-west-2#!/listSecrets) named `dev/api/usw2` (the values are arbitrary, change it as you please):
     ```json
     {
       "EAR_DB_NAME": "express_api_ref",

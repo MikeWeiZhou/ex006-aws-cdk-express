@@ -4,6 +4,7 @@ services:
 
   devcontainer:
     container_name: ear-devcontainer
+    init: true
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
@@ -12,12 +13,10 @@ services:
       - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
       - AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
-    # Overrides default command so things don't shut down after the process ends.
-    command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
       - ..:/workspace:cached # VSCode workspace
       - ~/.aws:/home/node/.aws:cached # AWS credentials
-      - /var/run/docker.sock:/var/run/docker.sock # host's Docker daemon
+      - /var/run/docker.sock:/var/run/docker-host.sock # host's Docker daemon
     networks:
       - express_api_ref
 

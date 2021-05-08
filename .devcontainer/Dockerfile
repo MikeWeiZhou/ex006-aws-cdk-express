@@ -8,18 +8,11 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 # Install AWS CDK
 RUN su node -c "npm install -g aws-cdk"
 
-# Install Docker
-RUN apt-get update && \
-    apt-get -y install \
-      apt-transport-https \
-      ca-certificates \
-      curl \
-      gnupg2 \
-      software-properties-common && \
-    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
-    add-apt-repository \
-      "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
-      $(lsb_release -cs) \
-      stable" && \
-    apt-get update && \
-    apt-get -y install docker-ce
+# Docker from docker install script
+#
+# Adds the Docker CLI to a container along with a script to enable using a forwarded Docker socket
+# within a container to run Docker commands.
+COPY .devcontainer/scripts/docker-debian.sh /tmp/library-scripts/
+RUN apt-get update && bash /tmp/library-scripts/docker-debian.sh
+ENTRYPOINT ["/usr/local/share/docker-init.sh"]
+CMD ["sleep", "infinity"]

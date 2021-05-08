@@ -9,9 +9,10 @@
 	"service": "devcontainer",
 	"runServices": ["devcontainer", "db"],
 
-	"settings": { 
+	"settings": {
 		"terminal.integrated.defaultProfile.linux": "/bin/bash",
-		"resmon.show.battery": false
+		"resmon.show.battery": false,
+		"gitlens.codeLens.enabled": false
 	},
 
 	"extensions": [
@@ -21,10 +22,13 @@
 		"mutantdino.resourcemonitor"
 	],
 
-	"initializeCommand": "sh .devcontainer/precreate.sh",
-	"postCreateCommand": "sh .devcontainer/postcreate.sh",
-
+	// Run on host, before creating devcontainer
+	"initializeCommand": "sh .devcontainer/scripts/precreate.sh",
+	// Run inside container, after creation
+	"postCreateCommand": "sh .devcontainer/scripts/postcreate.sh",
+	// Shutdown containers after VSCode shuts down
 	"shutdownAction": "stopCompose",
-
+	// A user inside devcontainer that micmic's host's current $UID and $GID, ensuring permissions
+	// are same as host's user.
 	"remoteUser": "node"
 }

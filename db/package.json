@@ -2,7 +2,8 @@
   "name": "ear-db",
   "version": "0.1.0",
   "scripts": {
-    "migrate": "npx ts-node --prefer-ts-exts migrate.ts"
+    "migrate": "npx ts-node --prefer-ts-exts migrate.ts",
+    "migrate:lambda": "docker-compose up --build db-migrate"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.76",

@@ -30,7 +30,7 @@ services:
       - EAR_DB_PASSWORD=$EAR_DB_PASSWORD
       - EAR_DB_VERSION=$EAR_DB_VERSION
     ports:
-      - 8080:8080
+      - 8080:8080 #default lambda port
     networks:
       - express_api_ref
 

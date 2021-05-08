@@ -8,6 +8,7 @@
     "lint": "eslint '**/*.ts'",
     "build": "npm run clean && tsc",
     "start": "node dist/main.js",
+    "start:container": "docker-compose up --build",
     "clean": "rimraf dist"
   },
   "devDependencies": {
