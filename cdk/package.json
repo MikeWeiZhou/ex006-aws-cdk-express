@@ -2,6 +2,7 @@
   "name": "ear-cdk",
   "version": "0.1.0",
   "scripts": {
+    "cdk": "cdk",
     "clean": "rimraf \"./cdk.out\" \"./cdk.context.json\""
   },
   "devDependencies": {

@@ -5,9 +5,6 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     unzip awscliv2.zip && \
     sudo ./aws/install
 
-# Install AWS CDK
-RUN su node -c "npm install -g aws-cdk"
-
 # Docker from docker install script
 #
 # Adds the Docker CLI to a container along with a script to enable using a forwarded Docker socket

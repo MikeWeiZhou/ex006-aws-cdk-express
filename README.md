@@ -20,9 +20,8 @@ An exercise in creating a small Express.js API with AWS Cloud Development Kit (C
 
 
 ## Development Setup
-> If using git *signed commits*, do not commit inside the devcontainer. See existing [bug](https://github.com/microsoft/vscode-remote-release/issues/2925).
 
-> This has been tested only on Ubuntu 20.04 (also works inside WSL2).
+> This has been tested only on Ubuntu 20.04.
 
 > If you encounter issues when starting/building the devcontainer, ensure your Docker- engine and compose versions are no older than the one stated.
 
@@ -30,7 +29,7 @@ An exercise in creating a small Express.js API with AWS Cloud Development Kit (C
 - [Install VSCode](https://code.visualstudio.com)
 - [Install VSCode extension: Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - [Install Docker Engine](https://docs.docker.com/engine/install) (tested version 20.10.2)
-  - If you don't have sufficient permissions to reach Docker daemon, [create docker user group](https://docs.docker.com/engine/install/linux-postinstall)
+  - If you don't have sufficient permissions to run Docker without root user, [add your user to docker group](https://docs.docker.com/engine/install/linux-postinstall)
     ```
     sudo groupadd docker
     sudo usermod -aG docker $USER
@@ -38,7 +37,6 @@ An exercise in creating a small Express.js API with AWS Cloud Development Kit (C
 - [Install Docker Compose](https://docs.docker.com/compose/install) (tested version 1.29.1)
 - [Configure AWS credentials](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites)
   - Ensure `.devcontainer/.env` `AWS_DEV_ACCOUNT_ID` is set, all development deployments will push to that account
-  - Using credential files in `~/.aws`, is the recommended way for storing credentials
   - Restart VSCode after setting credentials (ensure devcontainer Docker processes have exited before starting VSCode again by waiting 30 seconds)
 - Account admin needs to [grant the user some permissions](docs/aws-deployment-account-permissions.md)
 
@@ -48,7 +46,7 @@ An exercise in creating a small Express.js API with AWS Cloud Development Kit (C
 
 VSCode will build a development container (sandboxed development environment) and a MySQL database service. After which will setup the environment by creating '.env' files and running npm install. The entire process may take some time depending on internet connection speed and workstation specifications. However, it should take no longer than 10 minutes on a development workstation.
 
-VSCode will load the workspace once both containers are built and automatically launched. The terminal inside VSCode will now run inside the development container (which has AWS CLI2 and CDK preinstalled).
+VSCode will load the workspace once both containers are built and automatically launched. The terminal inside VSCode will now run inside the development container (which has AWS CLI2).
 
 Simply closing the VSCode IDE will automatically shutdown the services. To use the development container again, simply re-open the folder in VSCode and run **Remote-Containers: Reopen Folder in Container** from command palette (`F1`)
 
@@ -58,14 +56,9 @@ In VSCode, run **Remote-Containers: Open Folder in Container** from command pale
 
 - Run API in development mode (no compilation, hot-reloads)
     ```
-    npm run dev
-    ```
-- Run API normally
-    ```
-    npm run build
     npm run start
     ```
-- Run in Docker container (deployments deploy this to AWS)
+- Run in production mode (Docker container - deployments to AWS use this)
     ```
     npm run start:container
     ```
@@ -93,10 +86,10 @@ TODO.
 ### Deploy to region `us-west-2`
 In VSCode, run **Remote-Containers: Open Folder in Container** from command palette (`F1) to enter development container and auto start the MySQL database service. Commands must be run inside VSCode terminals, which actually is inside the development container.
 
-1. In `cdk` directory, run:
+1. In root directory, run:
     ```
-    cdk bootstrap
-    cdk deploy dev-api-usw2
+    npm run cdk bootstrap
+    npm run cdk deploy dev-api-usw2
     ```
     Database migrations are run as part of the deployment. Database schema version is defined in [cdk/main.ts](cdk/main.ts) per-environment.
 
@@ -107,7 +100,7 @@ In VSCode, run **Remote-Containers: Open Folder in Container** from command pale
 
 3. Test with the API then destroy it to save money:
     ```
-    cdk destroy dev-api-usw2
+    npm run cdk destroy dev-api-usw2
     ```
     If stacks fail to be deleted, manually delete them in [CloudFormation](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2).
 
@@ -133,9 +126,14 @@ For the local development environment, it must be done manually by defining the 
 EAR_DB_VERSION=20210503101932-init
 ```
 
-Then run the database migration script in `db` directory:
+In root directory, run:
 ```
 npm run migrate
+```
+
+Or migrate to target version different from environment variable:
+```
+npm run migrate 20210503101922-test
 ```
 
 ### Create New Migration
@@ -155,7 +153,7 @@ npm run migrate
 3. Change the target database schma version for local development environment ([.devcontainer/.env](.devcontainer/.env)) and deployments ([cdk/main.ts](cdk/main.ts)).
     ```
     The schema version is the the filename of the js file without extension:
-    20210503101932-init-up.sql
+    20210503101932-init.js
     ```
 
 ### Migration Strategy

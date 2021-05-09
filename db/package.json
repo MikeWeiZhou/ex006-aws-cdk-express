@@ -2,6 +2,7 @@
   "name": "ear-db",
   "version": "0.1.0",
   "scripts": {
+    "mysql": "docker exec -it ear-db mysql -u$EAR_DB_USER -p$EAR_DB_PASSWORD $EAR_DB_NAME",
     "migrate": "npx ts-node --prefer-ts-exts migrate.ts",
     "migrate:lambda": "docker-compose up --build db-migrate"
   },
