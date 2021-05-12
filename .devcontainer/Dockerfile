@@ -5,6 +5,10 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     unzip awscliv2.zip && \
     sudo ./aws/install
 
+# Append bash essentials to .bashrc
+COPY .devcontainer/scripts/bash-essentials.sh /tmp/library-scripts/
+RUN bash /tmp/library-scripts/bash-essentials.sh
+
 # Docker from docker install script
 #
 # Adds the Docker CLI to a container along with a script to enable using a forwarded Docker socket
@@ -12,4 +16,5 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 COPY .devcontainer/scripts/docker-debian.sh /tmp/library-scripts/
 RUN apt-get update && bash /tmp/library-scripts/docker-debian.sh
 ENTRYPOINT ["/usr/local/share/docker-init.sh"]
+
 CMD ["sleep", "infinity"]
