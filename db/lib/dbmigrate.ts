@@ -13,7 +13,6 @@ export async function dbMigrate(targetVersion?: string): Promise<void> {
     throw new Error('No DB version specified.');
   }
 
-  const version = targetVersion || process.env.EAR_DB_VERSION;
-  const dbm = dbmigrate.getInstance(true);
-  await dbm.sync(version);
+  const dbm = dbmigrate.getInstance(true, { env: 'default' });
+  await dbm.sync(targetVersion ?? process.env.EAR_DB_VERSION);
 }

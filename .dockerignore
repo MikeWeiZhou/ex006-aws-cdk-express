@@ -1,6 +1,7 @@
-/node_modules
+.env
+.git
+node_modules
+
 /cdk
 /db
 /dist
-/.env
-/.git

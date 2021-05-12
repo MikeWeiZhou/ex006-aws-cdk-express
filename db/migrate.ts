@@ -5,10 +5,10 @@ import { dbMigrate } from './lib/dbmigrate';
  */
 
 // This script should only be triggered by npm run scripts.
-// The third argument would be extra variable passed in by user.
+// The third argument onwards would be extra variable passed in by user.
+let targetVersion;
 if (process.argv.length > 2) {
-  const targetVersion = process.argv[2];
-  dbMigrate(targetVersion);
-} else {
-  dbMigrate();
+  [,, targetVersion] = process.argv;
 }
+
+dbMigrate(targetVersion);

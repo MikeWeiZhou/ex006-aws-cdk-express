@@ -1,5 +1,5 @@
 {
-  "dev": {
+  "default": {
     "host": {"ENV": "EAR_DB_HOST"},
     "port": {"ENV": "EAR_DB_PORT"},
     "database": {"ENV": "EAR_DB_NAME"},
