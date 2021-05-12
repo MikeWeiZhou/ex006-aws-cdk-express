@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Starts mysql client connected to target environment.
+
+# Target environment: 'dev' | 'test'
+TARGET_ENVIRONMENT=$1
+
+# Launch MySQL client
+if [[ "$TARGET_ENVIRONMENT" == "test" ]]
+then
+  echo TEST ENVIRONMENT
+  docker exec -it ear-test-db mysql -u$EAR_TEST_DB_USER -p$EAR_TEST_DB_PASSWORD $EAR_TEST_DB_NAME
+else
+  echo DEV ENVIRONMENT
+  docker exec -it ear-db mysql -u$EAR_DB_USER -p$EAR_DB_PASSWORD $EAR_DB_NAME
+fi

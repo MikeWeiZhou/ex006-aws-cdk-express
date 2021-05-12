@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# Runs tests against a target environment.
+
+MIGRATION_NAME=$1
+
+# Change to root directory
+cd "$(dirname $0)"
+cd ..
+
+# Generate migration SQL using TypeORM
+MIGRATION_OUTPUT=$(ts-node --transpile-only ./node_modules/typeorm/cli.js migration:generate --name $MIGRATION_NAME --pretty --dryrun)
+# Extract migrate up SQL
+# [1,/async up/d] delete from first line to line matching 'async up'
+# [/queryRunner.query/d] delete line matching 'queryRunner.query'
+# [/");/,$d] delete from line matching '");' to last line
+# [sed 's/^ *//g'] trims leading whitespace
+UP_SQL=$(echo "$MIGRATION_OUTPUT" | sed '1,/async up/d;   /queryRunner.query/d;   /");/,$d' | sed 's/^ *//g')
+# Extract migrate down SQL
+# [1,/async down/d] delete from first line to line matching 'async up'
+# [/queryRunner.query/d] delete line matching 'queryRunner.query'
+# [/");/,$d] delete from line matching '");' to last line
+# [sed 's/^ *//g'] trims leading whitespace
+DOWN_SQL=$(echo "$MIGRATION_OUTPUT" | sed '1,/async down/d;   /queryRunner.query/d;   /");/,$d;' | sed 's/^ *//g')
+
+# Change to db directory
+cd db
+
+# Create migration files
+CREATE_FILE_OUTPUT=$(npx db-migrate create $MIGRATION_NAME --env default --sql-file)
+# Extract schema version name
+# Example line before extraction: [INFO] Created migration at /workspace/db/migrations/20210512101829-init.js
+#
+# [sed '2,$d'] deletes from 2nd line onwards
+# [grep -o -P '(?<=migration at ).*(?=.js)')] extract text in between 'db/migrations/' and '.js'
+DB_SCHEMA_VERSION=$(echo "$CREATE_FILE_OUTPUT" | sed '2,3d' | grep -o -P '(?<=db/migrations/).*(?=.js)')
+# Write SQL to files
+echo "$UP_SQL" > "migrations/sqls/$DB_SCHEMA_VERSION-up.sql"
+echo "$DOWN_SQL" > "migrations/sqls/$DB_SCHEMA_VERSION-down.sql"

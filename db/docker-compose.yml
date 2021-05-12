@@ -11,10 +11,11 @@ services:
     # https://stackoverflow.com/questions/30074492/what-is-the-difference-between-utf8mb4-and-utf8-charsets-in-mysql
     command: mysqld --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=true
-      - MYSQL_DATABASE=$EAR_DB_NAME
-      - MYSQL_USER=$EAR_DB_USER
-      - MYSQL_PASSWORD=$EAR_DB_PASSWORD
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: $EAR_DB_NAME
+      MYSQL_USER: $EAR_DB_USER
+      MYSQL_PASSWORD: $EAR_DB_PASSWORD
+      MYSQL_TCP_PORT: $EAR_DB_PORT
     ports:
       - "$EAR_DB_PORT:$EAR_DB_PORT"
     volumes:
@@ -22,12 +23,32 @@ services:
     networks:
       - express_api_ref
 
+  test-db:
+    container_name: ear-test-db
+    image: mysql:5.7
+    # Default MySQL 5.7 character set and collation is latin1, but utf8 is recommended by MySQL themself.
+    # https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/docker-mysql-more-topics.html
+    # https://stackoverflow.com/questions/2708958/differences-between-utf8-and-latin1
+    # https://stackoverflow.com/questions/30074492/what-is-the-difference-between-utf8mb4-and-utf8-charsets-in-mysql
+    command: mysqld --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: $EAR_TEST_DB_NAME
+      MYSQL_USER: $EAR_TEST_DB_USER
+      MYSQL_PASSWORD: $EAR_TEST_DB_PASSWORD
+      MYSQL_TCP_PORT: $EAR_TEST_DB_PORT
+    ports:
+      - "$EAR_TEST_DB_PORT:$EAR_TEST_DB_PORT"
+    networks:
+      - express_api_ref
+
+  ## Lambda database migration handler, used for deployments
   db-migrate:
     container_name: ear-db-migrate
     build:
       context: .
     environment:
-      - EAR_DB_HOST=db
+      - EAR_DB_HOST=$EAR_DB_HOST
       - EAR_DB_PORT=$EAR_DB_PORT
       - EAR_DB_NAME=$EAR_DB_NAME
       - EAR_DB_USER=$EAR_DB_USER
@@ -35,6 +56,8 @@ services:
       - EAR_DB_VERSION=$EAR_DB_VERSION
     ports:
       - 8080:8080 #default lambda port
+    depends_on:
+      - db
     networks:
       - express_api_ref
 

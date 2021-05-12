@@ -3,7 +3,15 @@
 # This file setups the development environment, including running npm installs and 
 # database migrations. Script working directory is the root workspace.
 
-# root workspace (API source)
+
+# Set working directory to root directory
+cd "$(dirname $0)"
+cd ../..
+
+# Make binary scripts executable
+chmod -R +x bin
+
+# root directory
 rm -rf node_modules
 npm install
 
@@ -11,7 +19,6 @@ npm install
 cd db
 rm -rf node_modules
 npm install
-npm run migrate
 cd ..
 
 # AWS CDK for deployments

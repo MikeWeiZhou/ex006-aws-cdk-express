@@ -56,11 +56,11 @@ In VSCode, run **Remote-Containers: Open Folder in Container** from command pale
 
 - Run API in development mode (no compilation, hot-reloads)
     ```
-    npm run start
+    npm run dev
     ```
 - Run in production mode (Docker container - deployments to AWS use this)
     ```
-    npm run start:container
+    npm run production
     ```
 
 Database migrations must be manually run.

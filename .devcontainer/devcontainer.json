@@ -7,7 +7,7 @@
 	],
 	"workspaceFolder": "/workspace",
 	"service": "devcontainer",
-	"runServices": ["devcontainer", "db"],
+	"runServices": ["devcontainer", "db", "test-db"],
 
 	"settings": {
 		"terminal.integrated.defaultProfile.linux": "/bin/bash",

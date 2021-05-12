@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Runs tests against a target environment.
+
+# Target environment: 'dev' | 'test'
+TARGET_ENVIRONMENT=$1
+
+# Go to root directory
+cd "$(dirname $0)"
+cd ..
+
+# Override environment variables
+if [[ "$TARGET_ENVIRONMENT" == "test" ]]
+then
+  echo TEST ENVIRONMENT
+else
+  echo DEV ENVIRONMENT
+
+  EAR_TEST_API_PORT=EAR_API_PORT
+fi
+
+# Run tests
+jest --watch
