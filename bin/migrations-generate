@@ -13,15 +13,17 @@ MIGRATION_OUTPUT=$(ts-node --transpile-only ./node_modules/typeorm/cli.js migrat
 # Extract migrate up SQL
 # [1,/async up/d] delete from first line to line matching 'async up'
 # [/queryRunner.query/d] delete line matching 'queryRunner.query'
-# [/");/,$d] delete from line matching '");' to last line
-# [sed 's/^ *//g'] trims leading whitespace
-UP_SQL=$(echo "$MIGRATION_OUTPUT" | sed '1,/async up/d;   /queryRunner.query/d;   /");/,$d' | sed 's/^ *//g')
+# [s/");/;/;] search all '");' replace with ';'
+# [/}/,$d] delete from line matching '}' to last line
+# [s/^ *//g] trims leading whitespace
+UP_SQL=$(echo "$MIGRATION_OUTPUT" | sed '1,/async up/d;   /queryRunner.query/d;   s/");/;/;   /}/,$d;   s/^ *//g')
 # Extract migrate down SQL
-# [1,/async down/d] delete from first line to line matching 'async up'
+# [1,/async down/d] delete from first line to line matching 'async down'
 # [/queryRunner.query/d] delete line matching 'queryRunner.query'
-# [/");/,$d] delete from line matching '");' to last line
-# [sed 's/^ *//g'] trims leading whitespace
-DOWN_SQL=$(echo "$MIGRATION_OUTPUT" | sed '1,/async down/d;   /queryRunner.query/d;   /");/,$d;' | sed 's/^ *//g')
+# [s/");/;/;] search all '");' replace with ';'
+# [/}/,$d] delete from line matching '}' to last line
+# [s/^ *//g] trims leading whitespace
+DOWN_SQL=$(echo "$MIGRATION_OUTPUT" | sed '1,/async down/d;   /queryRunner.query/d;   s/");/;/;   /}/,$d;   s/^ *//g')
 
 # Change to db directory
 cd db
@@ -37,3 +39,5 @@ DB_SCHEMA_VERSION=$(echo "$CREATE_FILE_OUTPUT" | sed '2,3d' | grep -o -P '(?<=db
 # Write SQL to files
 echo "$UP_SQL" > "migrations/sqls/$DB_SCHEMA_VERSION-up.sql"
 echo "$DOWN_SQL" > "migrations/sqls/$DB_SCHEMA_VERSION-down.sql"
+
+echo "$CREATE_FILE_OUTPUT"
