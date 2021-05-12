@@ -36,34 +36,34 @@ An exercise in creating a small Express.js API with AWS Cloud Development Kit (C
     ```
 - [Install Docker Compose](https://docs.docker.com/compose/install) (tested version 1.29.1)
 - [Configure AWS credentials](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites)
-  - Ensure `.devcontainer/.env` `AWS_DEV_ACCOUNT_ID` is set, all development deployments will push to that account
-  - Restart VSCode after setting credentials (ensure devcontainer Docker processes have exited before starting VSCode again by waiting 30 seconds)
+  - Only credentials stored in `~/.aws` will work, environment variables will not be forwarded to devcontainer for security reasons
+  - Ensure `.devcontainer/.env` `AWS_DEV_ACCOUNT_ID` is also set, all development deployments will push to that account
 - Account admin needs to [grant the user some permissions](docs/aws-deployment-account-permissions.md)
 
 ### Setup Development Environment
+The entire local development environment will be sandboxed inside a development Docker container (devcontainer). One exception is running Docker commands inside the devcontainer, commands will be forwarded to the host's Docker daemon.
+
 1. Open folder in VSCode
 2. Run **Remote-Containers: Open Folder in Container...** from command palette (`F1`)
 
-VSCode will build a development container (sandboxed development environment) and a MySQL database service. After which will setup the environment by creating '.env' files and running npm install. The entire process may take some time depending on internet connection speed and workstation specifications. However, it should take no longer than 10 minutes on a development workstation.
+The automated process of building and installing the development environment should take no longer than 10 minutes on a modern workstation and high speed internet connection.
 
-VSCode will load the workspace once both containers are built and automatically launched. The terminal inside VSCode will now run inside the development container (which has AWS CLI2).
+Once the build completes, VSCode will automatically start and enter into the devcontainer. All terminals opened in VSCode is a shell inside the devcontainer.
 
-Simply closing the VSCode IDE will automatically shutdown the services. To use the development container again, simply re-open the folder in VSCode and run **Remote-Containers: Reopen Folder in Container** from command palette (`F1`)
+Simply closing the VSCode IDE will automatically shutdown the services (devcontainer and databases). To use the development container again, simply re-open the folder in VSCode and run **Remote-Containers: Reopen Folder in Container** from command palette (`F1`)
 
 
 ## Run API Server
 In VSCode, run **Remote-Containers: Open Folder in Container** from command palette (`F1) to enter development container and auto start the MySQL database service. Commands must be run inside VSCode terminals, which actually is inside the development container.
 
-- Run API in development mode (no compilation, hot-reloads)
+- Run API in development mode (auto db-migrations, no compilation, hot-reloads)
     ```
-    npm run dev
+    npm run dev:server
     ```
 - Run in production mode (Docker container - deployments to AWS use this)
     ```
-    npm run production
+    npm run dev:server:production
     ```
-
-Database migrations must be manually run.
 
 
 ## Testing
@@ -86,10 +86,10 @@ TODO.
 ### Deploy to region `us-west-2`
 In VSCode, run **Remote-Containers: Open Folder in Container** from command palette (`F1) to enter development container and auto start the MySQL database service. Commands must be run inside VSCode terminals, which actually is inside the development container.
 
-1. In root directory, run:
+1. Run:
     ```
-    npm run cdk bootstrap
-    npm run cdk deploy dev-api-usw2
+    cdk bootstrap
+    cdk deploy dev-api-usw2
     ```
     Database migrations are run as part of the deployment. Database schema version is defined in [cdk/main.ts](cdk/main.ts) per-environment.
 
@@ -100,7 +100,7 @@ In VSCode, run **Remote-Containers: Open Folder in Container** from command pale
 
 3. Test with the API then destroy it to save money:
     ```
-    npm run cdk destroy dev-api-usw2
+    cdk destroy dev-api-usw2
     ```
     If stacks fail to be deleted, manually delete them in [CloudFormation](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2).
 
@@ -121,26 +121,21 @@ new MainStack(app, 'dev-api-usw1', {
 ```
 
 ### Migration in Local
-For the local development environment, it must be done manually by defining the database schema target version in [.devcontainer/.env](.devcontainer/.env):
+For the local development environment, change the database schema target version in [.devcontainer/.env](.devcontainer/.env):
 ```
 EAR_DB_VERSION=20210503101932-init
 ```
 
-In root directory, run:
-```
-npm run migrate
-```
+To run database migrations, simply start the API server in a new terminal after updating the environment variable.
 
-Or migrate to target version different from environment variable:
-```
-npm run migrate 20210503101922-test
-```
 
 ### Create New Migration
-1. In `db` directory, run (name can be anything):
+Ensure the development database has the latest database migrations. To generate database migration scripts, TypeORM compares the development database with current database models (TypeScript files in src/modules/**/*.model.ts) and generates sql code. No file will be generated if there are no changes needed.
+
+1. In root directory, run (name can be anything):
     ```
-    npx db-migrate create [name] --sql-file
-    npx db-migrate create init --sql-file
+    npm run migrations:generate [name]
+    npm run migrations:generate init
     ```
     This will generate 3 files with filename consiting of [timestamp]-[name].
     ```
@@ -149,8 +144,7 @@ npm run migrate 20210503101922-test
     db/migrations/sqls/20210503101932-init-down.sql
     db/migrations/sqls/20210503101932-init-up.sql
     ```
-2. Add SQL code to the migration up and down script.
-3. Change the target database schma version for local development environment ([.devcontainer/.env](.devcontainer/.env)) and deployments ([cdk/main.ts](cdk/main.ts)).
+2. Change the target database schma version for local development environment ([.devcontainer/.env](.devcontainer/.env)) and deployments ([cdk/main.ts](cdk/main.ts)).
     ```
     The schema version is the the filename of the js file without extension:
     20210503101932-init.js
