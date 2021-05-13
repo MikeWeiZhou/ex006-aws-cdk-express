@@ -6,9 +6,11 @@
   "scripts": {
     "dev:mysql": "./bin/mysql-client dev",
     "dev:server": "./bin/server dev",
+    "dev:server:debug": "./bin/server-debug dev",
     "dev:server:container": "docker-compose up --build api",
     "test:mysql": "./bin/mysql-client test",
     "test:server": "./bin/server test",
+    "test:server:debug": "./bin/server-debug test",
     "test": "./bin/test test",
     "migrations:generate": "./bin/migrations-generate",
     "prepare": "husky install"

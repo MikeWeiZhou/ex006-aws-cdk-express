@@ -1,7 +1,10 @@
 node_modules
 .env
-.vscode
 .eslintcache
+
+# VSCode
+.vscode/*
+!.vscode/launch.json
 
 # API distribution
 /dist

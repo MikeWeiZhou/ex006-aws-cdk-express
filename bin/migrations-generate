@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Runs tests against a target environment.
+# Generate SQL migration files based on differences between development database and TypeORM data models.
 
 MIGRATION_NAME=$1
 
