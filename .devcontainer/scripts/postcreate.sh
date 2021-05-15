@@ -9,9 +9,7 @@ cd "$(dirname $0)"
 cd ../..
 
 # Make binary scripts executable
-cd .devcontainer
 chmod -R +x bin
-cd ..
 
 # root directory
 rm -rf node_modules

@@ -24,7 +24,7 @@ fi
 
 # Go to root directory
 cd "$(dirname $0)"
-cd ../..
+cd ..
 
 # Generate migration SQL using TypeORM
 MIGRATION_OUTPUT=$(ts-node --transpile-only ./node_modules/typeorm/cli.js migration:generate --name $MIGRATION_NAME --pretty --dryrun)

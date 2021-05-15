@@ -1,22 +1,20 @@
 #!/bin/bash
 #
-# Runs database migrations on target environment.
+# Starts API server in production mode.
 
 # Target environment: 'dev' | 'test'
 TARGET_ENVIRONMENT=$1
 
-# Target database schema version
-TARGET_DB_VERSION=$2
-
 # Go to root directory
 cd "$(dirname $0)"
-cd ../..
+cd ..
 
 # Override environment variables if testing
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
 then
   echo TEST ENVIRONMENT
 
+  EAR_API_PORT=$EAR_TEST_API_PORT
   EAR_DB_HOST=$EAR_TEST_DB_HOST
   EAR_DB_PORT=$EAR_TEST_DB_PORT
   EAR_DB_NAME=$EAR_TEST_DB_NAME
@@ -26,5 +24,5 @@ else
   echo DEV ENVIRONMENT
 fi
 
-# Run database migrations
-npm run --prefix db migrate $TARGET_DB_VERSION
+# Start API server in production mode inside Docker container
+docker-compose up --build api

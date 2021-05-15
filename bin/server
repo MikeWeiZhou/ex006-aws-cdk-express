@@ -7,7 +7,7 @@ TARGET_ENVIRONMENT=$1
 
 # Go to root directory
 cd "$(dirname $0)"
-cd ../..
+cd ..
 
 # Override environment variables if testing
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
@@ -25,4 +25,4 @@ else
 fi
 
 # Start API server in dev mode
-ts-node-dev src/main.ts
+ts-node-dev --prefer-ts-exts src/main.ts
