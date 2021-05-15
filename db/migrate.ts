@@ -1,4 +1,4 @@
-import { dbMigrate } from './lib/dbmigrate';
+import { dbMigrate } from './core/dbmigrate';
 
 /**
  * Run database migrations locally.

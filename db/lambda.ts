@@ -1,5 +1,5 @@
 import { CloudFormationCustomResourceHandler } from 'aws-lambda';
-import { dbMigrate } from './lib/dbmigrate';
+import { dbMigrate } from './core/dbmigrate';
 
 /**
  * This Lambda function is called during CDK deployments/destructions to run database migration
