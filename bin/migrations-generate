@@ -1,8 +1,26 @@
 #!/bin/bash
 #
-# Generate SQL migration files based on differences between development database and TypeORM data models.
+# Automatically generate database migration SQL based on differences in database and TypeORM entity models.
 
-MIGRATION_NAME=$1
+# Target environment: 'dev' | 'test'
+TARGET_ENVIRONMENT=$1
+
+# Give name to newly created migration point
+MIGRATION_NAME=$2
+
+# Override environment variables if testing
+if [[ "$TARGET_ENVIRONMENT" == "test" ]]
+then
+  echo TEST ENVIRONMENT
+
+  EAR_DB_HOST=$EAR_TEST_DB_HOST
+  EAR_DB_PORT=$EAR_TEST_DB_PORT
+  EAR_DB_NAME=$EAR_TEST_DB_NAME
+  EAR_DB_USER=$EAR_TEST_DB_USER
+  EAR_DB_PASSWORD=$EAR_TEST_DB_PASSWORD
+else
+  echo DEV ENVIRONMENT
+fi
 
 # Change to root directory
 cd "$(dirname $0)"

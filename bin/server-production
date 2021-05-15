@@ -1,12 +1,9 @@
 #!/bin/bash
 #
-# Starts API server.
+# Starts API server in production mode.
 
 # Target environment: 'dev' | 'test'
 TARGET_ENVIRONMENT=$1
-
-# Set working directory to current directory
-cd "$(dirname $0)"
 
 # Override environment variables if testing
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
@@ -23,5 +20,5 @@ else
   echo DEV ENVIRONMENT
 fi
 
-# Start API server in dev mode
-ts-node-dev ../src/main.ts
+# Start API server in production mode inside Docker container
+docker-compose up --build api
