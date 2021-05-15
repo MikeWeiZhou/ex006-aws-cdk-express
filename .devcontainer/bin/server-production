@@ -5,6 +5,10 @@
 # Target environment: 'dev' | 'test'
 TARGET_ENVIRONMENT=$1
 
+# Go to root directory
+cd "$(dirname $0)"
+cd ../..
+
 # Override environment variables if testing
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
 then

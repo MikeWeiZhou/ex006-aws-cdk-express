@@ -1,18 +1,18 @@
 #!/bin/bash
 #
-# Starts API server in debug mode.
+# Starts API server.
 
 # Target environment: 'dev' | 'test'
 TARGET_ENVIRONMENT=$1
 
-# Set working directory to root directory
+# Go to root directory
 cd "$(dirname $0)"
-cd ..
+cd ../..
 
 # Override environment variables if testing
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
 then
-  echo TEST DEBUG ENVIRONMENT
+  echo TEST ENVIRONMENT
 
   EAR_API_PORT=$EAR_TEST_API_PORT
   EAR_DB_HOST=$EAR_TEST_DB_HOST
@@ -21,8 +21,8 @@ then
   EAR_DB_USER=$EAR_TEST_DB_USER
   EAR_DB_PASSWORD=$EAR_TEST_DB_PASSWORD
 else
-  echo DEV DEBUG ENVIRONMENT
+  echo DEV ENVIRONMENT
 fi
 
-# Start API server in debug mode
-ts-node-dev --inspect --respawn src/main.ts
+# Start API server in dev mode
+ts-node-dev src/main.ts

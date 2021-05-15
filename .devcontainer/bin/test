@@ -7,7 +7,7 @@ TARGET_ENVIRONMENT=$1
 
 # Go to root directory
 cd "$(dirname $0)"
-cd ..
+cd ../..
 
 # Override environment variables
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
