@@ -13,10 +13,12 @@ export interface MainEnvironment extends cdk.Environment {
   /**
    * The target database schema version.
    *
+   * If empty or not set, will run all migrations scripts.
+   *
    * Database versions follows this format: "{TIMESTAMP}-{NAME}".
    * For example, it could be "20210503101932-init"
    */
-  readonly dbSchemaVersion: string;
+  readonly dbSchemaVersion?: string;
   /**
    * Name of the secret (AWS Secrets Manager) containing key-value pairs as environment variables.
    */

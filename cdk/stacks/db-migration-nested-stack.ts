@@ -19,8 +19,10 @@ export interface DbMigrationNestedStackProps extends cdk.NestedStackProps {
   dbNestedStack: DbNestedStack;
   /**
    * Target version of database schema. e.g. "20210503101932-init"
+   *
+   * If empty or not set, will run all migration scripts.
    */
-  dbSchemaVersion: string;
+  dbSchemaVersion?: string;
   /**
    * Name of the database to run migrations scripts on.
    */
@@ -75,17 +77,24 @@ export class DbMigrationNestedStack extends cdk.NestedStack {
     // Allow Lambda function to connect to database
     dbMigrationLambda.connections.allowToDefaultPort(props.dbNestedStack.db);
 
-    // Execute Lambda function by creating custom resource and provider
+    // Execute Lambda function by creating custom resource provider
     const dbMigrationProvider = new cr.Provider(this, 'DbMigrationProvider', {
       vpc: props.vpcNestedStack.vpc,
       onEventHandler: dbMigrationLambda,
     });
+
+    // Create the actual resource
+    let version = props.dbSchemaVersion;
+    if (!version) {
+      // Generate random string to signal CDK to run migrations
+      version = Math.random().toString();
+    }
     new cdk.CustomResource(this, 'DbMigrationCustomResource', {
       serviceToken: dbMigrationProvider.serviceToken,
       properties: {
         // This property has no use other than signal CDK that there are changes,
         // therefore allowing database migration scripts to run when 'version' changes.
-        version: props.dbSchemaVersion,
+        version,
       },
     });
   }

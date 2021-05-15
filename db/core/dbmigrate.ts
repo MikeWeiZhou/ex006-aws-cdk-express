@@ -6,18 +6,19 @@ const dbmigrate = require('db-migrate');
  * Can be upward or downward migration. If DB is already at the target version,
  * nothing will happen.
  *
- * @param [targetVersion] targetted DB version; defaults to process.env.EAR_DB_VERSION
+ * @param [targetVersion] Targetted DB version. If targetVersion and process.env.EAR_DB_VERSION is
+ *                        empty or not set, then all migration scripts will run.
  */
 export async function dbMigrate(targetVersion?: string): Promise<void> {
   if (typeof targetVersion === 'undefined' && typeof process.env.EAR_DB_VERSION === 'undefined') {
     throw new Error('No DB version specified.');
   }
 
-  const version = targetVersion ?? process.env.EAR_DB_VERSION;
   const dbm = dbmigrate.getInstance(true, { env: 'default' });
-  if (version === '') {
-    await dbm.up();
+  const version = targetVersion ?? process.env.EAR_DB_VERSION;
+  if (version) {
+    await dbm.sync(version);
   } else {
-    await dbm.sync(targetVersion ?? process.env.EAR_DB_VERSION);
+    await dbm.up();
   }
 }

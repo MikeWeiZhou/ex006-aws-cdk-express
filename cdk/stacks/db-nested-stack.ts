@@ -36,6 +36,20 @@ export class DbNestedStack extends cdk.NestedStack {
    */
   public readonly db: rds.ServerlessCluster;
 
+  /**
+   * Default MySQL 5.7 character set is latin1, but utf8 is recommended by MySQL themself.
+   *
+   * https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/docker-mysql-more-topics.html
+   * https://stackoverflow.com/questions/2708958/differences-between-utf8-and-latin1
+   * https://stackoverflow.com/questions/30074492/what-is-the-difference-between-utf8mb4-and-utf8-charsets-in-mysql
+   */
+  private readonly characterSet: string = 'utf8mb4';
+
+  /**
+   * Default MySQL 5.7 collation is latin1, but utf8 is recommended by MySQL themself.
+   */
+  private readonly collationServer: string = 'utf8mb4_unicode_ci';
+
   constructor(scope: cdk.Construct, id: string, props: DbNestedStackProps) {
     super(scope, id, props);
 
@@ -49,15 +63,8 @@ export class DbNestedStack extends cdk.NestedStack {
     const parameterGroup = new rds.ParameterGroup(this, 'DbParameterGroup', {
       engine,
       parameters: {
-        /* Default MySQL 5.7 character set and collation is latin1, but utf8 is recommended by
-         * MySQL themself.
-         *
-         * https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/docker-mysql-more-topics.html
-         * https://stackoverflow.com/questions/2708958/differences-between-utf8-and-latin1
-         * https://stackoverflow.com/questions/30074492/what-is-the-difference-between-utf8mb4-and-utf8-charsets-in-mysql
-         */
-        character_set_server: 'utf8mb4',
-        collation_server: 'utf8mb4_unicode_ci',
+        character_set_server: this.characterSet,
+        collation_server: this.collationServer,
       },
     });
 
