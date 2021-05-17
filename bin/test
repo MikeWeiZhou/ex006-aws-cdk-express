@@ -16,8 +16,8 @@ then
 else
   echo DEV ENVIRONMENT
 
-  EAR_TEST_API_PORT=EAR_API_PORT
+  EAR_TEST_API_PORT=$EAR_API_PORT
 fi
 
 # Run tests
-jest --watch --detectOpenHandles
+jest --watch
