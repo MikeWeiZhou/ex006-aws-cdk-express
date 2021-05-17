@@ -24,6 +24,12 @@
     "class-methods-use-this": "off",
     "no-unused-vars": "off",
     "no-shadow": "off",
-    "@typescript-eslint/no-shadow": "error"
+    "@typescript-eslint/no-shadow": "error",
+    "no-dupe-class-members": "off",
+    "@typescript-eslint/no-dupe-class-members": "error",
+    "lines-between-class-members": "off",
+    "@typescript-eslint/lines-between-class-members": "error",
+    "prefer-rest-params": "off",
+    "func-names": "off"
   }
 }

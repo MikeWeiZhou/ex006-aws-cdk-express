@@ -22,6 +22,10 @@ export interface ApiNestedStackProps extends cdk.NestedStackProps {
    */
   apiEnvironment: {
     /**
+     * Node environment.
+     */
+    NODE_ENV: string;
+    /**
      * Database hostname.
      */
     EAR_DB_HOST: string;

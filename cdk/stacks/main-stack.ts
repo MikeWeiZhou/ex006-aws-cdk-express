@@ -27,6 +27,12 @@ export interface MainEnvironment extends cdk.Environment {
    * Maximum number of Availability Zones (AZs) in the region.
    */
   readonly maxAzs: number;
+  /**
+   * Node environment.
+   *
+   * Used by libraries such as Express.js. Can only be 'dev' or 'production'.
+   */
+  readonly nodeEnv: 'dev' | 'production';
 }
 
 /**
@@ -90,6 +96,7 @@ export class MainStack extends cdk.Stack {
       vpcNestedStack,
       dbNestedStack,
       apiEnvironment: {
+        NODE_ENV: props.env.nodeEnv,
         EAR_DB_HOST: dbNestedStack.db.clusterEndpoint.hostname.toString(),
         EAR_DB_PORT: cdk.Token.asString(dbNestedStack.db.clusterEndpoint.port),
       },

@@ -2,11 +2,13 @@ import { Router } from 'express';
 import companyController from './company.controller';
 
 const router = Router();
+
 router.route('/companies')
-  .get(companyController.find)
+  .get(companyController.list)
   .post(companyController.create);
-router.route('/companies/:companyId')
-  .get(companyController.findOne)
+
+router.route('/companies/:id')
+  .get(companyController.get)
   .patch(companyController.update)
   .delete(companyController.delete);
 

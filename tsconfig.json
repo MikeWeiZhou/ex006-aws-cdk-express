@@ -3,17 +3,18 @@
     "target": "ES2018",
     "module": "commonjs",
     "lib": ["es2018"],
-    "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    // Required for TypeORM
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "cdk",
-    "db"
+    "db",
   ]
 }

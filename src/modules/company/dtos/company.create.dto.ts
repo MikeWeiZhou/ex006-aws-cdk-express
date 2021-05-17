@@ -1,17 +1,23 @@
-import { Exclude, Expose } from 'class-transformer';
-import { Dto } from '../../../common/dto';
+import { Expose } from 'class-transformer';
+import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IDto } from '../../../common/dtos/i.dto';
 
 /**
- * Company database model.
+ * Parameters required for creating a Company.
  */
-@Exclude()
-export class CompanyCreateDto implements Dto {
+export class CompanyCreateDto implements IDto {
   @Expose()
+  @IsNotEmpty()
+  @Length(3, 255)
   name!: string;
 
   @Expose()
+  @IsNotEmpty()
+  @Length(3, 255)
   address!: string;
 
   @Expose()
+  @IsNotEmpty()
+  @IsEmail()
   email!: string;
 }

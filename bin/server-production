@@ -12,7 +12,7 @@ cd ..
 # Override environment variables if testing
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
 then
-  echo TEST ENVIRONMENT
+  echo TEST ENVIRONMENT PRODUCTION MODE
 
   EAR_API_PORT=$EAR_TEST_API_PORT
   EAR_DB_HOST=$EAR_TEST_DB_HOST
@@ -21,7 +21,7 @@ then
   EAR_DB_USER=$EAR_TEST_DB_USER
   EAR_DB_PASSWORD=$EAR_TEST_DB_PASSWORD
 else
-  echo DEV ENVIRONMENT
+  echo DEV ENVIRONMENT PRODUCTION MODE
 fi
 
 # Start API server in production mode inside Docker container

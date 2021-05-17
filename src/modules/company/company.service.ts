@@ -1,39 +1,65 @@
-import { getRepository } from 'typeorm';
-import { CrudService, CrudServiceFindProps } from '../../common/crud.service';
+import { FindManyOptions, getRepository } from 'typeorm';
+import { ICrudService } from '../../common/services/i-crud.service';
+import { NotFoundError } from '../../core/errors/not-found.error';
 import { Company } from './company.model';
 import { CompanyCreateDto } from './dtos/company.create.dto';
+import { CompanyListDto } from './dtos/company.list.dto';
+import { CompanyUpdateDto } from './dtos/company.update.dto';
 
 /**
  * Service to make changes to Company resources.
  */
-export class CompanyService implements CrudService<Company> {
+export class CompanyService implements ICrudService<Company> {
+  /**
+   * Company repository.
+   */
+  get repository() {
+    return getRepository(Company);
+  }
+
   /**
    * Create a Company.
    * @param companyCreateDto
    * @returns newly created Company
    */
   async create(companyCreateDto: CompanyCreateDto): Promise<Company> {
-    const companyRepository = getRepository(Company);
-    const company = companyRepository.create(companyCreateDto);
-    return companyRepository.save(company);
+    const company = this.repository.create(companyCreateDto);
+    return this.repository.save(company);
   }
 
   /**
-   * Find a Company.
+   * Returns a Company.
+   * @param id UUID of Company
+   * @returns Company or undefined if not found
+   */
+  async get(id: string): Promise<Company | undefined> {
+    return this.repository.findOne(id);
+  }
+
+  /**
+   * Returns a Company or throw an error if not found.
    * @param id UUID of Company
    * @returns Company
    */
-  async findOne(id: string): Promise<Company | undefined> {
-    return getRepository(Company).findOne(id);
+  async getOrFail(id: string): Promise<Company> {
+    const result = await this.get(id);
+    if (typeof result === 'undefined') {
+      throw new NotFoundError(`Cannot retrieve Company. ID ${id} does not exist.`);
+    }
+    return result;
   }
 
   /**
    * Update a Company.
    * @param id UUID of Company
    * @param company contains desired changes of Company
+   * @throws {Error}
    */
-  async update(id: string, company: Company): Promise<void> {
-    await getRepository(Company).update(id, company);
+  async update(id: string, company: CompanyUpdateDto): Promise<void> {
+    const result = await this.repository.update(id, company);
+    if (result.affected === 0) {
+      throw new NotFoundError(`Cannot update Company. ID ${id} does not exist.`);
+    }
   }
 
   /**
@@ -41,16 +67,35 @@ export class CompanyService implements CrudService<Company> {
    * @param id UUID of Company to be deleted
    */
   async delete(id: string): Promise<void> {
-    await getRepository(Company).delete(id);
+    const result = await getRepository(Company).delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundError(`Cannot delete Company. ID ${id} does not exist.`);
+    }
   }
 
   /**
-   * Find many Companies.
-   * @param props properties for a find operation
+   * List all companies.
+   * @param listDto parameters and options
    * @returns list of Companies
    */
-  async find(props: CrudServiceFindProps): Promise<Company[]> {
-    return getRepository(Company).find();
+  async list(listDto: CompanyListDto): Promise<Company[]> {
+    const options: FindManyOptions<Company> = {};
+
+    // filters
+    options.where = {};
+    if (typeof listDto.name !== 'undefined') options.where.name = listDto.name;
+    if (typeof listDto.email !== 'undefined') options.where.email = listDto.email;
+    if (typeof listDto.address !== 'undefined') options.where.address = listDto.address;
+
+    // pagination
+    if (typeof listDto.options?.limit !== 'undefined') {
+      options.take = listDto.options?.limit;
+      if (typeof listDto.options?.page !== 'undefined') {
+        options.skip = (listDto.options?.page - 1) * listDto.options?.limit;
+      }
+    }
+
+    return getRepository(Company).find(options);
   }
 }
 

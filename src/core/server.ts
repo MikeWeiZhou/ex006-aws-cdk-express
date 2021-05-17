@@ -3,6 +3,7 @@ import http from 'http';
 import express from 'express';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 import mainRouter from '../common/main.router';
+import { ErrorHandler } from './error-handler';
 
 /**
  * Express API server.
@@ -54,6 +55,11 @@ export class Server {
 
     // setup routes
     this.app.use(mainRouter);
+
+    // error handlers
+    this.app.use(ErrorHandler.NotFoundHandler);
+    // must be last to register to become the global Express error handler
+    this.app.use(ErrorHandler.GeneralErrorHandler);
   }
 
   /**

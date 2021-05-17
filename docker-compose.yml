@@ -7,6 +7,7 @@ services:
     build:
       context: .
     environment:
+      NODE_ENV: production
       EAR_API_PORT: $EAR_API_PORT
       EAR_DB_HOST: $EAR_DB_HOST
       EAR_DB_PORT: $EAR_DB_PORT

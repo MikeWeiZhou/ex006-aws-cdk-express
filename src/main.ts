@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 import 'reflect-metadata';
-import { Server } from './lib/server';
+import { Server } from './core/server';
 
 const apiPort = Number.parseInt(process.env.EAR_API_PORT!, 10);
 
