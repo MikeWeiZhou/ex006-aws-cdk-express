@@ -14,22 +14,38 @@ import { ListOptionsDto } from '../../../common/dtos/list-options.dto';
 export class CompanyListDto implements IDto {
   @Expose()
   @IsOptional()
-  @Length(3, 255)
-  name?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(3, 255)
-  address?: string;
+  @Length(2, 50)
+  readonly name?: string;
 
   @Expose()
   @IsOptional()
   @IsEmail()
-  email?: string;
+  @Length(5, 100)
+  readonly email?: string;
+
+  @Expose()
+  @IsOptional()
+  @Length(5, 100)
+  readonly streetAddress?: string;
+
+  @Expose()
+  @IsOptional()
+  @Length(2, 100)
+  readonly city?: string;
+
+  @Expose()
+  @IsOptional()
+  @Length(2, 100)
+  readonly state?: string;
+
+  @Expose()
+  @IsOptional()
+  @Length(2, 100)
+  readonly country?: string;
 
   @Expose()
   @Type(() => ListOptionsDto)
   @IsOptional()
   @ValidateNested()
-  options?: ListOptionsDto;
+  readonly options?: ListOptionsDto;
 }

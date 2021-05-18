@@ -1,11 +1,15 @@
 import { Expose } from 'class-transformer';
-import { IsEmail, IsNotEmpty, Length } from 'class-validator';
-import { IDto } from '../../../common/dtos/i.dto';
+import {
+  IsEmail,
+  IsNotEmpty,
+  Length,
+} from 'class-validator';
+import { BaseModelDto } from '../../../common/dtos';
 
 /**
- * Parameters required for creating a Company.
+ * Company database model.
  */
-export class CompanyCreateDto implements IDto {
+export class CompanyModelDto extends BaseModelDto {
   @Expose()
   @IsNotEmpty()
   @Length(2, 50)

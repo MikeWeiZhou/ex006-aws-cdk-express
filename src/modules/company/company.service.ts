@@ -1,20 +1,24 @@
 import { FindManyOptions, getRepository } from 'typeorm';
-import { ICrudService } from '../../common/services/i-crud.service';
-import { NotFoundError } from '../../core/errors/not-found.error';
-import { Company } from './company.model';
-import { CompanyCreateDto } from './dtos/company.create.dto';
-import { CompanyListDto } from './dtos/company.list.dto';
-import { CompanyUpdateDto } from './dtos/company.update.dto';
+import { IdDto } from '../../common/dtos';
+import { ICrudService } from '../../common/i-crud.service';
+import { NotFoundError } from '../../core/errors';
+import { Company, CompanySchema } from './company.model';
+import { CompanyCreateDto, CompanyListDto, CompanyUpdateDto } from './dtos';
 
 /**
  * Service to make changes to Company resources.
  */
-export class CompanyService implements ICrudService<Company> {
+export class CompanyService extends ICrudService<Company> {
+  /**
+   * Resource ID prefix. (Must be 4 characters)
+   */
+  private readonly idPrefix = 'com_';
+
   /**
    * Company repository.
    */
   get repository() {
-    return getRepository(Company);
+    return getRepository(CompanySchema);
   }
 
   /**
@@ -23,40 +27,44 @@ export class CompanyService implements ICrudService<Company> {
    * @returns newly created Company
    */
   async create(companyCreateDto: CompanyCreateDto): Promise<Company> {
-    const company = this.repository.create(companyCreateDto);
+    const company = this.repository.create({
+      id: this.generateId(this.idPrefix),
+      ...companyCreateDto,
+    });
     return this.repository.save(company);
   }
 
   /**
    * Returns a Company.
-   * @param id UUID of Company
+   * @param idDto
    * @returns Company or undefined if not found
    */
-  async get(id: string): Promise<Company | undefined> {
-    return this.repository.findOne(id);
+  async get(idDto: IdDto): Promise<Company | undefined> {
+    return this.repository.findOne(idDto.id);
   }
 
   /**
    * Returns a Company or throw an error if not found.
-   * @param id UUID of Company
+   * @param idDto
+   * @throws {NotFoundError}
    * @returns Company
    */
-  async getOrFail(id: string): Promise<Company> {
-    const result = await this.get(id);
+  async getOrFail(idDto: IdDto): Promise<Company> {
+    const result = await this.get(idDto);
     if (typeof result === 'undefined') {
-      throw new NotFoundError(`Cannot retrieve Company. ID ${id} does not exist.`);
+      throw new NotFoundError(`Cannot retrieve Company. ID ${idDto.id} does not exist.`);
     }
     return result;
   }
 
   /**
    * Update a Company.
-   * @param id UUID of Company
-   * @param company contains desired changes of Company
-   * @throws {Error}
+   * @param companyUpdateDto DTO containing fields needing update
+   * @throws {NotFoundError}
    */
-  async update(id: string, company: CompanyUpdateDto): Promise<void> {
-    const result = await this.repository.update(id, company);
+  async update(companyUpdateDto: CompanyUpdateDto): Promise<void> {
+    const { id, ...updates } = companyUpdateDto;
+    const result = await this.repository.update(id, updates);
     if (result.affected === 0) {
       throw new NotFoundError(`Cannot update Company. ID ${id} does not exist.`);
     }
@@ -64,12 +72,13 @@ export class CompanyService implements ICrudService<Company> {
 
   /**
    * Delete a Company.
-   * @param id UUID of Company to be deleted
+   * @param idDto
+   * @throws {NotFoundError}
    */
-  async delete(id: string): Promise<void> {
-    const result = await getRepository(Company).delete(id);
+  async delete(idDto: IdDto): Promise<void> {
+    const result = await this.repository.delete(idDto.id);
     if (result.affected === 0) {
-      throw new NotFoundError(`Cannot delete Company. ID ${id} does not exist.`);
+      throw new NotFoundError(`Cannot delete Company. ID ${idDto.id} does not exist.`);
     }
   }
 
@@ -79,24 +88,31 @@ export class CompanyService implements ICrudService<Company> {
    * @returns list of Companies
    */
   async list(listDto: CompanyListDto): Promise<Company[]> {
-    const options: FindManyOptions<Company> = {};
+    const { options, ...filters } = listDto;
+    const findManyOptions: FindManyOptions<Company> = {};
 
     // filters
-    options.where = {};
-    if (typeof listDto.name !== 'undefined') options.where.name = listDto.name;
-    if (typeof listDto.email !== 'undefined') options.where.email = listDto.email;
-    if (typeof listDto.address !== 'undefined') options.where.address = listDto.address;
+    findManyOptions.where = {};
+    if (typeof filters.name !== 'undefined') findManyOptions.where.name = filters.name;
+    if (typeof filters.email !== 'undefined') findManyOptions.where.email = filters.email;
+    if (typeof filters.streetAddress !== 'undefined') findManyOptions.where.streetAddress = filters.streetAddress;
+    if (typeof filters.city !== 'undefined') findManyOptions.where.city = filters.city;
+    if (typeof filters.state !== 'undefined') findManyOptions.where.state = filters.state;
+    if (typeof filters.country !== 'undefined') findManyOptions.where.country = filters.country;
 
     // pagination
-    if (typeof listDto.options?.limit !== 'undefined') {
-      options.take = listDto.options?.limit;
-      if (typeof listDto.options?.page !== 'undefined') {
-        options.skip = (listDto.options?.page - 1) * listDto.options?.limit;
+    if (typeof options?.limit !== 'undefined') {
+      findManyOptions.take = options?.limit;
+      if (typeof options?.page !== 'undefined') {
+        findManyOptions.skip = (options?.page - 1) * options?.limit;
       }
     }
 
-    return getRepository(Company).find(options);
+    return this.repository.find(findManyOptions);
   }
 }
 
-export default new CompanyService();
+/**
+ * Instance of CompanyService.
+ */
+export const companyService = new CompanyService();

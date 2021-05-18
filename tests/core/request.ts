@@ -4,4 +4,4 @@ import config from '../config';
 /**
  * Request object from supertest.
  */
-export default supertest(config.baseUrl);
+export const request = supertest(config.baseUrl);

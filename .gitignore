@@ -9,9 +9,6 @@ node_modules
 # API distribution
 /dist
 
-# CDK
-/cdk/**/*.js
-/cdk/**/*.d.ts
 # CDK asset staging directory
 .cdk.staging
 cdk.out

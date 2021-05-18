@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import http from 'http';
 import express from 'express';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
-import mainRouter from '../common/main.router';
 import { ErrorHandler } from './error-handler';
+import { mainRouter } from '../modules/main.router';
 
 /**
  * Express API server.

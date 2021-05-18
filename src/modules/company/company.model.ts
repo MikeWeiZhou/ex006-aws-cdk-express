@@ -1,49 +1,55 @@
-import { Exclude, Expose } from 'class-transformer';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { IModel } from '../../common/i.model';
+import { EntitySchema } from 'typeorm';
+import { BaseSchemaColumns, IModel } from '../../common/i.model';
 
 /**
- * Company database model.
+ * Company model.
  */
-@Entity()
-export class Company implements IModel {
-  @Expose()
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
-
-  @Expose()
-  @Column('varchar', { length: 255 })
-  name!: string;
-
-  @Expose()
-  @Column('varchar', { length: 255 })
-  address!: string;
-
-  @Expose()
-  @Column('varchar', {
-    unique: true,
-    length: 255,
-  })
-  email!: string;
-
-  @Expose()
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @Expose()
-  @UpdateDateColumn()
-  updatedAt!: Date;
-
-  @Exclude()
-  @Column('varchar', {
-    length: 255,
-    default: 'no show',
-  })
-  secret?: string = 'no show';
+export interface Company extends IModel {
+  name: string;
+  email: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  country: string;
 }
+
+/**
+ * Company database schema.
+ */
+export const CompanySchema = new EntitySchema<Company>({
+  name: 'company',
+  columns: {
+    ...BaseSchemaColumns,
+    name: {
+      type: String,
+      length: 50,
+    },
+    email: {
+      type: String,
+      length: 100,
+    },
+    streetAddress: {
+      type: String,
+      length: 100,
+    },
+    city: {
+      type: String,
+      length: 100,
+    },
+    state: {
+      type: String,
+      length: 100,
+    },
+    country: {
+      type: String,
+      length: 100,
+    },
+  },
+  indices: [
+    {
+      name: 'idx_company_unique_email',
+      unique: true,
+      columns: ['email'],
+    },
+  ],
+});

@@ -1,11 +1,13 @@
-import { Request, Response } from 'express';
-import companyService from './company.service';
-import { Company } from './company.model';
-import { CompanyCreateDto } from './dtos/company.create.dto';
-import controllerDecorator from '../../core/controller-decorator';
-import { IdDto } from '../../common/dtos/id.dto';
-import { CompanyUpdateDto } from './dtos/company.update.dto';
-import { CompanyListDto } from './dtos/company.list.dto';
+import { IdDto } from '../../common/dtos';
+import { controllerDecorator } from '../../core/controller-decorator';
+import { dtoUtility } from '../../utilities';
+import { companyService } from './company.service';
+import {
+  CompanyCreateDto,
+  CompanyListDto,
+  CompanyModelDto,
+  CompanyUpdateDto,
+} from './dtos';
 
 /**
  * Processes incoming `Company` requests and returns a suitable response.
@@ -19,10 +21,11 @@ export class CompanyController {
    * @returns created Company
    */
   @controllerDecorator.Create({
-    dto: CompanyCreateDto,
+    requestDto: CompanyCreateDto,
   })
-  async create(companyCreateDto: CompanyCreateDto, req: Request, res: Response): Promise<Company> {
-    return companyService.create(companyCreateDto);
+  async create(companyCreateDto: CompanyCreateDto): Promise<CompanyModelDto> {
+    const company = await companyService.create(companyCreateDto);
+    return dtoUtility.sanitizeToDto(CompanyModelDto, company);
   }
 
   /**
@@ -34,10 +37,11 @@ export class CompanyController {
    */
   @controllerDecorator.Get({
     params: ['id'],
-    dto: IdDto,
+    requestDto: IdDto,
   })
-  async get(idDto: IdDto, req: Request, res: Response): Promise<Company | undefined> {
-    return companyService.get(idDto.id);
+  async get(idDto: IdDto): Promise<CompanyModelDto> {
+    const company = await companyService.getOrFail(idDto);
+    return dtoUtility.sanitizeToDto(CompanyModelDto, company);
   }
 
   /**
@@ -49,11 +53,12 @@ export class CompanyController {
    */
   @controllerDecorator.Update({
     params: ['id'],
-    dto: CompanyUpdateDto,
+    requestDto: CompanyUpdateDto,
   })
-  async update(companyUpdateDto: CompanyUpdateDto, req: Request, res: Response): Promise<Company> {
-    await companyService.update(companyUpdateDto.id, companyUpdateDto);
-    return companyService.getOrFail(companyUpdateDto.id);
+  async update(companyUpdateDto: CompanyUpdateDto): Promise<CompanyModelDto> {
+    await companyService.update(companyUpdateDto);
+    const company = await companyService.getOrFail(companyUpdateDto);
+    return dtoUtility.sanitizeToDto(CompanyModelDto, company);
   }
 
   /**
@@ -64,10 +69,10 @@ export class CompanyController {
    */
   @controllerDecorator.Delete({
     params: ['id'],
-    dto: IdDto,
+    requestDto: IdDto,
   })
-  async delete(idDto: IdDto, req: Request, res: Response): Promise<void> {
-    return companyService.delete(idDto.id);
+  async delete(idDto: IdDto): Promise<void> {
+    await companyService.delete(idDto);
   }
 
   /**
@@ -78,11 +83,15 @@ export class CompanyController {
    * @returns companies
    */
   @controllerDecorator.List({
-    dto: CompanyListDto,
+    requestDto: CompanyListDto,
   })
-  async list(companyListDto: CompanyListDto, req: Request, res: Response): Promise<Company[]> {
-    return companyService.list(companyListDto);
+  async list(companyListDto: CompanyListDto): Promise<CompanyModelDto[]> {
+    const companies = await companyService.list(companyListDto);
+    return dtoUtility.sanitizeToDto(CompanyModelDto, companies);
   }
 }
 
-export default new CompanyController();
+/**
+ * Instance of CompanyController.
+ */
+export const companyController = new CompanyController();

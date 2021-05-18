@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import companyController from './company.controller';
+import { companyController } from './company.controller';
 
 const router = Router();
 
@@ -12,4 +12,7 @@ router.route('/companies/:id')
   .patch(companyController.update)
   .delete(companyController.delete);
 
-export default router;
+/**
+ * Instance of Company router.
+ */
+export const companyRouter = router;

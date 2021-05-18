@@ -1,15 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
-import { DuplicateEntryError } from './errors/duplicate-entry.error';
-import { ErrorType, IError } from './errors/i.error';
-import { InternalError } from './errors/internal.error';
-import { InvalidRequestError } from './errors/invalid-request.error';
-import { NotFoundError } from './errors/not-found.error';
-import { BadRequestResponse } from './responses/bad-request.response';
-import { ConflictResponse } from './responses/conflict.response';
-import { IErrorParameters } from './responses/i-error.response';
-import { InternalErrorResponse } from './responses/internal-error.response';
-import { NotFoundResponse } from './responses/not-found.response';
+import {
+  DuplicateError,
+  ErrorType,
+  IError,
+  InternalError,
+  InvalidRequestError,
+  NotFoundError,
+} from './errors';
+import {
+  BadRequestResponse,
+  ConflictResponse,
+  IErrorParameters,
+  InternalErrorResponse,
+  NotFoundResponse,
+} from './responses';
 
 /**
  * Error handler maps an error to a response.
@@ -21,7 +26,7 @@ export class ErrorHandler {
    * Register this function as a middleware, after all other routers and middlewares:
    *    app.use(...);
    *    app.use(...);
-   *    app.use(ErrorHandler.handler);
+   *    app.use(ErrorHandler.GeneralErrorHandler);
    *
    * @param err error object
    * @param req Express request
@@ -38,37 +43,60 @@ export class ErrorHandler {
       return;
     }
 
+    if (ErrorHandler.handleExpressErrors(err, req, res, next)) {
+      return;
+    }
+
     if (ErrorHandler.handleDatabaseErrors(err, req, res, next)) {
       return;
     }
-    // Unknown error, not thrown by API Server.
-    // Could be from any libraries used: Express, TypeORM, ...
+
+    // unknown error, could be from any libraries used
     const response = new InternalErrorResponse(ErrorType.INTERNAL, err.message);
     res.status(response.status).json(response.prepare());
-
-    // unknown invalid request error
-    // if (err.status && err.status === 400) {
-    //   const response = new BadRequestResponse(ErrorType.INVALID_REQUEST, err.message);
-    //   res.status(response.status).json(response.prepare());
-    //   return;
-    // }
   }
 
   /**
    * Express resource not found handler middleware.
    *
    * Register this function as a middleware, after all other middlewares,
-   * but before ErrorHandler.errorHandler():
+   * but before ErrorHandler.GeneralErrorHandler():
    *    app.use(...);
-   *    app.use(ErrorHandler.GeneralErrorHandler);
    *    app.use(ErrorHandler.NotFoundHandler);
+   *    app.use(ErrorHandler.GeneralErrorHandler);
    */
   static NotFoundHandler(req: Request, res: Response, next: NextFunction) {
     next(new NotFoundError(`Resource is not found at: {${req.method}} ${req.originalUrl}`));
   }
 
   /**
-   * Handles database errors.
+   * Handles errors originated from Express.js.
+   * @param err error object
+   * @param req Express request
+   * @param res Express response
+   * @param next Express NextFunction
+   */
+  static handleExpressErrors(
+    err: Error,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): boolean {
+    if (err instanceof SyntaxError) {
+      const error = err as any;
+      // invalid json; cannot parse json
+      if (error.status === 400 && error.type === 'entity.parse.failed') {
+        const response = new BadRequestResponse(ErrorType.INVALID_REQUEST, error.message);
+        res.status(400).json(response.prepare());
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Handles errors originated from the database or ORM.
    * @param err error object
    * @param req Express request
    * @param res Express response
@@ -82,8 +110,9 @@ export class ErrorHandler {
   ): boolean {
     if (err instanceof QueryFailedError) {
       const error = err as any;
+      // duplicate entry in database from constraints
       if (error.code === 'ER_DUP_ENTRY') {
-        const response = new ConflictResponse(ErrorType.DUPLICATE_ENTRY, error.message);
+        const response = new ConflictResponse(ErrorType.DUPLICATE, error.message);
         res.status(response.status).json(response.prepare());
         return true;
       }
@@ -93,7 +122,7 @@ export class ErrorHandler {
   }
 
   /**
-   * Handles type `IErrors`.
+   * Handles errors we threw ourselves (e.g. in service or controller layer).
    * @param err error object
    * @param req Express request
    * @param res Express response
@@ -135,7 +164,7 @@ export class ErrorHandler {
       return true;
     }
 
-    if (err instanceof DuplicateEntryError) {
+    if (err instanceof DuplicateError) {
       const response = new ConflictResponse(err.type, err.message, err.params);
       res.status(response.status).json(response.prepare());
       return true;
@@ -147,5 +176,3 @@ export class ErrorHandler {
     return true;
   }
 }
-
-export default new ErrorHandler();

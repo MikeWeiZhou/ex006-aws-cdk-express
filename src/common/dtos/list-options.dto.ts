@@ -13,7 +13,7 @@ export class ListOptionsDto implements IDto {
   @IsOptional()
   @IsPositive()
   @IsInt()
-  limit: number = 10;
+  readonly limit: number = 10;
 
   /**
    * Page number.
@@ -24,5 +24,5 @@ export class ListOptionsDto implements IDto {
   @IsOptional()
   @IsPositive()
   @IsInt()
-  page?: number;
+  readonly page?: number;
 }

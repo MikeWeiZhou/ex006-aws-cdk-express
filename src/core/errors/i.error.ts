@@ -2,9 +2,9 @@
  * Different error types for a given request.
  */
 export enum ErrorType {
-  /** Attempted to create or update resource which will lead to a duplicate entry in database. */
-  DUPLICATE_ENTRY = 'DuplicateEntryError',
-  /** Some unexpected error in the API. */
+  /** Some database-level error. */
+  DUPLICATE = 'DuplicateError',
+  /** Some unexpected error in the server. */
   INTERNAL = 'InternalError',
   /** Invalid request errors arise when request has invalid parameters. */
   INVALID_REQUEST = 'InvalidRequestError',

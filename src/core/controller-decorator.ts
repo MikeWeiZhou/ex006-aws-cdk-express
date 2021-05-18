@@ -1,19 +1,19 @@
 import { NextFunction, Response, Request } from 'express';
 import { ClassConstructor } from 'class-transformer';
-import { CreatedResponse } from './responses/created.response';
-import { IDto } from '../common/dtos/i.dto';
-import dtoUtility from './dto-utility';
-import { InvalidRequestError } from './errors/invalid-request.error';
-import { IResponse } from './responses/i.response';
-import { InternalError } from './errors/internal.error';
-import { OkResponse } from './responses/ok.response';
-import { NotFoundError } from './errors/not-found.error';
-import { NoContentResponse } from './responses/no-content.response';
+import { IDto } from '../common/dtos';
+import {
+  CreatedResponse,
+  IResponse,
+  NoContentResponse,
+  OkResponse,
+} from './responses';
+import { dtoUtility } from '../utilities';
+import { InternalError, InvalidRequestError } from './errors';
 
 /**
  * Options for controller decorator behavior.
  */
-export interface ControllerDecoratorProperties {
+export interface ControllerDecoratorProperties<ReqDto extends IDto> {
   /**
    * These request parameters in URL will be merged into request body.
    * They will be accessible by DTO and req.body.
@@ -21,24 +21,20 @@ export interface ControllerDecoratorProperties {
   params?: string[];
 
   /**
-   * Class constructor of DTO to validate against request body.
+   * Class constructor of DTO used to validate against request body.
    */
-  dto?: ClassConstructor<IDto>;
+  requestDto: ClassConstructor<ReqDto>;
 }
 
 /**
  * Options for controller decorator factory.
  */
-export interface ControllerDecoratorFactoryProperties extends ControllerDecoratorProperties {
+export interface ControllerDecoratorFactoryProperties<ReqDto extends IDto>
+extends ControllerDecoratorProperties<ReqDto> {
   /**
    * API Response object.
    */
   apiResponse: () => IResponse;
-
-  /**
-   * Validates response DTO (returned by controller function).
-   */
-  validateResponseDto?: (responseDto: IDto, req: Request, res: Response) => Promise<void>;
 }
 
 /**
@@ -54,9 +50,11 @@ export class ControllerDecorator {
    * @param props options for decorator
    * @returns MethodDecorator
    */
-  Create(props: ControllerDecoratorProperties): MethodDecorator {
+  Create<ReqDto extends IDto>(
+    props: ControllerDecoratorProperties<ReqDto>,
+  ): MethodDecorator {
     return this.buildDecorator({
-      dto: props.dto,
+      requestDto: props.requestDto,
       params: props.params,
       apiResponse: () => new CreatedResponse(),
     });
@@ -66,21 +64,16 @@ export class ControllerDecorator {
    * GET request for a single resource.
    *
    * Expected method signature of decorated function:
-   *    (dto: IDto, req: Request, res: Response) => Promise<IDto | undefined>
+   *    (dto: IDto, req: Request, res: Response) => Promise<IDto>
    *
    * @param props options for decorator
    * @returns MethodDecorator
    */
-  Get(props: ControllerDecoratorProperties): MethodDecorator {
+  Get<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
-      dto: props.dto,
+      requestDto: props.requestDto,
       params: props.params,
       apiResponse: () => new OkResponse(),
-      validateResponseDto: async (responseDto: IDto, req: Request, res: Response) => {
-        if (typeof responseDto === 'undefined') {
-          throw new NotFoundError(`The resource ID ${req.params.id} does not exist.`);
-        }
-      },
     });
   }
 
@@ -93,9 +86,9 @@ export class ControllerDecorator {
    * @param props options for decorator
    * @returns MethodDecorator
    */
-  Update(props: ControllerDecoratorProperties): MethodDecorator {
+  Update<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
-      dto: props.dto,
+      requestDto: props.requestDto,
       params: props.params,
       apiResponse: () => new OkResponse(),
     });
@@ -110,16 +103,16 @@ export class ControllerDecorator {
    * @param props options for decorator
    * @returns MethodDecorator
    */
-  Delete(props: ControllerDecoratorProperties): MethodDecorator {
+  Delete<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
-      dto: props.dto,
+      requestDto: props.requestDto,
       params: props.params,
       apiResponse: () => new NoContentResponse(),
     });
   }
 
   /**
-   * GET request for multiple resource.
+   * GET request for multiple resources.
    *
    * Expected method signature of decorated function:
    *    (dto: IDto, req: Request, res: Response) => Promise<IDto[]>
@@ -127,20 +120,22 @@ export class ControllerDecorator {
    * @param props options for decorator
    * @returns MethodDecorator
    */
-  List(props: ControllerDecoratorProperties): MethodDecorator {
+  List<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
-      dto: props.dto,
+      requestDto: props.requestDto,
       params: props.params,
       apiResponse: () => new OkResponse(),
     });
   }
 
   /**
-   * Builds controller decorator.
+   * Build controller method decorators.
    * @param props options for decorator
-   * @returns method decorator
+   * @returns MethodDecorator
    */
-  private buildDecorator(props: ControllerDecoratorFactoryProperties) {
+  private buildDecorator<ReqDto extends IDto>(
+    props: ControllerDecoratorFactoryProperties<ReqDto>,
+  ): MethodDecorator {
     // save this reference
     const controllerDecorator = this;
 
@@ -159,27 +154,17 @@ export class ControllerDecorator {
           }
 
           // sanitize and validate request body against specified DTO
-          const dto = (props.dto)
-            ? await controllerDecorator.getDtoOrFail(props.dto, req.body)
+          const dto = (props.requestDto)
+            ? await controllerDecorator.getDtoOrFail(props.requestDto, req.body)
             : undefined;
 
           // call controller function with different arguments
           const args = [dto, req, res];
-          const responseDto = await controllerFunction.apply(this, args);
-
-          // validate response DTO
-          if (props.validateResponseDto) {
-            await props.validateResponseDto(responseDto, req, res);
-          }
-
-          // sanitize response DTO
-          const sanitizedDto = (responseDto)
-            ? dtoUtility.sanitizeFromDto(responseDto)
-            : undefined;
+          const responseDto: IDto = await controllerFunction.apply(this, args);
 
           // send response back to client
           const apiResponse = props.apiResponse();
-          const apiResponseData = apiResponse.prepare(sanitizedDto);
+          const apiResponseData = apiResponse.prepare(responseDto);
           res.status(apiResponse.status).json(apiResponseData);
         } catch (error) {
           next(error);
@@ -195,7 +180,10 @@ export class ControllerDecorator {
    * @param dtoLike DTO-like request parameters object (same shape)
    * @returns sanitized and validated DTO
    */
-  private async getDtoOrFail(dtoConstructor: ClassConstructor<IDto>, dtoLike: IDto): Promise<IDto> {
+  private async getDtoOrFail<Dto extends IDto>(
+    dtoConstructor: ClassConstructor<Dto>,
+    dtoLike: Dto,
+  ): Promise<Dto> {
     const dto = dtoUtility.sanitizeToDto(dtoConstructor, dtoLike);
     const validationErrors = await dtoUtility.validateDto(dto);
     if (validationErrors.length > 0) {
@@ -235,4 +223,7 @@ export class ControllerDecorator {
   }
 }
 
-export default new ControllerDecorator();
+/**
+ * Instance of ControllerDecorator.
+ */
+export const controllerDecorator = new ControllerDecorator();
