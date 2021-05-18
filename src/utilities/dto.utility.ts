@@ -106,7 +106,10 @@ export class DtoUtility {
    * @param dtoLike a DTO-like object with same shape
    * @returns DTO instance
    */
-  executeSanitizeToDto<Dto extends IDto>(dtoConstructor: ClassConstructor<Dto>, dtoLike: Dto): Dto {
+  private executeSanitizeToDto<Dto extends IDto>(
+    dtoConstructor: ClassConstructor<Dto>,
+    dtoLike: Dto,
+  ): Dto {
     const dto = plainToClass(
       dtoConstructor,
       dtoLike,

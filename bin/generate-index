@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Generates index.ts with list of exports.
+
+# Target directory
+TARGET_DIR=$1
+
+# Go to root directory
+cd "$(dirname $0)"
+cd ..
+cd $TARGET_DIR
+
+# testa=( cow likc )
+# suffix=.ts
+# dir | sed -e "s/$suffix$//" | cat
+
+# printf "export * from './%s" 
+
+
+printf "export * from './%s';\n" $(ls -1 | grep .ts | grep -v "index" | grep -Po '.*(?=\.)') > index.ts
