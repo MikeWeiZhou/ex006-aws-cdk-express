@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { IDto } from '../../common/dtos/i.dto';
 
 /**
@@ -55,5 +56,14 @@ export abstract class IResponse {
    */
   prepare(rawData?: any): IDto | void {
     return rawData;
+  }
+
+  /**
+   * Send response back to client.
+   * @param res Express Response
+   * @param rawData raw response data
+   */
+  send(res: Response, rawData?: any): void {
+    res.status(this.status).json(this.prepare(rawData));
   }
 }

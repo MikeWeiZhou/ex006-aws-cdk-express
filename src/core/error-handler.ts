@@ -1,20 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
-import {
-  DuplicateError,
-  ErrorType,
-  IError,
-  InternalError,
-  InvalidRequestError,
-  NotFoundError,
-} from './errors';
-import {
-  BadRequestResponse,
-  ConflictResponse,
-  IErrorParameters,
-  InternalErrorResponse,
-  NotFoundResponse,
-} from './responses';
+import { DuplicateError, ErrorType, IError, InternalError, InvalidRequestError, NotFoundError } from './errors';
+import { BadRequestResponse, ConflictResponse, IErrorParameters, InternalErrorResponse, NotFoundResponse } from './responses';
 
 /**
  * Error handler maps an error to a response.
@@ -53,7 +40,7 @@ export class ErrorHandler {
 
     // unknown error, could be from any libraries used
     const response = new InternalErrorResponse(ErrorType.INTERNAL, err.message);
-    res.status(response.status).json(response.prepare());
+    response.send(res);
   }
 
   /**
@@ -87,7 +74,7 @@ export class ErrorHandler {
       // invalid json; cannot parse json
       if (error.status === 400 && error.type === 'entity.parse.failed') {
         const response = new BadRequestResponse(ErrorType.INVALID_REQUEST, error.message);
-        res.status(400).json(response.prepare());
+        response.send(res);
         return true;
       }
     }
@@ -110,10 +97,19 @@ export class ErrorHandler {
   ): boolean {
     if (err instanceof QueryFailedError) {
       const error = err as any;
-      // duplicate entry in database from constraints
+      // duplicate entry in database from unique constraints
       if (error.code === 'ER_DUP_ENTRY') {
         const response = new ConflictResponse(ErrorType.DUPLICATE, error.message);
-        res.status(response.status).json(response.prepare());
+        response.send(res);
+        return true;
+      }
+      // non-existent row from foreign key constraints
+      if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+        const response = new BadRequestResponse(
+          ErrorType.INVALID_REQUEST,
+          'A resource ID in request does not exist.',
+        );
+        response.send(res);
         return true;
       }
     }
@@ -140,7 +136,7 @@ export class ErrorHandler {
 
     if (err instanceof InternalError) {
       const response = new InternalErrorResponse(err.type, err.message);
-      res.status(response.status).json(response.prepare());
+      response.send(res);
       return true;
     }
 
@@ -154,25 +150,25 @@ export class ErrorHandler {
         }
       });
       const response = new BadRequestResponse(err.type, err.message, params);
-      res.status(response.status).json(response.prepare());
+      response.send(res);
       return true;
     }
 
     if (err instanceof NotFoundError) {
       const response = new NotFoundResponse(err.type, err.message);
-      res.status(response.status).json(response.prepare());
+      response.send(res);
       return true;
     }
 
     if (err instanceof DuplicateError) {
       const response = new ConflictResponse(err.type, err.message, err.params);
-      res.status(response.status).json(response.prepare());
+      response.send(res);
       return true;
     }
 
     // has base error type of IError, but not handled
     const response = new InternalErrorResponse(ErrorType.INTERNAL, err.message);
-    res.status(response.status).json(response.prepare());
+    response.send(res);
     return true;
   }
 }

@@ -3,6 +3,7 @@
     "target": "ES2018",
     "module": "commonjs",
     "lib": ["es2018"],
+    "rootDirs": ["src", "tests"],
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
@@ -10,9 +11,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
-  "include": [
-    "src"
-  ],
   "exclude": [
     "cdk",
     "db",

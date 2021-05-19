@@ -1,16 +1,14 @@
 import { Expose } from 'class-transformer';
-import {
-  IsDate,
-  Length,
-} from 'class-validator';
+import { IsDate } from 'class-validator';
+import { IsResourceId } from '../validators';
 import { IDto } from './i.dto';
 
 /**
- * All models must have these fields.
+ * All model DTOs must have these fields.
  */
 export class BaseModelDto implements IDto {
   @Expose()
-  @Length(25, 25)
+  @IsResourceId()
   readonly id!: string;
 
   @Expose()

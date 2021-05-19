@@ -1,55 +1,53 @@
-import { EntitySchema } from 'typeorm';
-import { BaseSchemaColumns, IModel } from '../../common/i.model';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { BaseModel } from '../../common/models/base.model';
+// eslint-disable-next-line import/no-cycle
+import { Customer } from '../customer/customer.model';
 
 /**
  * Company model.
  */
-export interface Company extends IModel {
-  name: string;
-  email: string;
-  streetAddress: string;
-  city: string;
-  state: string;
-  country: string;
-}
+@Entity()
+@Index('idx_company_unique_email', ['email'], { unique: true })
+export class Company extends BaseModel {
+  /**
+   * Customers that belong to this Company.
+   */
+  @OneToMany('Customer', 'company')
+  customers!: Customer[];
 
-/**
- * Company database schema.
- */
-export const CompanySchema = new EntitySchema<Company>({
-  name: 'company',
-  columns: {
-    ...BaseSchemaColumns,
-    name: {
-      type: String,
-      length: 50,
-    },
-    email: {
-      type: String,
-      length: 100,
-    },
-    streetAddress: {
-      type: String,
-      length: 100,
-    },
-    city: {
-      type: String,
-      length: 100,
-    },
-    state: {
-      type: String,
-      length: 100,
-    },
-    country: {
-      type: String,
-      length: 100,
-    },
-  },
-  indices: [
-    {
-      name: 'idx_company_unique_email',
-      unique: true,
-      columns: ['email'],
-    },
-  ],
-});
+  /**
+   * Name of Company.
+   */
+  @Column({ length: 50 })
+  name!: string;
+
+  /**
+   * Email of Company.
+   */
+  @Column({ length: 100 })
+  email!: string;
+
+  /**
+   * Street address Company is registered in.
+   */
+  @Column({ length: 100 })
+  streetAddress!: string;
+
+  /**
+   * City Company is registered in.
+   */
+  @Column({ length: 100 })
+  city!: string;
+
+  /**
+   * State Company is registered in.
+   */
+  @Column({ length: 100 })
+  state!: string;
+
+  /**
+   * Country Company is registered in.
+   */
+  @Column({ length: 100 })
+  country!: string;
+}

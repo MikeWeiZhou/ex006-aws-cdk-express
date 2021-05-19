@@ -1,14 +1,9 @@
-import { NextFunction, Response, Request } from 'express';
 import { ClassConstructor } from 'class-transformer';
+import { NextFunction, Request, Response } from 'express';
 import { IDto } from '../common/dtos';
-import {
-  CreatedResponse,
-  IResponse,
-  NoContentResponse,
-  OkResponse,
-} from './responses';
 import { dtoUtility } from '../utilities';
 import { InternalError, InvalidRequestError } from './errors';
+import { CreatedResponse, IResponse, NoContentResponse, OkResponse } from './responses';
 
 /**
  * Options for controller decorator behavior.
@@ -18,7 +13,7 @@ export interface ControllerDecoratorProperties<ReqDto extends IDto> {
    * These request parameters in URL will be merged into request body.
    * They will be accessible by DTO and req.body.
    */
-  params?: string[];
+  mergeParams?: string[];
 
   /**
    * Class constructor of DTO used to validate against request body.
@@ -44,6 +39,8 @@ export class ControllerDecorator {
   /**
    * POST request.
    *
+   * Sanitizes and validates request data against given DTO.
+   *
    * Expected method signature of decorated function:
    *    (dto: IDto, req: Request, res: Response) => Promise<IDto>
    *
@@ -55,13 +52,15 @@ export class ControllerDecorator {
   ): MethodDecorator {
     return this.buildDecorator({
       requestDto: props.requestDto,
-      params: props.params,
+      mergeParams: props.mergeParams,
       apiResponse: () => new CreatedResponse(),
     });
   }
 
   /**
    * GET request for a single resource.
+   *
+   * Sanitizes and validates request data against given DTO.
    *
    * Expected method signature of decorated function:
    *    (dto: IDto, req: Request, res: Response) => Promise<IDto>
@@ -72,13 +71,15 @@ export class ControllerDecorator {
   Get<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
       requestDto: props.requestDto,
-      params: props.params,
+      mergeParams: props.mergeParams,
       apiResponse: () => new OkResponse(),
     });
   }
 
   /**
-   * PATCH request for a single resource.
+   * PATCH request.
+   *
+   * Sanitizes and validates request data against given DTO.
    *
    * Expected method signature of decorated function:
    *    (dto: IDto, req: Request, res: Response) => Promise<IDto>
@@ -89,13 +90,15 @@ export class ControllerDecorator {
   Update<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
       requestDto: props.requestDto,
-      params: props.params,
+      mergeParams: props.mergeParams,
       apiResponse: () => new OkResponse(),
     });
   }
 
   /**
-   * DELETE request for a single resource.
+   * DELETE request.
+   *
+   * Sanitizes and validates request data against given DTO.
    *
    * Expected method signature of decorated function:
    *    (dto: IDto, req: Request, res: Response) => Promise<void>
@@ -106,13 +109,15 @@ export class ControllerDecorator {
   Delete<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
       requestDto: props.requestDto,
-      params: props.params,
+      mergeParams: props.mergeParams,
       apiResponse: () => new NoContentResponse(),
     });
   }
 
   /**
    * GET request for multiple resources.
+   *
+   * Sanitizes and validates request data against given DTO.
    *
    * Expected method signature of decorated function:
    *    (dto: IDto, req: Request, res: Response) => Promise<IDto[]>
@@ -123,7 +128,7 @@ export class ControllerDecorator {
   List<ReqDto extends IDto>(props: ControllerDecoratorProperties<ReqDto>): MethodDecorator {
     return this.buildDecorator({
       requestDto: props.requestDto,
-      params: props.params,
+      mergeParams: props.mergeParams,
       apiResponse: () => new OkResponse(),
     });
   }
@@ -149,8 +154,8 @@ export class ControllerDecorator {
 
         try {
           // merge req.params into req.body
-          if (props.params) {
-            controllerDecorator.mergeUrlParamsOrFail(props.params, req, res);
+          if (props.mergeParams) {
+            controllerDecorator.mergeUrlParamsOrFail(props.mergeParams, req, res);
           }
 
           // sanitize and validate request body against specified DTO
@@ -160,12 +165,11 @@ export class ControllerDecorator {
 
           // call controller function with different arguments
           const args = [dto, req, res];
-          const responseDto: IDto = await controllerFunction.apply(this, args);
+          const responseDto: IDto | undefined = await controllerFunction.apply(this, args);
 
           // send response back to client
           const apiResponse = props.apiResponse();
-          const apiResponseData = apiResponse.prepare(responseDto);
-          res.status(apiResponse.status).json(apiResponseData);
+          apiResponse.send(res, responseDto);
         } catch (error) {
           next(error);
         }
@@ -226,4 +230,4 @@ export class ControllerDecorator {
 /**
  * Instance of ControllerDecorator.
  */
-export const controllerDecorator = new ControllerDecorator();
+export const Controller = new ControllerDecorator();

@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { IResponse, ResponseStatusCode } from './i.response';
 import { ErrorType } from '../errors/i.error';
 import { IDto } from '../../common/dtos/i.dto';
@@ -84,4 +85,13 @@ export abstract class IErrorResponse extends IResponse {
    * @returns response object
    */
   abstract prepare(): IErrorResponseData;
+
+  /**
+   * @override
+   * Send response back to client.
+   * @param res Express Response
+   */
+  send(res: Response): void {
+    res.status(this.status).json(this.prepare());
+  }
 }

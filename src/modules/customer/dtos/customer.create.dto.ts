@@ -1,14 +1,22 @@
 import { Expose } from 'class-transformer';
 import { IsEmail, Length } from 'class-validator';
-import { BaseModelDto } from '../../../common/dtos';
+import { IDto } from '../../../common/dtos/i.dto';
 
 /**
- * Company database model DTO.
+ * Parameters required for creating a Customer.
  */
-export class CompanyModelDto extends BaseModelDto {
+export class CustomerCreateDto implements IDto {
+  @Expose()
+  @Length(25, 25)
+  readonly companyId!: string;
+
   @Expose()
   @Length(2, 50)
-  readonly name!: string;
+  readonly firstName!: string;
+
+  @Expose()
+  @Length(2, 50)
+  readonly lastName!: string;
 
   @Expose()
   @IsEmail()

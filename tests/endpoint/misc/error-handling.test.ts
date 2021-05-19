@@ -1,16 +1,8 @@
 import { request } from '../../core/request';
-import * as fake from '../../core/fake';
-import { CompanyModelDto } from '../../../src/modules/company/dtos';
+import * as fake from '../../core/faker';
 
 // root url path
-const rootPath = '/companies';
-
-// data clean up
-const companiesToCleanup: CompanyModelDto[] = [];
-afterAll(async () => {
-  const deleteTasks = companiesToCleanup.map((company) => request.delete(`/companies/${company.id}`));
-  await Promise.all(deleteTasks);
-});
+const { rootPath } = fake.company;
 
 describe('error-handling', () => {
   it('400: can return correct status code on invalid json', async () => {

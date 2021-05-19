@@ -31,6 +31,9 @@
     "@typescript-eslint/lines-between-class-members": "error",
     "prefer-rest-params": "off",
     "func-names": "off",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "object-curly-newline": ["error", {
+      "ImportDeclaration": "never"
+    }]
   }
 }

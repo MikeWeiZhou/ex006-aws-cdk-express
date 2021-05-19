@@ -1,13 +1,8 @@
 import { IdDto } from '../../common/dtos';
-import { controllerDecorator } from '../../core/controller-decorator';
+import { Controller } from '../../core/controller';
 import { dtoUtility } from '../../utilities';
 import { companyService } from './company.service';
-import {
-  CompanyCreateDto,
-  CompanyListDto,
-  CompanyModelDto,
-  CompanyUpdateDto,
-} from './dtos';
+import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from './dtos';
 
 /**
  * Processes incoming `Company` requests and returns a suitable response.
@@ -20,11 +15,12 @@ export class CompanyController {
    * @param res Express Response
    * @returns created Company
    */
-  @controllerDecorator.Create({
+  @Controller.Create({
     requestDto: CompanyCreateDto,
   })
   async create(companyCreateDto: CompanyCreateDto): Promise<CompanyModelDto> {
-    const company = await companyService.create(companyCreateDto);
+    const id = await companyService.create(companyCreateDto);
+    const company = await companyService.getOrFail({ id });
     return dtoUtility.sanitizeToDto(CompanyModelDto, company);
   }
 
@@ -35,8 +31,8 @@ export class CompanyController {
    * @param res Express Response
    * @returns Company
    */
-  @controllerDecorator.Get({
-    params: ['id'],
+  @Controller.Get({
+    mergeParams: ['id'],
     requestDto: IdDto,
   })
   async get(idDto: IdDto): Promise<CompanyModelDto> {
@@ -51,8 +47,8 @@ export class CompanyController {
    * @param res Express Response
    * @returns updated Company
    */
-  @controllerDecorator.Update({
-    params: ['id'],
+  @Controller.Update({
+    mergeParams: ['id'],
     requestDto: CompanyUpdateDto,
   })
   async update(companyUpdateDto: CompanyUpdateDto): Promise<CompanyModelDto> {
@@ -67,8 +63,8 @@ export class CompanyController {
    * @param req Express Request
    * @param res Express Response
    */
-  @controllerDecorator.Delete({
-    params: ['id'],
+  @Controller.Delete({
+    mergeParams: ['id'],
     requestDto: IdDto,
   })
   async delete(idDto: IdDto): Promise<void> {
@@ -82,7 +78,7 @@ export class CompanyController {
    * @param res Express Response
    * @returns companies
    */
-  @controllerDecorator.List({
+  @Controller.List({
     requestDto: CompanyListDto,
   })
   async list(companyListDto: CompanyListDto): Promise<CompanyModelDto[]> {

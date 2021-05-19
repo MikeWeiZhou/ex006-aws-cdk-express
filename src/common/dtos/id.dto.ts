@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { Length } from 'class-validator';
+import { IsResourceId } from '../validators';
 import { IDto } from './i.dto';
 
 /**
@@ -10,6 +10,6 @@ export class IdDto implements IDto {
    * Resource ID.
    */
   @Expose()
-  @Length(25, 25)
+  @IsResourceId()
   readonly id!: string;
 }

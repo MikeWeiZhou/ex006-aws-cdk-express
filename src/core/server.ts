@@ -1,9 +1,8 @@
-import 'reflect-metadata';
+import express, { Router } from 'express';
 import http from 'http';
-import express from 'express';
+import 'reflect-metadata';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 import { ErrorHandler } from './error-handler';
-import { mainRouter } from '../modules/main.router';
 
 /**
  * Express API server.
@@ -22,7 +21,7 @@ export class Server {
   /**
    * Database connection options.
    */
-  private readonly connectionOptions?: ConnectionOptions;
+  private readonly connectionOptions: ConnectionOptions;
 
   /**
    * Is server started?
@@ -42,9 +41,10 @@ export class Server {
   /**
    * Create a new API server.
    * @param apiPort port used to listen for requests
-   * @param [connectionOptions] database connections options, defaults to options in ORM config file
+   * @param router router used for server
+   * @param connectionOptions database connections options
    */
-  constructor(apiPort: number, connectionOptions?: ConnectionOptions) {
+  constructor(apiPort: number, router: Router, connectionOptions: ConnectionOptions) {
     this.app = express();
     this.apiPort = apiPort;
     this.connectionOptions = connectionOptions;
@@ -54,7 +54,7 @@ export class Server {
     this.app.use(express.json());
 
     // setup routes
-    this.app.use(mainRouter);
+    this.app.use(router);
 
     // error handlers
     this.app.use(ErrorHandler.NotFoundHandler);
@@ -73,11 +73,7 @@ export class Server {
 
     // create database connection pool
     // connection is stored in TypeORM Connection Manager
-    if (this.connectionOptions) {
-      this.connection = await createConnection(this.connectionOptions);
-    } else {
-      this.connection = await createConnection();
-    }
+    this.connection = await createConnection(this.connectionOptions);
 
     // listen for requests on specified port
     this.server = this.app.listen(this.apiPort, () => {

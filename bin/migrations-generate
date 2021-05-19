@@ -27,7 +27,7 @@ cd "$(dirname $0)"
 cd ..
 
 # Generate migration SQL using TypeORM
-MIGRATION_OUTPUT=$(ts-node --transpile-only ./node_modules/typeorm/cli.js migration:generate --name $MIGRATION_NAME --pretty --dryrun)
+MIGRATION_OUTPUT=$(ts-node --transpile-only ./node_modules/typeorm/cli.js migration:generate --config src/config/typeorm.config --name $MIGRATION_NAME --pretty --dryrun)
 # Extract migrate up SQL
 # [1,/async up/d] delete from first line to line matching 'async up'
 # [/queryRunner.query/d] delete line matching 'queryRunner.query'

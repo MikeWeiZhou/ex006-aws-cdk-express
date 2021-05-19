@@ -2,99 +2,100 @@ import { FindManyOptions, getRepository } from 'typeorm';
 import { IdDto } from '../../common/dtos';
 import { ICrudService } from '../../common/services/i-crud.service';
 import { NotFoundError } from '../../core/errors';
-import { Company } from './company.model';
-import { CompanyCreateDto, CompanyListDto, CompanyUpdateDto } from './dtos';
+import { Customer } from './customer.model';
+import { CustomerCreateDto, CustomerUpdateDto } from './dtos';
+import { CustomerListDto } from './dtos/customer.list.dto';
 
 /**
- * Service to make changes to Company resources.
+ * Service to make changes to Customer resources.
  */
-export class CompanyService extends ICrudService<Company> {
+export class CustomerService extends ICrudService<Customer> {
   /**
    * Constructor.
    */
   constructor() {
-    super('com_');
+    super('cus_');
   }
 
   /**
    * Company repository.
    */
   get repository() {
-    return getRepository(Company);
+    return getRepository(Customer);
   }
 
   /**
-   * Create a Company.
-   * @param companyCreateDto
+   * Create a Customer.
+   * @param customerCreateDto
    * @returns resource ID
    */
-  async create(companyCreateDto: CompanyCreateDto): Promise<string> {
+  async create(customerCreateDto: CustomerCreateDto): Promise<string> {
     const result = await this.repository.insert({
       id: this.generateId(),
-      ...companyCreateDto,
+      ...customerCreateDto,
     });
     return result.identifiers[0].id;
   }
 
   /**
-   * Returns a Company.
+   * Returns a Customer.
    * @param idDto
-   * @returns Company or undefined if not found
+   * @returns Customer or undefined if not found
    */
-  async get(idDto: IdDto): Promise<Company | undefined> {
+  async get(idDto: IdDto): Promise<Customer | undefined> {
     return this.repository.findOne(idDto.id);
   }
 
   /**
-   * Returns a Company or throw an error if not found.
+   * Returns a Customer or throw an error if not found.
    * @param idDto
    * @throws {NotFoundError}
-   * @returns Company
+   * @returns Customer
    */
-  async getOrFail(idDto: IdDto): Promise<Company> {
+  async getOrFail(idDto: IdDto): Promise<Customer> {
     const result = await this.get(idDto);
     if (typeof result === 'undefined') {
-      throw new NotFoundError(`Cannot retrieve Company. ID ${idDto.id} does not exist.`);
+      throw new NotFoundError(`Cannot retrieve Customer. ID ${idDto.id} does not exist.`);
     }
     return result;
   }
 
   /**
-   * Update a Company.
-   * @param companyUpdateDto DTO containing fields needing update
+   * Update a Customer.
+   * @param customerUpdateDto DTO containing fields needing update
    * @throws {NotFoundError}
    */
-  async update(companyUpdateDto: CompanyUpdateDto): Promise<void> {
-    const { id, ...updates } = companyUpdateDto;
+  async update(customerUpdateDto: CustomerUpdateDto): Promise<void> {
+    const { id, ...updates } = customerUpdateDto;
     const result = await this.repository.update(id, updates);
     if (result.affected === 0) {
-      throw new NotFoundError(`Cannot update Company. ID ${id} does not exist.`);
+      throw new NotFoundError(`Cannot update Customer. ID ${id} does not exist.`);
     }
   }
 
   /**
-   * Delete a Company.
+   * Delete a Customer.
    * @param idDto
    * @throws {NotFoundError}
    */
   async delete(idDto: IdDto): Promise<void> {
     const result = await this.repository.delete(idDto.id);
     if (result.affected === 0) {
-      throw new NotFoundError(`Cannot delete Company. ID ${idDto.id} does not exist.`);
+      throw new NotFoundError(`Cannot delete Customer. ID ${idDto.id} does not exist.`);
     }
   }
 
   /**
-   * List all companies.
+   * List all customers.
    * @param [listDto] parameters and options
-   * @returns list of Companies
+   * @returns list of customers
    */
-  async list(listDto?: CompanyListDto): Promise<Company[]> {
+  async list(listDto?: Partial<CustomerListDto>): Promise<Customer[]> {
     if (!listDto) {
       return this.repository.find();
     }
 
-    const findManyOptions: FindManyOptions<Company> = {};
+    const findManyOptions: FindManyOptions<Customer> = {};
     const { options, ...filters } = listDto;
 
     // filters
@@ -115,4 +116,4 @@ export class CompanyService extends ICrudService<Company> {
 /**
  * Instance of CompanyService.
  */
-export const companyService = new CompanyService();
+export const customerService = new CustomerService();

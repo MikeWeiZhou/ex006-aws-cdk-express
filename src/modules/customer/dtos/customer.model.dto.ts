@@ -3,12 +3,20 @@ import { IsEmail, Length } from 'class-validator';
 import { BaseModelDto } from '../../../common/dtos';
 
 /**
- * Company database model DTO.
+ * Customer database model DTO.
  */
-export class CompanyModelDto extends BaseModelDto {
+export class CustomerModelDto extends BaseModelDto {
+  @Expose()
+  @Length(25, 25)
+  readonly companyId!: string;
+
   @Expose()
   @Length(2, 50)
-  readonly name!: string;
+  readonly firstName!: string;
+
+  @Expose()
+  @Length(2, 50)
+  readonly lastName!: string;
 
   @Expose()
   @IsEmail()
