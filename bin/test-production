@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Runs tests against a target environment.
+# Runs tests against a target environment running in a Docker container.
 
 # Target environment: 'dev' | 'test'
 TARGET_ENVIRONMENT=$1
@@ -13,11 +13,14 @@ cd "$(dirname $0)"
 cd ..
 
 # Override environment variables
+# service name in docker-compose file
+EAR_TEST_API_HOST=ear-api
+
 if [[ "$TARGET_ENVIRONMENT" == "test" ]]
 then
-  echo TEST ENVIRONMENT
+  echo TEST ENVIRONMENT PRODUCTION MODE
 else
-  echo DEV ENVIRONMENT
+  echo DEV ENVIRONMENT PRODUCTION MODE
 
   EAR_TEST_API_PORT=$EAR_API_PORT
 fi

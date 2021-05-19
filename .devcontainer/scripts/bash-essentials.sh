@@ -2,16 +2,11 @@
 #
 # 
 # Append bash aliases to ~/.bashrc
-printf '\n\n' >> /home/node/.bashrc
-printf 'dev(){\n' >> /home/node/.bashrc
-printf '  npm run --prefix /workspace dev:$1 $2 $3 $4 $5 $6 $7 $8 $9\n' >> /home/node/.bashrc
-printf '}\n' >> /home/node/.bashrc
-
+# global CDK command alias to local CDK package
 printf '\n' >> /home/node/.bashrc
-printf 'test(){\n' >> /home/node/.bashrc
-printf '  npm run --prefix /workspace test:$1 $2 $3 $4 $5 $6 $7 $8 $9\n' >> /home/node/.bashrc
-printf '}\n' >> /home/node/.bashrc
+printf 'alias ear="npm run --prefix /workspace"\n' >> /home/node/.bashrc
 
+# global CDK command alias to local CDK package
 printf '\n' >> /home/node/.bashrc
 printf 'alias cdk="npm run --prefix /workspace/cdk cdk --"\n' >> /home/node/.bashrc
 
