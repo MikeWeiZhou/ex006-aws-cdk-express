@@ -22,7 +22,6 @@
     "test:migrations:run": "./bin/migrations-run test",
     "test:migrations:reset": "./bin/migrations-run test 0 && ./bin/migrations-run test",
     "test:migrations:generate": "./bin/migrations-generate test",
-    "util": "npm run | grep util:",
     "util:generate-index-export": "./bin/generate-index",
     "help": "npm-scripts-info",
     "prepare": "husky install"

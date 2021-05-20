@@ -30,7 +30,7 @@ export class CustomerService extends ICrudService<Customer> {
       const { address, ...customerInfo } = createDto;
       const addressId = await addressService.create(address, manager);
       const result = await manager.insert(Customer, {
-        id: this.generateId(),
+        id: await this.generateId(),
         addressId,
         ...customerInfo,
       });

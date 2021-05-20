@@ -27,7 +27,7 @@ export class AddressService extends ICrudService<Address> {
   async create(createDto: AddressCreateDto, entityManager?: EntityManager): Promise<string> {
     const manager = entityManager ?? getManager();
     const result = await manager.insert(Address, {
-      id: this.generateId(),
+      id: await this.generateId(),
       ...createDto,
     });
     return result.identifiers[0].id;

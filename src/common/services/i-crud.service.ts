@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid';
+import { nanoid } from 'nanoid/async';
 import { EntityManager } from 'typeorm';
 import constants from '../../config/constants';
 import { InternalError } from '../../core/errors';
@@ -26,8 +26,9 @@ export abstract class ICrudService<Model extends IBaseModel> {
    * Generate a secure random resource ID with prefix.
    * @returns resource ID
    */
-  protected generateId(): string {
-    return `${this.idPrefix}${nanoid(constants.RESOURCE_ID_GENERATED_LENGTH)}`;
+  protected async generateId(): Promise<string> {
+    const generated = await nanoid(constants.RESOURCE_ID_GENERATED_LENGTH);
+    return `${this.idPrefix}${generated}`;
   }
 
   /**
