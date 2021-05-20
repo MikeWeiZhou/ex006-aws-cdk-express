@@ -1,19 +1,26 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { BaseModel } from '../../common/models/base.model';
-// eslint-disable-next-line import/no-cycle
-import { Customer } from '../customer/customer.model';
+import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
+import { IBaseModel } from '../../common/models/i-base.model';
+import constants from '../../config/constants';
+import { Address } from '../address/address.model';
 
 /**
  * Company model.
  */
 @Entity()
 @Index('idx_company_unique_email', ['email'], { unique: true })
-export class Company extends BaseModel {
+export class Company extends IBaseModel {
   /**
-   * Customers that belong to this Company.
+   * Company Customer belongs to.
    */
-  @OneToMany('Customer', 'company')
-  customers!: Customer[];
+  @OneToOne(() => Address, { cascade: ['insert', 'update', 'remove'] })
+  @JoinColumn({ name: 'addressId' })
+  address!: Address;
+
+  /**
+   * Company Customer belongs to.
+   */
+  @Column({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
+  addressId!: string;
 
   /**
    * Name of Company.
@@ -26,28 +33,4 @@ export class Company extends BaseModel {
    */
   @Column({ length: 100 })
   email!: string;
-
-  /**
-   * Street address Company is registered in.
-   */
-  @Column({ length: 100 })
-  streetAddress!: string;
-
-  /**
-   * City Company is registered in.
-   */
-  @Column({ length: 100 })
-  city!: string;
-
-  /**
-   * State Company is registered in.
-   */
-  @Column({ length: 100 })
-  state!: string;
-
-  /**
-   * Country Company is registered in.
-   */
-  @Column({ length: 100 })
-  country!: string;
 }

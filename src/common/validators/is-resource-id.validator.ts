@@ -1,5 +1,5 @@
 import { registerDecorator, ValidationArguments } from 'class-validator';
-import constantsConfig from '../../config/constants.config';
+import constants from '../../config/constants';
 
 /**
  * Checks if value is a resource ID.
@@ -14,7 +14,7 @@ export function IsResourceId() {
       // options: validationOptions,
       validator: {
         validate(value: any, args: ValidationArguments) {
-          return typeof value === 'string' && value.length === constantsConfig.RESOURCE_ID_TOTAL_LENGTH;
+          return typeof value === 'string' && value.length === constants.RESOURCE_ID_TOTAL_LENGTH;
         },
       },
     });

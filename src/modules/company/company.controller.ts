@@ -1,6 +1,5 @@
 import { IdDto } from '../../common/dtos';
 import { Controller } from '../../core/controller';
-import { dtoUtility } from '../../utilities';
 import { companyService } from './company.service';
 import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from './dtos';
 
@@ -17,11 +16,11 @@ export class CompanyController {
    */
   @Controller.Create({
     requestDto: CompanyCreateDto,
+    responseDto: CompanyModelDto,
   })
   async create(companyCreateDto: CompanyCreateDto): Promise<CompanyModelDto> {
     const id = await companyService.create(companyCreateDto);
-    const company = await companyService.getOrFail({ id });
-    return dtoUtility.sanitizeToDto(CompanyModelDto, company);
+    return companyService.getOrFail({ id });
   }
 
   /**
@@ -34,10 +33,10 @@ export class CompanyController {
   @Controller.Get({
     mergeParams: ['id'],
     requestDto: IdDto,
+    responseDto: CompanyModelDto,
   })
   async get(idDto: IdDto): Promise<CompanyModelDto> {
-    const company = await companyService.getOrFail(idDto);
-    return dtoUtility.sanitizeToDto(CompanyModelDto, company);
+    return companyService.getOrFail(idDto);
   }
 
   /**
@@ -50,11 +49,11 @@ export class CompanyController {
   @Controller.Update({
     mergeParams: ['id'],
     requestDto: CompanyUpdateDto,
+    responseDto: CompanyModelDto,
   })
   async update(companyUpdateDto: CompanyUpdateDto): Promise<CompanyModelDto> {
     await companyService.update(companyUpdateDto);
-    const company = await companyService.getOrFail(companyUpdateDto);
-    return dtoUtility.sanitizeToDto(CompanyModelDto, company);
+    return companyService.getOrFail(companyUpdateDto);
   }
 
   /**
@@ -80,10 +79,10 @@ export class CompanyController {
    */
   @Controller.List({
     requestDto: CompanyListDto,
+    responseDto: CompanyModelDto,
   })
   async list(companyListDto: CompanyListDto): Promise<CompanyModelDto[]> {
-    const companies = await companyService.list(companyListDto);
-    return dtoUtility.sanitizeToDto(CompanyModelDto, companies);
+    return companyService.list(companyListDto);
   }
 }
 

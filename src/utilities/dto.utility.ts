@@ -118,13 +118,27 @@ export class DtoUtility {
         strategy: 'excludeAll',
       },
     );
-    // strip out undefined properties manually
-    Object.entries(dto).forEach(([key, value]) => {
-      if (typeof value === 'undefined') {
-        delete (dto as any)[key];
+    this.deepDeleteUndefinedKeys(dto);
+    return dto;
+  }
+
+  /**
+   * Deep deletes undefined properties from the object.
+   * @param obj object to have undefined properties removed
+   */
+  private deepDeleteUndefinedKeys(obj: any): void {
+    Object.entries(obj).forEach(([key, value]) => {
+      if (typeof value === 'object' && value !== null) {
+        this.deepDeleteUndefinedKeys(value);
+        // delete empty object
+        if (Object.keys(value).length === 0) {
+          delete obj[key]; // eslint-disable-line no-param-reassign
+        }
+      } else if (typeof value === 'undefined') {
+        // delete undefined
+        delete obj[key]; // eslint-disable-line no-param-reassign
       }
     });
-    return dto;
   }
 }
 

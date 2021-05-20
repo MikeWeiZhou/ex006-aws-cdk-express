@@ -1,8 +1,9 @@
 import faker from 'faker';
-import { request } from '../request';
 import { CustomerCreateDto, CustomerModelDto } from '../../../src/modules/customer/dtos';
-import { IFaker } from './i.faker';
+import { request } from '../request';
+import { address } from './address.faker';
 import { company } from './company.faker';
+import { IFaker } from './i.faker';
 
 export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
   /**
@@ -22,20 +23,13 @@ export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
     const firstName = dto?.firstName ?? `${faker.name.firstName()}`;
     const lastName = dto?.lastName ?? `${faker.name.lastName()}`;
     const email = dto?.email ?? `${faker.internet.email(firstName, lastName)}`;
-    const streetAddress = dto?.streetAddress
-      ?? `${faker.address.streetAddress()} ${faker.address.streetName()} ${faker.address.streetSuffix()}`;
-    const city = dto?.city ?? `${faker.address.cityName()}`;
-    const state = dto?.state ?? `${faker.address.state()}`;
-    const country = dto?.country ?? `${faker.address.country()}`;
+    const addr = await address.dto(dto?.address);
     return {
       companyId,
       firstName,
       lastName,
       email,
-      streetAddress,
-      city,
-      state,
-      country,
+      address: addr,
     };
   }
 

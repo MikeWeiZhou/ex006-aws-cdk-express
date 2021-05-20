@@ -1,11 +1,18 @@
-import { Expose } from 'class-transformer';
-import { IsEmail, IsOptional, Length } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import { IsEmail, IsOptional, Length, ValidateNested } from 'class-validator';
 import { IdDto } from '../../../common/dtos';
+import { AddressUpdateDto } from '../../address/dtos';
 
 /**
  * Parameters required for updating a Customer.
  */
 export class CustomerUpdateDto extends IdDto {
+  @Expose()
+  @Type(() => AddressUpdateDto)
+  @IsOptional()
+  @ValidateNested()
+  readonly address?: AddressUpdateDto;
+
   @Expose()
   @IsOptional()
   @Length(2, 50)
@@ -21,24 +28,4 @@ export class CustomerUpdateDto extends IdDto {
   @IsEmail()
   @Length(5, 100)
   readonly email?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(5, 100)
-  readonly streetAddress?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(2, 100)
-  readonly city?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(2, 100)
-  readonly state?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(2, 100)
-  readonly country?: string;
 }

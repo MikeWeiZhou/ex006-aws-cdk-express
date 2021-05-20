@@ -6,7 +6,7 @@ import { IDto } from './i.dto';
 /**
  * All model DTOs must have these fields.
  */
-export class BaseModelDto implements IDto {
+export class IBaseModelDto implements IDto {
   @Expose()
   @IsResourceId()
   readonly id!: string;

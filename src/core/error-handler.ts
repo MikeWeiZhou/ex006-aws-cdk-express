@@ -63,7 +63,7 @@ export class ErrorHandler {
    * @param res Express response
    * @param next Express NextFunction
    */
-  static handleExpressErrors(
+  private static handleExpressErrors(
     err: Error,
     req: Request,
     res: Response,
@@ -89,7 +89,7 @@ export class ErrorHandler {
    * @param res Express response
    * @param next Express NextFunction
    */
-  static handleDatabaseErrors(
+  private static handleDatabaseErrors(
     err: Error,
     req: Request,
     res: Response,

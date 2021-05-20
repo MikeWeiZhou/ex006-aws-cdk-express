@@ -35,16 +35,20 @@ describe('/customers', () => {
       expect(post.body).toMatchObject({
         firstName: dto.firstName,
         lastName: dto.lastName,
-        streetAddress: dto.streetAddress,
         email: dto.email,
+        address: {
+          address: dto.address.address,
+        },
       });
 
       const get = await request.get(`${rootPath}/${post.body.id}`);
       expect(get.body).toMatchObject({
         firstName: dto.firstName,
         lastName: dto.lastName,
-        streetAddress: dto.streetAddress,
         email: dto.email,
+        address: {
+          address: dto.address.address,
+        },
       });
 
       fake.customer.addToGarbageBin(post.body);
@@ -82,8 +86,8 @@ describe('/customers', () => {
       await validate(dto, ['email']);
 
       dto = await fake.customer.dto();
-      delete (dto as any).streetAddress;
-      await validate(dto, ['streetAddress']);
+      delete (dto as any).address.address;
+      await validate(dto, []);
     });
 
     it('409: cannot create Customer with identical email', async () => {
@@ -113,6 +117,7 @@ describe('/customers', () => {
    */
   describe('get /customers', () => {
     const firstNameWith7 = `Rose ${fake.faker.random.alphaNumeric(10)}`;
+    let customers: CustomerModelDto[];
 
     beforeAll(async () => {
       const create = [];
@@ -123,10 +128,10 @@ describe('/customers', () => {
       create.push(...[1, 2, 3, 4, 5, 6, 7, 8].map(() => fake.customer.create({
         companyId: company.id,
       })));
-      await Promise.all(create);
+      customers = await Promise.all(create);
     });
 
-    it('200: can list companies with no filters', async () => {
+    it('200: can list customers with no filters', async () => {
       const get = await request.get(rootPath).send({ companyId: company.id });
       expect(get.statusCode).toBe(200);
       expect(get.statusCode).toEqual(get.status);
@@ -147,7 +152,7 @@ describe('/customers', () => {
       expect(get.body.length).toBe(0);
     });
 
-    it('200: can list companies with various filters: firstName, country, limit, page', async () => {
+    it('200: can list customers with various filters: firstName, country, limit, page', async () => {
       const get = await request
         .get(rootPath)
         .send({
@@ -165,6 +170,21 @@ describe('/customers', () => {
       get.body.forEach((customer: CustomerModelDto) => {
         expect(customer.firstName).toBe(firstNameWith7);
       });
+    });
+
+    it('200: can list customers with nested filters (address)', async () => {
+      const get = await request
+        .get(rootPath)
+        .send({
+          companyId: company.id,
+          address: {
+            address: customers[0].address.address,
+          },
+        } as CustomerListDto);
+
+      expect(get.statusCode).toBe(200);
+      expect(get.statusCode).toEqual(get.status);
+      expect(get.body.length).toBe(1);
     });
 
     it('400: cannot list companies without providing companyId', async () => {
@@ -193,7 +213,9 @@ describe('/customers/:id', () => {
         id: customer.id,
         companyId: company.id,
         firstName: customer.firstName,
-        country: customer.country,
+        address: {
+          country: customer.address.country,
+        },
       });
     });
 
@@ -216,12 +238,14 @@ describe('/customers/:id', () => {
       const original: CustomerModelDto = await fake.customer.create({ companyId: company.id });
       const another: CustomerCreateDto = await fake.customer.dto({ companyId: company.id });
 
-      // update all info
       const update: CustomerUpdateDto = {
         id: original.id,
         firstName: 'Bob',
-        streetAddress: '666 Unreachable Way',
         email: another.email,
+        address: {
+          id: original.address.id,
+          address: '666 Unreachable Way',
+        },
       };
 
       const patch = await request
@@ -232,25 +256,11 @@ describe('/customers/:id', () => {
       expect(patch.statusCode).toEqual(patch.status);
       expect(patch.body).toMatchObject({
         firstName: update.firstName,
-        streetAddress: update.streetAddress,
         email: update.email,
-      });
-
-      // update partial info
-      const update2: Partial<CustomerUpdateDto> = {
-        streetAddress: '999 Lucky Ave',
-      };
-
-      const patch2 = await request
-        .patch(`${rootPath}/${original.id}`)
-        .send(update2);
-
-      expect(patch2.statusCode).toBe(200);
-      expect(patch2.statusCode).toEqual(patch2.status);
-      expect(patch2.body).toMatchObject({
-        firstName: update.firstName,
-        streetAddress: update2.streetAddress,
-        email: update.email,
+        address: {
+          id: original.address.id,
+          address: update.address?.address,
+        },
       });
     });
 
@@ -284,7 +294,9 @@ describe('/customers/:id', () => {
 
       const get = await request.get(`${rootPath}/${original.id}`);
       expect(get.body).toMatchObject({
-        streetAddress: original.streetAddress,
+        address: {
+          address: original.address.address,
+        },
       });
     });
   });

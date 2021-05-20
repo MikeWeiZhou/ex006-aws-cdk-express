@@ -2,6 +2,7 @@ import { Expose, Type } from 'class-transformer';
 import { IsEmail, IsOptional, Length, ValidateNested } from 'class-validator';
 import { IDto } from '../../../common/dtos/i.dto';
 import { ListOptionsDto } from '../../../common/dtos/list-options.dto';
+import { AddressListDto } from '../../address/dtos';
 
 /**
  * Parameters for listing companies.
@@ -19,24 +20,10 @@ export class CompanyListDto implements IDto {
   readonly email?: string;
 
   @Expose()
+  @Type(() => AddressListDto)
   @IsOptional()
-  @Length(5, 100)
-  readonly streetAddress?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(2, 100)
-  readonly city?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(2, 100)
-  readonly state?: string;
-
-  @Expose()
-  @IsOptional()
-  @Length(2, 100)
-  readonly country?: string;
+  @ValidateNested()
+  readonly address?: AddressListDto;
 
   @Expose()
   @Type(() => ListOptionsDto)

@@ -1,7 +1,8 @@
-import { FindManyOptions, getRepository } from 'typeorm';
+import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
 import { IdDto } from '../../common/dtos';
-import { ICrudService } from '../../common/services/i-crud.service';
+import { ICrudService } from '../../common/services';
 import { NotFoundError } from '../../core/errors';
+import { addressService } from '../address/address.service';
 import { Customer } from './customer.model';
 import { CustomerCreateDto, CustomerUpdateDto } from './dtos';
 import { CustomerListDto } from './dtos/customer.list.dto';
@@ -18,42 +19,50 @@ export class CustomerService extends ICrudService<Customer> {
   }
 
   /**
-   * Company repository.
-   */
-  get repository() {
-    return getRepository(Customer);
-  }
-
-  /**
    * Create a Customer.
-   * @param customerCreateDto
-   * @returns resource ID
+   * @param createDto contains fields to insert to database
+   * @param [entityManager] used for transactions
+   * @returns resource id
    */
-  async create(customerCreateDto: CustomerCreateDto): Promise<string> {
-    const result = await this.repository.insert({
-      id: this.generateId(),
-      ...customerCreateDto,
+  async create(createDto: CustomerCreateDto, entityManager?: EntityManager): Promise<string> {
+    return getManager().transaction(async (localEntityManager) => {
+      const manager = entityManager ?? localEntityManager;
+      const { address, ...customerInfo } = createDto;
+      const addressId = await addressService.create(address, manager);
+      const result = await manager.insert(Customer, {
+        id: this.generateId(),
+        addressId,
+        ...customerInfo,
+      });
+      return result.identifiers[0].id;
     });
-    return result.identifiers[0].id;
   }
 
   /**
    * Returns a Customer.
-   * @param idDto
+   * @param idDto contains resource id
+   * @param [entityManager] used for transactions
    * @returns Customer or undefined if not found
    */
-  async get(idDto: IdDto): Promise<Customer | undefined> {
-    return this.repository.findOne(idDto.id);
+  async get(idDto: IdDto, entityManager?: EntityManager): Promise<Customer | undefined> {
+    const manager = entityManager ?? getManager();
+    return manager.findOne(
+      Customer,
+      { id: idDto.id },
+      { relations: ['address'] },
+    );
   }
 
   /**
    * Returns a Customer or throw an error if not found.
-   * @param idDto
+   * @param idDto contains resource ID
+   * @param [entityManager] used for transactions
    * @throws {NotFoundError}
    * @returns Customer
    */
-  async getOrFail(idDto: IdDto): Promise<Customer> {
-    const result = await this.get(idDto);
+  async getOrFail(idDto: IdDto, entityManager?: EntityManager): Promise<Customer> {
+    const manager = entityManager ?? getManager();
+    const result = await this.get(idDto, manager);
     if (typeof result === 'undefined') {
       throw new NotFoundError(`Cannot retrieve Customer. ID ${idDto.id} does not exist.`);
     }
@@ -62,54 +71,83 @@ export class CustomerService extends ICrudService<Customer> {
 
   /**
    * Update a Customer.
-   * @param customerUpdateDto DTO containing fields needing update
+   * @param updateDto DTO containing fields needing update
+   * @param [entityManager] used for transactions
    * @throws {NotFoundError}
    */
-  async update(customerUpdateDto: CustomerUpdateDto): Promise<void> {
-    const { id, ...updates } = customerUpdateDto;
-    const result = await this.repository.update(id, updates);
-    if (result.affected === 0) {
-      throw new NotFoundError(`Cannot update Customer. ID ${id} does not exist.`);
-    }
+  async update(updateDto: CustomerUpdateDto, entityManager?: EntityManager): Promise<void> {
+    return getManager().transaction(async (localEntityManager) => {
+      const manager = entityManager ?? localEntityManager;
+      const { id, address, ...updates } = updateDto;
+      const result = await manager.update(Customer, { id }, updates);
+      if (result.affected === 0) {
+        throw new NotFoundError(`Cannot update Customer. ID ${id} does not exist.`);
+      }
+      if (address) {
+        await addressService.update(address, manager);
+      }
+    });
   }
 
   /**
    * Delete a Customer.
-   * @param idDto
+   * @param idDto contains resource id
+   * @param [entityManager] used for transactions
    * @throws {NotFoundError}
    */
-  async delete(idDto: IdDto): Promise<void> {
-    const result = await this.repository.delete(idDto.id);
-    if (result.affected === 0) {
-      throw new NotFoundError(`Cannot delete Customer. ID ${idDto.id} does not exist.`);
-    }
+  async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
+    return getManager().transaction(async (localEntityManager) => {
+      const manager = entityManager ?? localEntityManager;
+      const customer = await this.getOrFail(idDto, manager);
+      const result = await manager.delete(Customer, { id: idDto.id });
+      if (result.affected === 0) {
+        throw new NotFoundError(`Cannot delete Customer. ID ${idDto.id} does not exist.`);
+      }
+      await addressService.delete({ id: customer.addressId }, manager);
+    });
   }
 
   /**
    * List all customers.
-   * @param [listDto] parameters and options
+   * @param [listDto] contains filters and list options
+   * @param [entityManager] used for transactions
    * @returns list of customers
    */
-  async list(listDto?: Partial<CustomerListDto>): Promise<Customer[]> {
-    if (!listDto) {
-      return this.repository.find();
-    }
+  async list(
+    listDto?: CustomerListDto,
+    entityManager?: EntityManager,
+  ): Promise<Customer[]> {
+    const manager = entityManager ?? getManager();
+    const findManyOptions: FindManyOptions<Customer> = {
+      relations: ['address'],
+    };
 
-    const findManyOptions: FindManyOptions<Customer> = {};
-    const { options, ...filters } = listDto;
+    if (listDto) {
+      const { options, address, ...filters } = listDto;
 
-    // filters
-    findManyOptions.where = filters;
+      // filters, required work-around for nested filtering of address
+      // https://github.com/typeorm/typeorm/issues/2707
+      findManyOptions.where = (qb: SelectQueryBuilder<Customer>) => {
+        Object.entries(filters).forEach(([key, value]) => {
+          qb.where(`Customer.${key} = :${key}`, { [key]: [value] });
+        });
+        if (address) {
+          Object.entries(address).forEach(([key, value]) => {
+            qb.where(`Customer__address.${key} = :${key}`, { [key]: [value] });
+          });
+        }
+      };
 
-    // pagination
-    if (typeof options?.limit !== 'undefined') {
-      findManyOptions.take = options?.limit;
-      if (typeof options?.page !== 'undefined') {
-        findManyOptions.skip = (options?.page - 1) * options?.limit;
+      // pagination
+      if (typeof options?.limit !== 'undefined') {
+        findManyOptions.take = options?.limit;
+        if (typeof options?.page !== 'undefined') {
+          findManyOptions.skip = (options?.page - 1) * options?.limit;
+        }
       }
     }
 
-    return this.repository.find(findManyOptions);
+    return manager.find(Customer, findManyOptions);
   }
 }
 

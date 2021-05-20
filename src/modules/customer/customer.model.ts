@@ -1,6 +1,7 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseModel } from '../../common/models/base.model';
-// eslint-disable-next-line import/no-cycle
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { IBaseModel } from '../../common/models/i-base.model';
+import constants from '../../config/constants';
+import { Address } from '../address/address.model';
 import { Company } from '../company/company.model';
 
 /**
@@ -8,16 +9,32 @@ import { Company } from '../company/company.model';
  */
 @Entity()
 @Index('idx_customer_unique_email', ['email', 'company'], { unique: true })
-export class Customer extends BaseModel {
+export class Customer extends IBaseModel {
   /**
    * Company Customer belongs to.
    */
-  @ManyToOne('Company', 'customers')
+  @ManyToOne(() => Company)
   @JoinColumn({ name: 'companyId' })
   company!: Company;
 
-  @Column({ length: 25 })
+  /**
+   * Company Customer belongs to.
+   */
+  @Column({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
   companyId!: string;
+
+  /**
+   * Company Customer belongs to.
+   */
+  @OneToOne(() => Address, { cascade: ['insert', 'update', 'remove'] })
+  @JoinColumn({ name: 'addressId' })
+  address!: Address;
+
+  /**
+   * Company Customer belongs to.
+   */
+  @Column({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
+  addressId!: string;
 
   /**
    * First name of Customer.
@@ -36,28 +53,4 @@ export class Customer extends BaseModel {
    */
   @Column({ length: 100 })
   email!: string;
-
-  /**
-   * Street address Customer lives in.
-   */
-  @Column({ length: 100 })
-  streetAddress!: string;
-
-  /**
-   * City Customer lives in.
-   */
-  @Column({ length: 100 })
-  city!: string;
-
-  /**
-   * State Customer lives in.
-   */
-  @Column({ length: 100 })
-  state!: string;
-
-  /**
-   * Country Customer lives in.
-   */
-  @Column({ length: 100 })
-  country!: string;
 }

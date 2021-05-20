@@ -1,10 +1,10 @@
 import { request } from '../request';
-import { BaseModelDto, IDto } from '../../../src/common/dtos';
+import { IBaseModelDto, IDto } from '../../../src/common/dtos';
 
 /**
  * Base resource faker.
  */
-export abstract class IFaker<CreateDto extends IDto, ModelDto extends BaseModelDto> {
+export abstract class IFaker<CreateDto extends IDto, ModelDto extends IBaseModelDto> {
   /**
    * Resources to be deleted.
    */

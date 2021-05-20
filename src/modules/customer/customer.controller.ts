@@ -1,6 +1,5 @@
 import { IdDto } from '../../common/dtos';
 import { Controller } from '../../core/controller';
-import { dtoUtility } from '../../utilities';
 import { customerService } from './customer.service';
 import { CustomerCreateDto, CustomerUpdateDto } from './dtos';
 import { CustomerListDto } from './dtos/customer.list.dto';
@@ -19,11 +18,11 @@ export class CustomerController {
    */
   @Controller.Create({
     requestDto: CustomerCreateDto,
+    responseDto: CustomerModelDto,
   })
   async create(customerCreateDto: CustomerCreateDto): Promise<CustomerModelDto> {
     const id = await customerService.create(customerCreateDto);
-    const customer = await customerService.getOrFail({ id });
-    return dtoUtility.sanitizeToDto(CustomerModelDto, customer);
+    return customerService.getOrFail({ id });
   }
 
   /**
@@ -36,10 +35,10 @@ export class CustomerController {
   @Controller.Get({
     mergeParams: ['id'],
     requestDto: IdDto,
+    responseDto: CustomerModelDto,
   })
   async get(idDto: IdDto): Promise<CustomerModelDto> {
-    const customer = await customerService.getOrFail(idDto);
-    return dtoUtility.sanitizeToDto(CustomerModelDto, customer);
+    return customerService.getOrFail(idDto);
   }
 
   /**
@@ -52,11 +51,11 @@ export class CustomerController {
   @Controller.Update({
     mergeParams: ['id'],
     requestDto: CustomerUpdateDto,
+    responseDto: CustomerModelDto,
   })
   async update(customerUpdateDto: CustomerUpdateDto): Promise<CustomerModelDto> {
     await customerService.update(customerUpdateDto);
-    const customer = await customerService.getOrFail(customerUpdateDto);
-    return dtoUtility.sanitizeToDto(CustomerModelDto, customer);
+    return customerService.getOrFail(customerUpdateDto);
   }
 
   /**
@@ -82,10 +81,10 @@ export class CustomerController {
    */
   @Controller.List({
     requestDto: CustomerListDto,
+    responseDto: CustomerModelDto,
   })
   async list(customerListDto: CustomerListDto): Promise<CustomerModelDto[]> {
-    const companies = await customerService.list(customerListDto);
-    return dtoUtility.sanitizeToDto(CustomerModelDto, companies);
+    return customerService.list(customerListDto);
   }
 }
 

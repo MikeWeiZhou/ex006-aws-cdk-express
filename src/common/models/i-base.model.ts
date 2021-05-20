@@ -1,15 +1,15 @@
 import { CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import constantsConfig from '../../config/constants.config';
+import constants from '../../config/constants';
 
 /**
  * Properties all models must have.
  */
 @Entity()
-export class BaseModel {
+export abstract class IBaseModel {
   /**
    * Unique resource identifier.
    */
-  @PrimaryColumn({ length: constantsConfig.RESOURCE_ID_TOTAL_LENGTH })
+  @PrimaryColumn({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
   id!: string;
 
   /**

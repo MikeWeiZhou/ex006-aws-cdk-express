@@ -26,15 +26,19 @@ describe('/companies', () => {
 
       expect(post.body).toMatchObject({
         name: companyCreateDto.name,
-        streetAddress: companyCreateDto.streetAddress,
         email: companyCreateDto.email,
+        address: {
+          address: companyCreateDto.address.address,
+        },
       });
 
       const get = await request.get(`${rootPath}/${post.body.id}`);
       expect(get.body).toMatchObject({
         name: companyCreateDto.name,
-        streetAddress: companyCreateDto.streetAddress,
         email: companyCreateDto.email,
+        address: {
+          address: companyCreateDto.address.address,
+        },
       });
 
       fake.company.addToGarbageBin(post.body);
@@ -72,8 +76,8 @@ describe('/companies', () => {
       await validate(companyCreateDto, ['email']);
 
       companyCreateDto = await fake.company.dto();
-      delete (companyCreateDto as any).streetAddress;
-      await validate(companyCreateDto, ['streetAddress']);
+      delete (companyCreateDto as any).address.address;
+      await validate(companyCreateDto, []);
     });
 
     it('409: cannot create Company with identical email', async () => {
@@ -177,12 +181,14 @@ describe('/companies/:id', () => {
       const original: CompanyModelDto = await fake.company.create();
       const another: CompanyCreateDto = await fake.company.dto();
 
-      // update all info
       const update: CompanyUpdateDto = {
         id: original.id,
         name: 'Genuine Winery',
-        streetAddress: '666 Unreachable Way',
         email: another.email,
+        address: {
+          id: original.address.id,
+          address: another.address.address,
+        },
       };
 
       const patch = await request
@@ -193,25 +199,11 @@ describe('/companies/:id', () => {
       expect(patch.statusCode).toEqual(patch.status);
       expect(patch.body).toMatchObject({
         name: update.name,
-        streetAddress: update.streetAddress,
         email: update.email,
-      });
-
-      // update partial info
-      const update2: Partial<CompanyUpdateDto> = {
-        streetAddress: '999 Lucky Ave',
-      };
-
-      const patch2 = await request
-        .patch(`${rootPath}/${original.id}`)
-        .send(update2);
-
-      expect(patch2.statusCode).toBe(200);
-      expect(patch2.statusCode).toEqual(patch2.status);
-      expect(patch2.body).toMatchObject({
-        name: update.name,
-        streetAddress: update2.streetAddress,
-        email: update.email,
+        address: {
+          id: update.address?.id,
+          address: update.address?.address,
+        },
       });
     });
 
@@ -245,7 +237,10 @@ describe('/companies/:id', () => {
 
       const get = await request.get(`${rootPath}/${original.id}`);
       expect(get.body).toMatchObject({
-        streetAddress: original.streetAddress,
+        address: {
+          id: original.address.id,
+          address: original.address.address,
+        },
       });
     });
   });

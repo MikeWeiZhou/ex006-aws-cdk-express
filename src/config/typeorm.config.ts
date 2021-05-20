@@ -5,7 +5,7 @@ import { ConnectionOptions } from 'typeorm';
  * TypeORM configuration.
  */
 export default {
-  // Database connection
+  // database connection
   type: 'mysql',
   host: process.env.EAR_DB_HOST,
   port: Number.parseInt(process.env.EAR_DB_PORT!, 10),
@@ -20,4 +20,7 @@ export default {
   entities: (process.env.NODE_ENV === 'production')
     ? [path.join(__dirname, '../../dist/modules/*/*.model.js')]
     : [path.join(__dirname, '../modules/*/*.model.ts')],
+
+  // set to true for printing all SQL queries to console
+  logging: false,
 } as ConnectionOptions;
