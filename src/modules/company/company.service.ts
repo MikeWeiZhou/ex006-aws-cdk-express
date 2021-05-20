@@ -82,8 +82,20 @@ export class CompanyService extends ICrudService<Company> {
       if (result.affected === 0) {
         throw new NotFoundError(`Cannot update Company. ID ${id} does not exist.`);
       }
+      // update address fields
       if (address) {
-        await addressService.update(address, manager);
+        let addressId = address.id;
+        if (addressId === undefined) {
+          const company = await this.getOrFail({ id });
+          addressId = company.addressId;
+        }
+        await addressService.update(
+          {
+            ...address,
+            id: addressId,
+          },
+          manager,
+        );
       }
     });
   }

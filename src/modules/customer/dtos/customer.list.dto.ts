@@ -9,8 +9,9 @@ import { AddressListDto } from '../../address/dtos';
  */
 export class CustomerListDto implements IDto {
   @Expose()
+  @IsOptional()
   @IsResourceId()
-  readonly companyId!: string;
+  readonly companyId?: string;
 
   @Expose()
   @IsOptional()

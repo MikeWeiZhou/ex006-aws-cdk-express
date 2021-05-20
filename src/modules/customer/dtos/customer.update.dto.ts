@@ -1,17 +1,17 @@
 import { Expose, Type } from 'class-transformer';
 import { IsEmail, IsOptional, Length, ValidateNested } from 'class-validator';
 import { IdDto } from '../../../common/dtos';
-import { AddressUpdateDto } from '../../address/dtos';
+import { AddressNestedUpdateDto } from '../../address/dtos';
 
 /**
  * Parameters required for updating a Customer.
  */
 export class CustomerUpdateDto extends IdDto {
   @Expose()
-  @Type(() => AddressUpdateDto)
+  @Type(() => AddressNestedUpdateDto)
   @IsOptional()
   @ValidateNested()
-  readonly address?: AddressUpdateDto;
+  readonly address?: AddressNestedUpdateDto;
 
   @Expose()
   @IsOptional()

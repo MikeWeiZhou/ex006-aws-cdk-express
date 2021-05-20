@@ -186,14 +186,6 @@ describe('/customers', () => {
       expect(get.statusCode).toEqual(get.status);
       expect(get.body.length).toBe(1);
     });
-
-    it('400: cannot list companies without providing companyId', async () => {
-      const get = await request.get(rootPath);
-      expect(get.statusCode).toBe(400);
-      expect(get.statusCode).toEqual(get.status);
-
-      expect(get.body.params).toHaveProperty('companyId');
-    });
   });
 });
 
@@ -243,7 +235,6 @@ describe('/customers/:id', () => {
         firstName: 'Bob',
         email: another.email,
         address: {
-          id: original.address.id,
           address: '666 Unreachable Way',
         },
       };
@@ -258,7 +249,6 @@ describe('/customers/:id', () => {
         firstName: update.firstName,
         email: update.email,
         address: {
-          id: original.address.id,
           address: update.address?.address,
         },
       });

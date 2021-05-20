@@ -83,8 +83,20 @@ export class CustomerService extends ICrudService<Customer> {
       if (result.affected === 0) {
         throw new NotFoundError(`Cannot update Customer. ID ${id} does not exist.`);
       }
+      // update address fields
       if (address) {
-        await addressService.update(address, manager);
+        let addressId = address.id;
+        if (addressId === undefined) {
+          const customer = await this.getOrFail({ id });
+          addressId = customer.addressId;
+        }
+        await addressService.update(
+          {
+            ...address,
+            id: addressId,
+          },
+          manager,
+        );
       }
     });
   }
