@@ -11,23 +11,23 @@ import { CustomerModelDto } from './dtos/customer.model.dto';
 export class CustomerController {
   /**
    * {post} /customers Create a Customer.
-   * @param customerCreateDto DTO used to create a Customer
+   * @param requestDto contains fields to insert to database
    * @param req Express Request
    * @param res Express Response
-   * @returns created Customer
+   * @returns Customer
    */
   @Controller.Create({
     requestDto: CustomerCreateDto,
     responseDto: CustomerModelDto,
   })
-  async create(customerCreateDto: CustomerCreateDto): Promise<CustomerModelDto> {
-    const id = await customerService.create(customerCreateDto);
+  async create(requestDto: CustomerCreateDto): Promise<CustomerModelDto> {
+    const id = await customerService.create(requestDto);
     return customerService.getOrFail({ id });
   }
 
   /**
    * {get} /customers/:id Request Customer info.
-   * @param idDto DTO with only ID property
+   * @param requestDto contains resource id
    * @param req Express Request
    * @param res Express Response
    * @returns Customer
@@ -37,30 +37,30 @@ export class CustomerController {
     requestDto: IdDto,
     responseDto: CustomerModelDto,
   })
-  async get(idDto: IdDto): Promise<CustomerModelDto> {
-    return customerService.getOrFail(idDto);
+  async get(requestDto: IdDto): Promise<CustomerModelDto> {
+    return customerService.getOrFail(requestDto);
   }
 
   /**
    * {patch} /customers/:id Update Customer info.
-   * @param customerUpdateDto DTO used to update Customer
+   * @param requestDto contains fields needing update
    * @param req Express Request
    * @param res Express Response
-   * @returns updated Customer info
+   * @returns updated Customer
    */
   @Controller.Update({
     mergeParams: ['id'],
     requestDto: CustomerUpdateDto,
     responseDto: CustomerModelDto,
   })
-  async update(customerUpdateDto: CustomerUpdateDto): Promise<CustomerModelDto> {
-    await customerService.update(customerUpdateDto);
-    return customerService.getOrFail(customerUpdateDto);
+  async update(requestDto: CustomerUpdateDto): Promise<CustomerModelDto> {
+    await customerService.update(requestDto);
+    return customerService.getOrFail(requestDto);
   }
 
   /**
-   * {delete} /companies/:id Delete Customer.
-   * @param idDto DTO with only ID property
+   * {delete} /companies/:id Delete a Customer.
+   * @param requestDto contains resource id
    * @param req Express Request
    * @param res Express Response
    */
@@ -68,13 +68,13 @@ export class CustomerController {
     mergeParams: ['id'],
     requestDto: IdDto,
   })
-  async delete(idDto: IdDto): Promise<void> {
-    await customerService.delete(idDto);
+  async delete(requestDto: IdDto): Promise<void> {
+    await customerService.delete(requestDto);
   }
 
   /**
-   * {get} /customers Request list of customer.
-   * @param idDto DTO with list options
+   * {get} /customers Request list of customers.
+   * @param listDto contains filters and list options
    * @param req Express Request
    * @param res Express Response
    * @returns customers
@@ -83,8 +83,8 @@ export class CustomerController {
     requestDto: CustomerListDto,
     responseDto: CustomerModelDto,
   })
-  async list(customerListDto: CustomerListDto): Promise<CustomerModelDto[]> {
-    return customerService.list(customerListDto);
+  async list(requestDto: CustomerListDto): Promise<CustomerModelDto[]> {
+    return customerService.list(requestDto);
   }
 }
 

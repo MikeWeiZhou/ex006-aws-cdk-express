@@ -10,7 +10,7 @@ export class ConflictResponse extends IErrorResponse {
    * Constructor.
    * @param type type of error
    * @param [message='An unkonwn bad request had occurred.'] short description of error
-   * @param [params] parameter validation errors, if there are any
+   * @param params parameter validation errors, if there are any
    */
   constructor(
     type: ErrorType,

@@ -34,6 +34,9 @@
     "no-plusplus": "off",
     "object-curly-newline": ["error", {
       "ImportDeclaration": "never"
+    }],
+    "jest/expect-expect": ["error", {
+      "assertFunctionNames": ["expect", "request.**.expect"]
     }]
   }
 }

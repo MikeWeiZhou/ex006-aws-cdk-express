@@ -1,13 +1,13 @@
 import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 import { IBaseModel } from '../../common/models/i-base.model';
-import constants from '../../config/constants';
+import { constants } from '../../config';
 import { Address } from '../address/address.model';
 
 /**
  * Company model.
  */
 @Entity()
-@Index('idx_company_unique_email', ['email'], { unique: true })
+@Index(['email'], { unique: true })
 export class Company extends IBaseModel {
   /**
    * Company Customer belongs to.

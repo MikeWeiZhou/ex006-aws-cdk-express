@@ -65,7 +65,7 @@ export abstract class IErrorResponse extends IResponse {
    * Create a bad request response.
    * @param type type of error
    * @param [message='An unknown error has occurred.'] short description of error
-   * @param [params] parameter validation errors, if there are any
+   * @param params parameter validation errors, if there are any
    */
   constructor(
     status: ResponseStatusCode,

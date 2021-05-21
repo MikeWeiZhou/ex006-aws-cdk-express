@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, Length, ValidateNested } from 'class-validator';
 import { IBaseModelDto } from '../../../common/dtos';
 import { AddressModelDto } from '../../address/dtos';
 
@@ -9,6 +9,7 @@ import { AddressModelDto } from '../../address/dtos';
 export class CompanyModelDto extends IBaseModelDto {
   @Expose()
   @Type(() => AddressModelDto)
+  @IsObject()
   @ValidateNested()
   readonly address!: AddressModelDto;
 

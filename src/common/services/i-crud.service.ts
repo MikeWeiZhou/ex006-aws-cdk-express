@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid/async';
 import { EntityManager } from 'typeorm';
-import constants from '../../config/constants';
+import { constants } from '../../config';
 import { InternalError } from '../../core/errors';
 import { IDto } from '../dtos';
 import { IBaseModel } from '../models/i-base.model';
@@ -34,7 +34,7 @@ export abstract class ICrudService<Model extends IBaseModel> {
   /**
    * Create a resource.
    * @param createDto contains fields to insert to database
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns resource id
    */
   abstract create(createDto: IDto, entityManager?: EntityManager): Promise<string>;
@@ -42,7 +42,7 @@ export abstract class ICrudService<Model extends IBaseModel> {
   /**
    * Find a resource.
    * @param getDto contains filters identifying a single wanted resource
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns resource
    */
   abstract get(getDto: IDto, entityManager?: EntityManager): Promise<Model | undefined>;
@@ -50,7 +50,7 @@ export abstract class ICrudService<Model extends IBaseModel> {
   /**
    * Find a resource or fail.
    * @param getDto contains filters identifying a single wanted resource
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws NotFoundError
    * @returns resource
    */
@@ -59,7 +59,7 @@ export abstract class ICrudService<Model extends IBaseModel> {
   /**
    * Update a resource.
    * @param updateDto contains fields needing update
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws NotFoundError
    */
   abstract update(updateDto: IDto, entityManager?: EntityManager): Promise<void>;
@@ -67,15 +67,15 @@ export abstract class ICrudService<Model extends IBaseModel> {
   /**
    * Delete a resource.
    * @param deleteDto contains filters identifying a single wanted resource
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws NotFoundError
    */
   abstract delete(deleteDto: IDto, entityManager?: EntityManager): Promise<void>;
 
   /**
    * List all resources of one type.
-   * @param [listDto] contains filters and list options
-   * @param [entityManager] used for transactions
+   * @param listDto contains filters and list options
+   * @param entityManager used for transactions
    * @returns list of resources
    */
   abstract list(listDto?: IDto, entityManager?: EntityManager): Promise<Model[]>;

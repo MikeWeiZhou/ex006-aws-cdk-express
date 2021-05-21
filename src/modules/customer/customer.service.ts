@@ -21,7 +21,7 @@ export class CustomerService extends ICrudService<Customer> {
   /**
    * Create a Customer.
    * @param createDto contains fields to insert to database
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns resource id
    */
   async create(createDto: CustomerCreateDto, entityManager?: EntityManager): Promise<string> {
@@ -41,7 +41,7 @@ export class CustomerService extends ICrudService<Customer> {
   /**
    * Returns a Customer.
    * @param idDto contains resource id
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns Customer or undefined if not found
    */
   async get(idDto: IdDto, entityManager?: EntityManager): Promise<Customer | undefined> {
@@ -56,7 +56,7 @@ export class CustomerService extends ICrudService<Customer> {
   /**
    * Returns a Customer or throw an error if not found.
    * @param idDto contains resource ID
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    * @returns Customer
    */
@@ -71,8 +71,8 @@ export class CustomerService extends ICrudService<Customer> {
 
   /**
    * Update a Customer.
-   * @param updateDto DTO containing fields needing update
-   * @param [entityManager] used for transactions
+   * @param updateDto contains fields needing update
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
   async update(updateDto: CustomerUpdateDto, entityManager?: EntityManager): Promise<void> {
@@ -85,15 +85,11 @@ export class CustomerService extends ICrudService<Customer> {
       }
       // update address fields
       if (address) {
-        let addressId = address.id;
-        if (addressId === undefined) {
-          const customer = await this.getOrFail({ id });
-          addressId = customer.addressId;
-        }
+        const customer = await this.getOrFail({ id });
         await addressService.update(
           {
             ...address,
-            id: addressId,
+            id: customer.addressId,
           },
           manager,
         );
@@ -104,7 +100,7 @@ export class CustomerService extends ICrudService<Customer> {
   /**
    * Delete a Customer.
    * @param idDto contains resource id
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
   async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
@@ -121,14 +117,11 @@ export class CustomerService extends ICrudService<Customer> {
 
   /**
    * List all customers.
-   * @param [listDto] contains filters and list options
-   * @param [entityManager] used for transactions
+   * @param listDto contains filters and list options
+   * @param entityManager used for transactions
    * @returns list of customers
    */
-  async list(
-    listDto?: CustomerListDto,
-    entityManager?: EntityManager,
-  ): Promise<Customer[]> {
+  async list(listDto?: CustomerListDto, entityManager?: EntityManager): Promise<Customer[]> {
     const manager = entityManager ?? getManager();
     const findManyOptions: FindManyOptions<Customer> = {
       relations: ['address'],

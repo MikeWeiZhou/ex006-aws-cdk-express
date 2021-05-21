@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import serverConfig from './config/server.config';
-import typeormConfig from './config/typeorm.config';
+import { serverConfig, typeormConfig } from './config';
 import { Server } from './core/server';
 import { mainRouter } from './main.router';
 

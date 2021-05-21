@@ -12,7 +12,7 @@ export class DuplicateError extends IError {
 
   /**
    * Constructor.
-   * @param [params] params causing database error
+   * @param params params causing database error
    * @param [message='Duplicate entry error.'] short description of error
    */
   constructor(

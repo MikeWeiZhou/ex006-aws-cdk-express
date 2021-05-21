@@ -1,5 +1,5 @@
 import { registerDecorator, ValidationArguments } from 'class-validator';
-import constants from '../../config/constants';
+import { constants } from '../../config';
 
 /**
  * Checks if value is a resource ID.

@@ -1,6 +1,7 @@
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, Length, ValidateNested } from 'class-validator';
 import { IDto } from '../../../common/dtos/i.dto';
+import { IsResourceId } from '../../../common/validators';
 import { AddressCreateDto } from '../../address/dtos';
 
 /**
@@ -8,11 +9,12 @@ import { AddressCreateDto } from '../../address/dtos';
  */
 export class CustomerCreateDto implements IDto {
   @Expose()
-  @Length(25, 25)
+  @IsResourceId()
   readonly companyId!: string;
 
   @Expose()
   @Type(() => AddressCreateDto)
+  @IsObject()
   @ValidateNested()
   readonly address!: AddressCreateDto;
 

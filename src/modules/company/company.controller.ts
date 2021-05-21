@@ -9,23 +9,23 @@ import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } f
 export class CompanyController {
   /**
    * {post} /companies Create a Company.
-   * @param companyCreateDto DTO used to create a Company
+   * @param requestDto contains fields to insert to database
    * @param req Express Request
    * @param res Express Response
-   * @returns created Company
+   * @returns company
    */
   @Controller.Create({
     requestDto: CompanyCreateDto,
     responseDto: CompanyModelDto,
   })
-  async create(companyCreateDto: CompanyCreateDto): Promise<CompanyModelDto> {
-    const id = await companyService.create(companyCreateDto);
+  async create(requestDto: CompanyCreateDto): Promise<CompanyModelDto> {
+    const id = await companyService.create(requestDto);
     return companyService.getOrFail({ id });
   }
 
   /**
    * {get} /companies/:id Request Company info.
-   * @param idDto DTO with only ID property
+   * @param requestDto contains resource id
    * @param req Express Request
    * @param res Express Response
    * @returns Company
@@ -35,13 +35,13 @@ export class CompanyController {
     requestDto: IdDto,
     responseDto: CompanyModelDto,
   })
-  async get(idDto: IdDto): Promise<CompanyModelDto> {
-    return companyService.getOrFail(idDto);
+  async get(requestDto: IdDto): Promise<CompanyModelDto> {
+    return companyService.getOrFail(requestDto);
   }
 
   /**
    * {patch} /companies/:id Update Company info.
-   * @param companyUpdateDto DTO used to update Company
+   * @param requestDto contains fields needing update
    * @param req Express Request
    * @param res Express Response
    * @returns updated Company
@@ -51,14 +51,14 @@ export class CompanyController {
     requestDto: CompanyUpdateDto,
     responseDto: CompanyModelDto,
   })
-  async update(companyUpdateDto: CompanyUpdateDto): Promise<CompanyModelDto> {
-    await companyService.update(companyUpdateDto);
-    return companyService.getOrFail(companyUpdateDto);
+  async update(requestDto: CompanyUpdateDto): Promise<CompanyModelDto> {
+    await companyService.update(requestDto);
+    return companyService.getOrFail(requestDto);
   }
 
   /**
    * {delete} /companies/:id Delete Company info.
-   * @param idDto DTO with only ID property
+   * @param requestDto contains resource id
    * @param req Express Request
    * @param res Express Response
    */
@@ -66,13 +66,13 @@ export class CompanyController {
     mergeParams: ['id'],
     requestDto: IdDto,
   })
-  async delete(idDto: IdDto): Promise<void> {
-    await companyService.delete(idDto);
+  async delete(requestDto: IdDto): Promise<void> {
+    await companyService.delete(requestDto);
   }
 
   /**
    * {get} /companies Request list of companies.
-   * @param idDto DTO with list options
+   * @param listDto contains filters and list options
    * @param req Express Request
    * @param res Express Response
    * @returns companies
@@ -81,8 +81,8 @@ export class CompanyController {
     requestDto: CompanyListDto,
     responseDto: CompanyModelDto,
   })
-  async list(companyListDto: CompanyListDto): Promise<CompanyModelDto[]> {
-    return companyService.list(companyListDto);
+  async list(requestDto: CompanyListDto): Promise<CompanyModelDto[]> {
+    return companyService.list(requestDto);
   }
 }
 

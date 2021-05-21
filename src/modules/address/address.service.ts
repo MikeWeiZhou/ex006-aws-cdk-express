@@ -21,7 +21,7 @@ export class AddressService extends ICrudService<Address> {
   /**
    * Create an Address.
    * @param createDto contains company info
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns resource id
    */
   async create(createDto: AddressCreateDto, entityManager?: EntityManager): Promise<string> {
@@ -36,7 +36,7 @@ export class AddressService extends ICrudService<Address> {
   /**
    * Returns an Address.
    * @param idDto contains resource id
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns Company or undefined if not found
    */
   async get(idDto: IdDto, entityManager?: EntityManager): Promise<Address | undefined> {
@@ -47,7 +47,7 @@ export class AddressService extends ICrudService<Address> {
   /**
    * Returns a Company or throw an error if not found.
    * @param idDto contains resource id
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    * @returns Company
    */
@@ -63,7 +63,7 @@ export class AddressService extends ICrudService<Address> {
   /**
    * Update an Address.
    * @param updateDto DTO containing fields needing update
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
   async update(updateDto: AddressUpdateDto, entityManager?: EntityManager): Promise<void> {
@@ -78,7 +78,7 @@ export class AddressService extends ICrudService<Address> {
   /**
    * Delete an Address.
    * @param idDto contains resource id
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
   async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
@@ -91,8 +91,8 @@ export class AddressService extends ICrudService<Address> {
 
   /**
    * List all addresses.
-   * @param [listDto] contains filters and list options
-   * @param [entityManager] used for transactions
+   * @param listDto contains filters and list options
+   * @param entityManager used for transactions
    * @returns list of addresses
    */
   async list(listDto?: AddressListDto, entityManager?: EntityManager): Promise<Address[]> {

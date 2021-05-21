@@ -1,7 +1,7 @@
 /**
  * Server configuration.
  */
-export default {
+export const serverConfig = {
   /**
    * Port used for listening to requests.
    */

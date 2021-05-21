@@ -12,7 +12,7 @@ export class AddressFaker extends IFaker<AddressCreateDto, AddressModelDto> {
 
   /**
    * Returns DTO used for creating an Address.
-   * @param [dto] uses any provided properties over generated ones
+   * @param dto uses any provided properties over generated ones
    * @returns DTO
    */
   async dto(dto?: Partial<AddressCreateDto>): Promise<AddressCreateDto> {

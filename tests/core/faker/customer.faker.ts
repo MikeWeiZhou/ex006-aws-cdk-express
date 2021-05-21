@@ -15,7 +15,7 @@ export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
 
   /**
    * Returns DTO used for creating a Customer.
-   * @param [dto] uses any provided properties over generated ones
+   * @param dto uses any provided properties over generated ones
    * @returns DTO
    */
   async dto(dto?: Partial<CustomerCreateDto>): Promise<CustomerCreateDto> {
@@ -35,7 +35,7 @@ export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
 
   /**
    * Creates a Customer on test API server.
-   * @param [dto] uses any provided properties over generated ones
+   * @param dto uses any provided properties over generated ones
    * @returns a model-like DTO
    */
   async create(dto?: Partial<CustomerCreateDto>): Promise<CustomerModelDto> {

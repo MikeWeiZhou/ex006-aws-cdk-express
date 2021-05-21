@@ -20,7 +20,7 @@ export class CompanyService extends ICrudService<Company> {
   /**
    * Create a Company.
    * @param createDto contains fields to insert to database
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns resource id
    */
   async create(createDto: CompanyCreateDto, entityManager?: EntityManager): Promise<string> {
@@ -40,7 +40,7 @@ export class CompanyService extends ICrudService<Company> {
   /**
    * Returns a Company.
    * @param idDto contains resource id
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @returns Company or undefined if not found
    */
   async get(idDto: IdDto, entityManager?: EntityManager): Promise<Company | undefined> {
@@ -55,7 +55,7 @@ export class CompanyService extends ICrudService<Company> {
   /**
    * Returns a Company or throw an error if not found.
    * @param idDto contains resource ID
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    * @returns Company
    */
@@ -71,7 +71,7 @@ export class CompanyService extends ICrudService<Company> {
   /**
    * Update a Company.
    * @param updateDto contains fields needing update
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
   async update(updateDto: CompanyUpdateDto, entityManager?: EntityManager): Promise<void> {
@@ -84,15 +84,11 @@ export class CompanyService extends ICrudService<Company> {
       }
       // update address fields
       if (address) {
-        let addressId = address.id;
-        if (addressId === undefined) {
-          const company = await this.getOrFail({ id });
-          addressId = company.addressId;
-        }
+        const company = await this.getOrFail({ id });
         await addressService.update(
           {
             ...address,
-            id: addressId,
+            id: company.addressId,
           },
           manager,
         );
@@ -103,7 +99,7 @@ export class CompanyService extends ICrudService<Company> {
   /**
    * Delete a Company.
    * @param idDto contains resource id
-   * @param [entityManager] used for transactions
+   * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
   async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
@@ -120,8 +116,8 @@ export class CompanyService extends ICrudService<Company> {
 
   /**
    * List all companies.
-   * @param [listDto] contains filters and list options
-   * @param [entityManager] used for transactions
+   * @param listDto contains filters and list options
+   * @param entityManager used for transactions
    * @returns list of companies
    */
   async list(

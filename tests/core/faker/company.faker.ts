@@ -14,7 +14,7 @@ export class CompanyFaker extends IFaker<CompanyCreateDto, CompanyModelDto> {
 
   /**
    * Returns DTO used for creating a Company.
-   * @param [dto] uses any provided properties over generated ones
+   * @param dto uses any provided properties over generated ones
    * @returns DTO
    */
   async dto(dto?: Partial<CompanyCreateDto>): Promise<CompanyCreateDto> {
@@ -35,7 +35,7 @@ export class CompanyFaker extends IFaker<CompanyCreateDto, CompanyModelDto> {
 
   /**
    * Creates a Company on test API server.
-   * @param [dto] uses any provided properties over generated ones
+   * @param dto uses any provided properties over generated ones
    * @returns a model-like DTO
    */
   async create(dto?: Partial<CompanyCreateDto>): Promise<CompanyModelDto> {

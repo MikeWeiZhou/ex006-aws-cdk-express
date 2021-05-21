@@ -12,7 +12,7 @@ export class InvalidRequestError extends IError {
 
   /**
    * Create new invalid request error.
-   * @param [validationErrors] param validation errors
+   * @param validationErrors param validation errors
    * @param [message='An unknown invalid request error occurred.'] short description of error
    */
   constructor(

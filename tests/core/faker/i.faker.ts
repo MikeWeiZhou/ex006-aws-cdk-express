@@ -57,14 +57,14 @@ export abstract class IFaker<CreateDto extends IDto, ModelDto extends IBaseModel
 
   /**
    * Returns DTO used for resource creation.
-   * @param [dto] uses any provided properties over generated ones
+   * @param dto uses any provided properties over generated ones
    * @returns DTO
    */
   abstract dto(dto?: Partial<CreateDto>): Promise<CreateDto>;
 
   /**
    * Creates the resource on test API server.
-   * @param [dto] uses any provided properties over generated ones
+   * @param dto uses any provided properties over generated ones
    * @returns a model-like DTO
    */
   abstract create(dto?: Partial<CreateDto>): Promise<ModelDto>;

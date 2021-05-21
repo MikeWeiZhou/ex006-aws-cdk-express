@@ -6,7 +6,7 @@ const dbmigrate = require('db-migrate');
  * Can be upward or downward migration. If DB is already at the target version,
  * nothing will happen.
  *
- * @param [targetVersion] Targetted DB version. If targetVersion and process.env.EAR_DB_VERSION is
+ * @param targetVersion Targetted DB version. If targetVersion and process.env.EAR_DB_VERSION is
  *                        empty or not set, then all migration scripts will run.
  */
 export async function dbMigrate(targetVersion?: string): Promise<void> {

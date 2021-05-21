@@ -42,7 +42,7 @@ export abstract class IResponse {
   /**
    * Create new API response.
    * @param status http response status code
-   * @param [message] short description of response
+   * @param message short description of response
    */
   constructor(status: ResponseStatusCode, message?: string) {
     this.status = status;
