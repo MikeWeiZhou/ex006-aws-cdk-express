@@ -18,6 +18,7 @@ export class TestUtility {
     expect(response.body.status).toBe(400);
     expect(response.body.type).toBe('InvalidRequestError');
     const invalidParams = Object.keys(response.body.params);
+    expect(invalidParams.length).toBe(expectedInvalidParams.length);
     expectedInvalidParams.forEach((param) => {
       expect(invalidParams).toContain(param);
     });

@@ -1,7 +1,7 @@
+import { IDto } from '@ear/common/dtos';
 import { Response } from 'express';
-import { IResponse, ResponseStatusCode } from './i.response';
 import { ErrorType } from '../errors/i.error';
-import { IDto } from '../../common/dtos/i.dto';
+import { IResponse, ResponseStatusCode } from './i.response';
 
 /**
  * Object containing invalid parameter names and validation errors.

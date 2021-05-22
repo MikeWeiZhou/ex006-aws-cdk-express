@@ -1,5 +1,5 @@
-import { Column, Entity, Index } from 'typeorm';
-import { IBaseModel } from '../../common/models/i-base.model';
+import { IBaseModel } from '@ear/common/models';
+import { Column, Entity } from 'typeorm';
 
 /**
  * Address model.

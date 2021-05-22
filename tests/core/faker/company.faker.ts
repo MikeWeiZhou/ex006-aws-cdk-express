@@ -1,8 +1,8 @@
+import { CompanyCreateDto, CompanyModelDto } from '@ear/modules/company/dtos';
 import faker from 'faker';
 import { request } from '../request';
-import { CompanyCreateDto, CompanyModelDto } from '../../../src/modules/company/dtos';
-import { IFaker } from './i.faker';
 import { address } from './address.faker';
+import { IFaker } from './i.faker';
 
 export class CompanyFaker extends IFaker<CompanyCreateDto, CompanyModelDto> {
   /**
@@ -19,12 +19,11 @@ export class CompanyFaker extends IFaker<CompanyCreateDto, CompanyModelDto> {
    */
   async dto(dto?: Partial<CompanyCreateDto>): Promise<CompanyCreateDto> {
     const name = dto?.name ?? `${faker.company.companyName()}`;
-    const email = dto?.email
-      ?? `${faker.internet.email(
-        undefined,
-        undefined,
-        `${faker.helpers.slugify(name)}.com`,
-      )}`;
+    const email = dto?.email ?? `${faker.internet.email(
+      undefined,
+      undefined,
+      `${faker.helpers.slugify(name)}.com`,
+    )}`;
     const addr = await address.dto(dto?.address);
     return {
       name,
@@ -40,11 +39,9 @@ export class CompanyFaker extends IFaker<CompanyCreateDto, CompanyModelDto> {
    */
   async create(dto?: Partial<CompanyCreateDto>): Promise<CompanyModelDto> {
     const createDto = await this.dto(dto);
-    const res = await request
-      .post(this.rootPath)
-      .send(createDto);
-    this.addToGarbageBin(res.body);
-    return res.body;
+    const create = await request.post(this.rootPath).send(createDto);
+    this.addToGarbageBin(create.body);
+    return create.body;
   }
 }
 

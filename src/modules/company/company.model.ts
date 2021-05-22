@@ -1,7 +1,7 @@
+import { IBaseModel } from '@ear/common/models';
+import { constants } from '@ear/config';
+import { Address } from '@ear/modules/address';
 import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
-import { IBaseModel } from '../../common/models/i-base.model';
-import { constants } from '../../config';
-import { Address } from '../address/address.model';
 
 /**
  * Company model.

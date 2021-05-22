@@ -1,7 +1,7 @@
+import { constants } from '@ear/config';
+import { InternalError } from '@ear/core/errors';
 import { nanoid } from 'nanoid/async';
-import { EntityManager } from 'typeorm';
-import { constants } from '../../config';
-import { InternalError } from '../../core/errors';
+import { EntityManager, SelectQueryBuilder } from 'typeorm';
 import { IDto } from '../dtos';
 import { IBaseModel } from '../models/i-base.model';
 
@@ -20,15 +20,6 @@ export abstract class ICrudService<Model extends IBaseModel> {
       throw new InternalError(`Database resource ID prefix length must be ${constants.RESOURCE_ID_PREFIX_LENGTH}.`);
     }
     this.idPrefix = idPrefix;
-  }
-
-  /**
-   * Generate a secure random resource ID with prefix.
-   * @returns resource ID
-   */
-  protected async generateId(): Promise<string> {
-    const generated = await nanoid(constants.RESOURCE_ID_GENERATED_LENGTH);
-    return `${this.idPrefix}${generated}`;
   }
 
   /**
@@ -79,4 +70,45 @@ export abstract class ICrudService<Model extends IBaseModel> {
    * @returns list of resources
    */
   abstract list(listDto?: IDto, entityManager?: EntityManager): Promise<Model[]>;
+
+  /**
+   * Generate a secure random resource ID with prefix.
+   * @returns resource ID
+   */
+  protected async generateId(): Promise<string> {
+    const generated = await nanoid(constants.RESOURCE_ID_GENERATED_LENGTH);
+    return `${this.idPrefix}${generated}`;
+  }
+
+  /**
+   * Builds where clause for list methods.
+   *
+   * This is a work-around for nested object filtering.
+   * https://github.com/typeorm/typeorm/issues/2707
+   *
+   * @param qb TypeORM SelectQueryBuilder
+   * @param clauses filter clauses as key-value pairs
+   */
+  protected buildListWhereClause<Entity>(
+    qb: SelectQueryBuilder<Entity>,
+    tableAlias: string,
+    filters: any,
+    isFirst: boolean = true,
+  ) {
+    let first = isFirst;
+    Object.entries(filters).forEach(([key, value]) => {
+      if (typeof value === 'object') {
+        this.buildListWhereClause(qb, `${tableAlias}__${key}`, value, first);
+        first = false;
+        return;
+      }
+
+      if (first) {
+        first = false;
+        qb.where(`${tableAlias}.${key} = :${key}`, { [key]: [value] });
+      } else {
+        qb.andWhere(`${tableAlias}.${key} = :${key}`, { [key]: [value] });
+      }
+    });
+  }
 }

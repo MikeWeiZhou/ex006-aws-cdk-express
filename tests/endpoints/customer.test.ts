@@ -1,15 +1,13 @@
+import { fake, request, testUtility } from '@ear-tests/core';
+import { CompanyModelDto } from '@ear/modules/company/dtos';
+import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from '@ear/modules/customer/dtos';
 import { Response } from 'supertest';
-import { CompanyModelDto } from '../../../src/modules/company/dtos';
-import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from '../../../src/modules/customer/dtos';
-import * as fake from '../../core/faker';
-import { request } from '../../core/request';
-import { testUtility } from '../../core/test-utility';
 
 // root url path
 const { rootPath } = fake.customer;
 
+// use one company for most of tests
 let company: CompanyModelDto;
-
 beforeAll(async () => {
   company = await fake.company.create();
 });
@@ -55,6 +53,7 @@ describe('/customers', () => {
       testUtility.expectRequestInvalidParams(post, [
         'email',
         'firstName',
+        'lastName',
         'companyId',
         'address',
       ]);
@@ -140,7 +139,6 @@ describe('/customers', () => {
    */
   describe('get /customers', () => {
     const firstNameWith7 = `Rose ${fake.faker.random.alphaNumeric(10)}`;
-    let customers: CustomerModelDto[];
 
     beforeAll(async () => {
       const create = [];
@@ -154,7 +152,7 @@ describe('/customers', () => {
           () => fake.customer.create({ companyId: company.id }),
         ),
       );
-      customers = await Promise.all(create);
+      await Promise.all(create);
     });
 
     it('200: can list customers with no filters', async () => {

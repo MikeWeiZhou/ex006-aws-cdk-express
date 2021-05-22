@@ -25,4 +25,4 @@ else
 fi
 
 # Start API server
-ts-node-dev --prefer-ts-exts src/main.ts
+ts-node-dev -r tsconfig-paths/register --prefer-ts-exts src/main.ts

@@ -1,5 +1,5 @@
-import { IdDto } from '../../common/dtos';
-import { Controller } from '../../core/controller';
+import { IdDto } from '@ear/common/dtos';
+import { Controller } from '@ear/core';
 import { companyService } from './company.service';
 import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from './dtos';
 

@@ -1,5 +1,5 @@
+import { CustomerCreateDto, CustomerModelDto } from '@ear/modules/customer/dtos';
 import faker from 'faker';
-import { CustomerCreateDto, CustomerModelDto } from '../../../src/modules/customer/dtos';
 import { request } from '../request';
 import { address } from './address.faker';
 import { company } from './company.faker';
@@ -40,11 +40,9 @@ export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
    */
   async create(dto?: Partial<CustomerCreateDto>): Promise<CustomerModelDto> {
     const createDto = await this.dto(dto);
-    const res = await request
-      .post(this.rootPath)
-      .send(createDto);
-    this.addToGarbageBin(res.body);
-    return res.body;
+    const create = await request.post(this.rootPath).send(createDto);
+    this.addToGarbageBin(create.body);
+    return create.body;
   }
 
   /**

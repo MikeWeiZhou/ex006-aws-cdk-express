@@ -3,16 +3,27 @@
     "target": "ES2018",
     "module": "commonjs",
     "lib": ["es2018"],
-    "rootDirs": ["src", "tests"],
     "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@ear/*": ["dist/*", "src/*"],
+      "@ear-tests/*": ["tests/*"]
+    },
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "plugins": [
+      { "transform": "typescript-transform-paths" }
+    ]
   },
+  "include": [
+    "src",
+    "tests"
+  ],
   "exclude": [
     "cdk",
-    "db",
+    "db"
   ]
 }

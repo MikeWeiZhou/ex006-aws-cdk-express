@@ -4,7 +4,7 @@ WORKDIR /api
 COPY . .
 
 RUN npm ci
-RUN npx tsc
+RUN npx ttsc
 RUN chmod +x ./dist/main.js
 
 EXPOSE $EAR_API_PORT

@@ -43,15 +43,7 @@ export abstract class IFaker<CreateDto extends IDto, ModelDto extends IBaseModel
    * All resources in garbage bin will be deleted from the server.
    */
   async cleanGarbage(): Promise<void> {
-    const deleteTasks: Promise<any>[] = [];
-    // iterating one-by-one incase multiple calls to cleanGarbage()
-    for (
-      let resource = this.garbage.pop();
-      resource !== undefined;
-      resource = this.garbage.pop()
-    ) {
-      deleteTasks.push(request.delete(`${this.rootPath}/${resource.id}`));
-    }
+    const deleteTasks = this.garbage.map((resource) => request.delete(`${this.rootPath}/${resource.id}`));
     await Promise.all(deleteTasks);
   }
 

@@ -1,9 +1,7 @@
-import { IdDto } from '../../common/dtos';
-import { Controller } from '../../core/controller';
+import { IdDto } from '@ear/common/dtos';
+import { Controller } from '@ear/core';
 import { customerService } from './customer.service';
-import { CustomerCreateDto, CustomerUpdateDto } from './dtos';
-import { CustomerListDto } from './dtos/customer.list.dto';
-import { CustomerModelDto } from './dtos/customer.model.dto';
+import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from './dtos';
 
 /**
  * Processes incoming `Customer` requests and returns a suitable response.

@@ -1,6 +1,6 @@
+import { IDto } from '@ear/common/dtos';
 import { ClassConstructor, classToPlain, plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
-import { IDto } from '../common/dtos';
 
 /**
  * Data Transfer Object (DTO) utility functions.

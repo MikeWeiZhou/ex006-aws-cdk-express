@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { serverConfig, typeormConfig } from './config';
-import { Server } from './core/server';
+import { serverConfig, typeormConfig } from '@ear/config';
+import { Server } from '@ear/core';
 import { mainRouter } from './main.router';
 
 const server = new Server(

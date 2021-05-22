@@ -25,4 +25,4 @@ else
 fi
 
 # Start API server in debug mode
-ts-node-dev --prefer-ts-exts --inspect --respawn src/main.ts
+ts-node-dev -r tsconfig-paths/register --prefer-ts-exts --inspect --respawn src/main.ts

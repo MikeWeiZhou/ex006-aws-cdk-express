@@ -70,14 +70,17 @@ export class ErrorHandler {
     res: Response,
     next: NextFunction,
   ): boolean {
-    if (err instanceof SyntaxError) {
-      const error = err as any;
-      // invalid json; cannot parse json
-      if (error.status === 400 && error.type === 'entity.parse.failed') {
-        const response = new BadRequestResponse(ErrorType.INVALID_REQUEST, error.message);
-        response.send(res);
-        return true;
-      }
+    const error = err as any;
+
+    if (!error.status || !error.type) {
+      return false;
+    }
+
+    // invalid json; cannot parse json
+    if (error.status === 400 && error.type === 'entity.parse.failed') {
+      const response = new BadRequestResponse(ErrorType.INVALID_REQUEST, `Invalid JSON syntax: ${error.message}`);
+      response.send(res);
+      return true;
     }
 
     return false;

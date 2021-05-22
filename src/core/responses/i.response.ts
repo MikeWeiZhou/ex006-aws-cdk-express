@@ -1,5 +1,5 @@
+import { IDto } from '@ear/common/dtos/i.dto';
 import { Response } from 'express';
-import { IDto } from '../../common/dtos/i.dto';
 
 /**
  * Different http response status code for a given request.

@@ -1,5 +1,5 @@
+import { AddressCreateDto, AddressModelDto } from '@ear/modules/address/dtos';
 import faker from 'faker';
-import { AddressCreateDto, AddressModelDto } from '../../../src/modules/address/dtos';
 import { IFaker } from './i.faker';
 
 export class AddressFaker extends IFaker<AddressCreateDto, AddressModelDto> {

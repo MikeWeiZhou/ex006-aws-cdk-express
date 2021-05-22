@@ -1,8 +1,8 @@
+import { constants } from '@ear/config';
 import { registerDecorator, ValidationArguments } from 'class-validator';
-import { constants } from '../../config';
 
 /**
- * Checks if value is a resource ID.
+ * Checks if string is a resource ID.
  */
 export function IsResourceId() {
   return function (object: Object, propertyName: string) {
@@ -10,8 +10,9 @@ export function IsResourceId() {
       name: 'isResourceId',
       target: object.constructor,
       propertyName,
-      // constraints: [property],
-      // options: validationOptions,
+      options: {
+        message: `${propertyName} is not a valid resource ID`,
+      },
       validator: {
         validate(value: any, args: ValidationArguments) {
           return typeof value === 'string' && value.length === constants.RESOURCE_ID_TOTAL_LENGTH;

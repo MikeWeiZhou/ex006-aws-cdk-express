@@ -1,5 +1,5 @@
+import { constants } from '@ear/config';
 import { CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { constants } from '../../config';
 
 /**
  * Properties all models must have.

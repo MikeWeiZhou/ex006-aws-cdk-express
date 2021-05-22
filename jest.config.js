@@ -3,4 +3,8 @@ module.exports = {
   roots: ['<rootDir>/tests'],
   preset: 'ts-jest',
   testEnvironment: 'node',
+  moduleNameMapper: {
+    '^@ear/(.*)$': '<rootDir>/src/$1',
+    '^@ear-tests/(.*)$': '<rootDir>/tests/$1',
+  },
 };

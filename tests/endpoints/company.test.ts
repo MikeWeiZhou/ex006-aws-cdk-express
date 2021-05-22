@@ -1,9 +1,6 @@
+import { fake, request, testUtility } from '@ear-tests/core';
+import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from '@ear/modules/company/dtos';
 import { Response } from 'supertest';
-import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from '../../../src/modules/company/dtos';
-import * as fake from '../../core/faker';
-import { customer } from '../../core/faker';
-import { request } from '../../core/request';
-import { testUtility } from '../../core/test-utility';
 
 // root url path
 const { rootPath } = fake.company;

@@ -1,8 +1,8 @@
+import { IdDto } from '@ear/common/dtos';
+import { ICrudService } from '@ear/common/services';
+import { NotFoundError } from '@ear/core/errors';
+import { addressService } from '@ear/modules/address';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
-import { IdDto } from '../../common/dtos';
-import { ICrudService } from '../../common/services';
-import { NotFoundError } from '../../core/errors';
-import { addressService } from '../address/address.service';
 import { Company } from './company.model';
 import { CompanyCreateDto, CompanyListDto, CompanyUpdateDto } from './dtos';
 
@@ -130,19 +130,11 @@ export class CompanyService extends ICrudService<Company> {
     };
 
     if (listDto) {
-      const { options, address, ...filters } = listDto;
+      const { options, ...filters } = listDto;
 
-      // filters, required work-around for nested filtering of address
-      // https://github.com/typeorm/typeorm/issues/2707
+      // filters
       findManyOptions.where = (qb: SelectQueryBuilder<Company>) => {
-        Object.entries(filters).forEach(([key, value]) => {
-          qb.where(`Company.${key} = :${key}`, { [key]: [value] });
-        });
-        if (address) {
-          Object.entries(address).forEach(([key, value]) => {
-            qb.where(`Company__address.${key} = :${key}`, { [key]: [value] });
-          });
-        }
+        this.buildListWhereClause(qb, 'Company', filters);
       };
 
       // pagination

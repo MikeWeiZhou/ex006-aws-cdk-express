@@ -1,10 +1,12 @@
 import { Router } from 'express';
-import { companyRouter } from './modules/company/company.router';
-import { customerRouter } from './modules/customer/customer.router';
+import { companyRouter } from '@ear/modules/company';
+import { customerRouter } from '@ear/modules/customer';
+import { productRouter } from '@ear/modules/product';
 
 const router = Router();
 router.use(companyRouter);
 router.use(customerRouter);
+router.use(productRouter);
 
 /**
  * Instance of main router.
