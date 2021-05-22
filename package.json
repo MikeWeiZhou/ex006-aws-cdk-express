@@ -79,6 +79,10 @@
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.32"
   },
+  "engines": {
+    "npm": ">=6.14.12",
+    "node": ">=14.16.1"
+  },
   "lint-staged": {
     "*.ts": [
       "eslint --cache"
