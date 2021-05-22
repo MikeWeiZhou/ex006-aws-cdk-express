@@ -37,6 +37,17 @@ describe('/customers', () => {
       fake.customer.addToGarbageBin(post.body);
     });
 
+    it('201: can create Customer with identical email for different company', async () => {
+      const customer = await fake.customer.create();
+
+      // same email, different company
+      const customerDto = await fake.customer.dto({ email: customer.email });
+      const post = await request.post(rootPath).send(customerDto);
+      expect(post.statusCode).toBe(201);
+
+      fake.customer.addToGarbageBin(post.body);
+    });
+
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Customer with missing parameters', async () => {
       let dto: CustomerCreateDto;
@@ -116,7 +127,7 @@ describe('/customers', () => {
       ]);
     });
 
-    it('409: cannot create Customer with identical email', async () => {
+    it('409: cannot create Customer with identical email for same company', async () => {
       const customer1Dto = await fake.customer.dto({ companyId: company.id });
       const post1 = await request.post(rootPath).send(customer1Dto);
       expect(post1.statusCode).toBe(201);
@@ -237,6 +248,42 @@ describe('/customers', () => {
         expect(customer.id).not.toBe(firstCustomer.id);
       });
     });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('400: cannot list customers with invalid filters', async () => {
+      let listDto: CustomerListDto;
+      let get: Response;
+
+      // not nullable
+      listDto = {
+        companyId: null,
+        firstName: null,
+        lastName: null,
+        email: null,
+      } as any;
+      get = await request.get(rootPath).send(listDto);
+      testUtility.expectRequestInvalidParams(get, [
+        'companyId',
+        'firstName',
+        'lastName',
+        'email',
+      ]);
+
+      // invalids
+      listDto = {
+        companyId: '',
+        firstName: '',
+        lastName: '',
+        email: 'not_an_email',
+      } as any;
+      get = await request.get(rootPath).send(listDto);
+      testUtility.expectRequestInvalidParams(get, [
+        'companyId',
+        'firstName',
+        'lastName',
+        'email',
+      ]);
+    });
   });
 });
 
@@ -278,6 +325,39 @@ describe('/customers/:id', () => {
         ...update,
         id: customer.id,
       });
+    });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('400: cannot update customer with invalid parameters', async () => {
+      const customer: CustomerModelDto = await fake.customer.create({ companyId: company.id });
+      let dto: CustomerUpdateDto;
+      let patch: Response;
+
+      // not nullable
+      dto = {
+        firstName: null,
+        lastName: null,
+        email: null,
+      } as any;
+      patch = await request.patch(`${rootPath}/${customer.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(patch, [
+        'firstName',
+        'lastName',
+        'email',
+      ]);
+
+      // invalids
+      dto = {
+        firstName: '',
+        lastName: '',
+        email: 'not_an_email',
+      } as any;
+      patch = await request.patch(`${rootPath}/${customer.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(patch, [
+        'firstName',
+        'lastName',
+        'email',
+      ]);
     });
 
     it('404: cannot update non-existent Customer', async () => {

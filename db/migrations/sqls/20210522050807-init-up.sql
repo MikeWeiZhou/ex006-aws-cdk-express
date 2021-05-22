@@ -1,5 +1,5 @@
 CREATE TABLE `address` (
-`id` varchar(25) NOT NULL,
+`id` char(25) NOT NULL,
 `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `address` varchar(150) NOT NULL,
@@ -11,10 +11,10 @@ PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
 ;
 CREATE TABLE `company` (
-`id` varchar(25) NOT NULL,
+`id` char(25) NOT NULL,
 `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-`addressId` varchar(25) NOT NULL,
+`addressId` char(25) NOT NULL,
 `name` varchar(50) NOT NULL,
 `email` varchar(100) NOT NULL,
 UNIQUE INDEX `idx_company_email` (`email`),
@@ -23,11 +23,11 @@ PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
 ;
 CREATE TABLE `customer` (
-`id` varchar(25) NOT NULL,
+`id` char(25) NOT NULL,
 `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-`companyId` varchar(25) NOT NULL,
-`addressId` varchar(25) NOT NULL,
+`companyId` char(25) NOT NULL,
+`addressId` char(25) NOT NULL,
 `firstName` varchar(50) NOT NULL,
 `lastName` varchar(50) NOT NULL,
 `email` varchar(100) NOT NULL,
@@ -37,15 +37,15 @@ PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
 ;
 CREATE TABLE `product` (
-`id` varchar(25) NOT NULL,
+`id` char(25) NOT NULL,
 `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-`companyId` varchar(25) NOT NULL,
+`companyId` char(25) NOT NULL,
 `name` varchar(100) NOT NULL,
 `description` varchar(255) NULL,
 `sku` varchar(100) NOT NULL,
 `price` int UNSIGNED NOT NULL,
-`currency` varchar(3) NOT NULL,
+`currency` char(3) NOT NULL,
 UNIQUE INDEX `idx_product_companyId_sku` (`companyId`, `sku`),
 PRIMARY KEY (`id`)
 ) ENGINE = InnoDB

@@ -1,33 +1,35 @@
 import { IDto, ListOptionsDto } from '@ear/common/dtos';
+import { IsMaxLength, IsUndefinable } from '@ear/common/validators';
 import { AddressListDto } from '@ear/modules/address/dtos';
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsObject, IsOptional, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, ValidateNested } from 'class-validator';
+import { Company } from '../company.model';
 
 /**
  * Parameters for listing companies.
  */
 export class CompanyListDto implements IDto {
   @Expose()
-  @IsOptional()
-  @Length(1, 50)
+  @IsUndefinable()
+  @IsMaxLength(Company.limits.NAME_MAX_LENGTH)
   readonly name?: string;
 
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsEmail()
-  @Length(1, 100)
+  @IsMaxLength(Company.limits.EMAIL_MAX_LENGTH)
   readonly email?: string;
 
   @Expose()
   @Type(() => AddressListDto)
-  @IsOptional()
+  @IsUndefinable()
   @IsObject()
   @ValidateNested()
   readonly address?: AddressListDto;
 
   @Expose()
   @Type(() => ListOptionsDto)
-  @IsOptional()
+  @IsUndefinable()
   @IsObject()
   @ValidateNested()
   readonly options?: ListOptionsDto;

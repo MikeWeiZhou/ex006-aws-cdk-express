@@ -1,8 +1,8 @@
 import { IBaseModelDto } from '@ear/common/dtos';
 import { Currency } from '@ear/common/enums';
-import { IsCurrencyAmount, IsCurrencyCode, IsResourceId } from '@ear/common/validators';
+import { IsCurrencyAmount, IsCurrencyCode, IsMaxLength, IsResourceId, IsUndefinableAndNullable } from '@ear/common/validators';
 import { Expose } from 'class-transformer';
-import { IsOptional, Length } from 'class-validator';
+import { Product } from '../product.model';
 
 /**
  * Product database model DTO.
@@ -13,20 +13,20 @@ export class ProductModelDto extends IBaseModelDto {
   readonly companyId!: string;
 
   @Expose()
-  @Length(1, 100)
+  @IsMaxLength(Product.limits.NAME_MAX_LENGTH)
   readonly name!: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 255)
+  @IsUndefinableAndNullable()
+  @IsMaxLength(Product.limits.DESCRIPTION_MAX_LENGTH)
   readonly description?: string;
 
   @Expose()
-  @Length(1, 100)
+  @IsMaxLength(Product.limits.SKU_MAX_LENGTH)
   readonly sku!: string;
 
   @Expose()
-  @IsCurrencyAmount()
+  @IsCurrencyAmount(Product.limits.PRICE_MAX_VALUE)
   readonly price!: number;
 
   @Expose()

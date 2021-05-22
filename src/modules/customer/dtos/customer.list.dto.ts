@@ -1,44 +1,45 @@
 import { IDto, ListOptionsDto } from '@ear/common/dtos';
-import { IsResourceId } from '@ear/common/validators';
+import { IsMaxLength, IsResourceId, IsUndefinable } from '@ear/common/validators';
 import { AddressListDto } from '@ear/modules/address/dtos';
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsObject, IsOptional, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, ValidateNested } from 'class-validator';
+import { Customer } from '../customer.model';
 
 /**
  * Parameters for listing customers.
  */
 export class CustomerListDto implements IDto {
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsResourceId()
   readonly companyId?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 50)
+  @IsUndefinable()
+  @IsMaxLength(Customer.limits.FIRST_NAME_MAX_LENGTH)
   readonly firstName?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 50)
+  @IsUndefinable()
+  @IsMaxLength(Customer.limits.LAST_NAME_MAX_LENGTH)
   readonly lastName?: string;
 
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsEmail()
-  @Length(1, 100)
+  @IsMaxLength(Customer.limits.EMAIL_MAX_LENGTH)
   readonly email?: string;
 
   @Expose()
   @Type(() => AddressListDto)
-  @IsOptional()
+  @IsUndefinable()
   @IsObject()
   @ValidateNested()
   readonly address?: AddressListDto;
 
   @Expose()
   @Type(() => ListOptionsDto)
-  @IsOptional()
+  @IsUndefinable()
   @IsObject()
   @ValidateNested()
   readonly options?: ListOptionsDto;

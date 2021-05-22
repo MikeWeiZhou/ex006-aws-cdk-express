@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { IsInt, IsPositive } from 'class-validator';
+import { IsUndefinable } from '../validators';
 import { IDto } from './i.dto';
 
 /**
@@ -10,7 +11,7 @@ export class ListOptionsDto implements IDto {
    * Maximum number of objects to return. Defaults to 10.
    */
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsPositive()
   @IsInt()
   readonly limit: number = 10;
@@ -21,7 +22,7 @@ export class ListOptionsDto implements IDto {
    * The results returned would be offset by limit * (page - 1).
    */
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsPositive()
   @IsInt()
   readonly page?: number;

@@ -10,6 +10,20 @@ import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 @Index(['email'], { unique: true })
 export class Company extends IBaseModel {
   /**
+   * Data model limits for Company.
+   */
+  static readonly limits = {
+    /**
+     * Maximum string length for name of Company.
+     */
+    NAME_MAX_LENGTH: 50,
+    /**
+     * Maximum string length for email contact of Company.
+     */
+    EMAIL_MAX_LENGTH: 100,
+  };
+
+  /**
    * Company Customer belongs to.
    */
   @OneToOne(() => Address, { cascade: ['insert', 'update', 'remove'] })
@@ -19,18 +33,27 @@ export class Company extends IBaseModel {
   /**
    * Company Customer belongs to.
    */
-  @Column({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
+  @Column({
+    type: 'char',
+    length: constants.RESOURCE_ID_TOTAL_LENGTH,
+  })
   addressId!: string;
 
   /**
    * Name of Company.
    */
-  @Column({ length: 50 })
+  @Column({
+    type: 'varchar',
+    length: Company.limits.NAME_MAX_LENGTH,
+  })
   name!: string;
 
   /**
    * Email of Company.
    */
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: Company.limits.EMAIL_MAX_LENGTH,
+  })
   email!: string;
 }

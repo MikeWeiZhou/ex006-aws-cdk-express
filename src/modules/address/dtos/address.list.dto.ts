@@ -1,39 +1,41 @@
 import { IDto, ListOptionsDto } from '@ear/common/dtos';
+import { IsMaxLength, IsUndefinable } from '@ear/common/validators';
 import { Expose, Type } from 'class-transformer';
-import { IsObject, IsOptional, Length, ValidateNested } from 'class-validator';
+import { IsObject, ValidateNested } from 'class-validator';
+import { Address } from '../address.model';
 
 /**
  * Parameters for listing addresses.
  */
 export class AddressListDto implements IDto {
   @Expose()
-  @IsOptional()
-  @Length(1, 150)
+  @IsUndefinable()
+  @IsMaxLength(Address.limits.ADDRESS_MAX_LENGTH)
   readonly address?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 10)
+  @IsUndefinable()
+  @IsMaxLength(Address.limits.POSTCODE_MAX_LENGTH)
   readonly postcode?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 100)
+  @IsUndefinable()
+  @IsMaxLength(Address.limits.CITY_MAX_LENGTH)
   readonly city?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 100)
+  @IsUndefinable()
+  @IsMaxLength(Address.limits.PROVINCE_MAX_LENGTH)
   readonly province?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 100)
+  @IsUndefinable()
+  @IsMaxLength(Address.limits.COUNTRY_MAX_LENGTH)
   readonly country?: string;
 
   @Expose()
   @Type(() => ListOptionsDto)
-  @IsOptional()
+  @IsUndefinable()
   @IsObject()
   @ValidateNested()
   readonly options?: ListOptionsDto;

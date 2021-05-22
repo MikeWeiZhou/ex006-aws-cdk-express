@@ -1,7 +1,9 @@
 import { IdDto } from '@ear/common/dtos';
+import { IsMaxLength, IsUndefinable } from '@ear/common/validators';
 import { AddressNestedUpdateDto } from '@ear/modules/address/dtos';
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsOptional, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, ValidateNested } from 'class-validator';
+import { Company } from '../company.model';
 
 /**
  * Parameters for updating a Company.
@@ -9,18 +11,19 @@ import { IsEmail, IsOptional, Length, ValidateNested } from 'class-validator';
 export class CompanyUpdateDto extends IdDto {
   @Expose()
   @Type(() => AddressNestedUpdateDto)
-  @IsOptional()
+  @IsUndefinable()
+  @IsObject()
   @ValidateNested()
   readonly address?: AddressNestedUpdateDto;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 50)
+  @IsUndefinable()
+  @IsMaxLength(Company.limits.NAME_MAX_LENGTH)
   readonly name?: string;
 
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsEmail()
-  @Length(1, 100)
+  @IsMaxLength(Company.limits.EMAIL_MAX_LENGTH)
   readonly email?: string;
 }

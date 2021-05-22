@@ -9,7 +9,10 @@ export abstract class IBaseModel {
   /**
    * Unique resource identifier.
    */
-  @PrimaryColumn({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
+  @PrimaryColumn({
+    type: 'char',
+    length: constants.RESOURCE_ID_TOTAL_LENGTH,
+  })
   id!: string;
 
   /**

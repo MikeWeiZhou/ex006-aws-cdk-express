@@ -169,6 +169,9 @@ export class ControllerDecorator<ReqDto, ResDto extends IDto> {
 
           // sanitize and validate request body against specified DTO
           const requestDto = dtoUtility.sanitizeToDto(props.requestDto, req.body);
+          if (Array.isArray(requestDto)) {
+            throw new InvalidRequestError(undefined, 'Request body cannot be an array. Must be an object');
+          }
           await controllerDecorator.validateDtoOrFail(requestDto);
 
           // call controller function with different arguments

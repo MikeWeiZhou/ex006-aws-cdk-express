@@ -11,6 +11,28 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 @Index(['companyId', 'sku'], { unique: true })
 export class Product extends IBaseModel {
   /**
+   * Data model limits for Product.
+   */
+  static readonly limits = {
+    /**
+     * Maximum string length for product name.
+     */
+    NAME_MAX_LENGTH: 100,
+    /**
+     * Maximum string length for product description.
+     */
+    DESCRIPTION_MAX_LENGTH: 255,
+    /**
+     * Maximum string length for product sku.
+     */
+    SKU_MAX_LENGTH: 100,
+    /**
+     * Maximum positive integer value for product price.
+     */
+    PRICE_MAX_VALUE: 99999999,
+  };
+
+  /**
    * Company that carries this product.
    */
   @ManyToOne(() => Company)
@@ -20,41 +42,54 @@ export class Product extends IBaseModel {
   /**
    * Company that carries this product.
    */
-  @Column({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
+  @Column({
+    type: 'char',
+    length: constants.RESOURCE_ID_TOTAL_LENGTH,
+  })
   companyId!: string;
 
   /**
    * Product name.
    */
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: Product.limits.NAME_MAX_LENGTH,
+  })
   name!: string;
 
   /**
    * Short description of product.
    */
   @Column({
+    type: 'varchar',
     nullable: true,
-    length: 255,
+    length: Product.limits.DESCRIPTION_MAX_LENGTH,
   })
   description?: string;
 
   /**
    * Stock Keeping Unit (sku) of product.
    */
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: Product.limits.SKU_MAX_LENGTH,
+  })
   sku!: string;
 
   /**
-   * Price of product in smallest currency unit.
+   * Price of product in smallest currency unit, e.g. cents in dollars.
    */
-  @Column({ unsigned: true }) // MySQL 5.7 unsigned int max value: 4,294,967,295
+  @Column({
+    type: 'int',
+    unsigned: true,
+  }) // MySQL 5.7 unsigned int max value: 4,294,967,295
   price!: number;
 
   /**
    * Currency that price is in.
    */
   @Column({
-    type: 'varchar',
+    type: 'char',
     length: 3,
   })
   currency!: Currency;

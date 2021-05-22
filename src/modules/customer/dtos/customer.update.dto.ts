@@ -1,7 +1,9 @@
 import { IdDto } from '@ear/common/dtos';
+import { IsMaxLength, IsUndefinable } from '@ear/common/validators';
 import { AddressNestedUpdateDto } from '@ear/modules/address/dtos';
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsObject, IsOptional, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, ValidateNested } from 'class-validator';
+import { Customer } from '../customer.model';
 
 /**
  * Parameters required for updating a Customer.
@@ -9,24 +11,24 @@ import { IsEmail, IsObject, IsOptional, Length, ValidateNested } from 'class-val
 export class CustomerUpdateDto extends IdDto {
   @Expose()
   @Type(() => AddressNestedUpdateDto)
-  @IsOptional()
+  @IsUndefinable()
   @IsObject()
   @ValidateNested()
   readonly address?: AddressNestedUpdateDto;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 50)
+  @IsUndefinable()
+  @IsMaxLength(Customer.limits.FIRST_NAME_MAX_LENGTH)
   readonly firstName?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 50)
+  @IsUndefinable()
+  @IsMaxLength(Customer.limits.LAST_NAME_MAX_LENGTH)
   readonly lastName?: string;
 
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsEmail()
-  @Length(1, 100)
+  @IsMaxLength(Customer.limits.EMAIL_MAX_LENGTH)
   readonly email?: string;
 }

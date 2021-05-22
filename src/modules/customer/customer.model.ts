@@ -11,6 +11,24 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne } from 'typeorm'
 @Index(['companyId', 'email'], { unique: true })
 export class Customer extends IBaseModel {
   /**
+   * Data model limits for Customer.
+   */
+  static readonly limits = {
+    /**
+     * Maximum string length for Customer's first name.
+     */
+    FIRST_NAME_MAX_LENGTH: 50,
+    /**
+     * Maximum string length for Customer's last name.
+     */
+    LAST_NAME_MAX_LENGTH: 50,
+    /**
+     * Maximum string length for Customer's email address.
+     */
+    EMAIL_MAX_LENGTH: 100,
+  };
+
+  /**
    * Company Customer belongs to.
    */
   @ManyToOne(() => Company)
@@ -20,7 +38,10 @@ export class Customer extends IBaseModel {
   /**
    * Company Customer belongs to.
    */
-  @Column({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
+  @Column({
+    type: 'char',
+    length: constants.RESOURCE_ID_TOTAL_LENGTH,
+  })
   companyId!: string;
 
   /**
@@ -33,24 +54,36 @@ export class Customer extends IBaseModel {
   /**
    * Company Customer belongs to.
    */
-  @Column({ length: constants.RESOURCE_ID_TOTAL_LENGTH })
+  @Column({
+    type: 'char',
+    length: constants.RESOURCE_ID_TOTAL_LENGTH,
+  })
   addressId!: string;
 
   /**
    * First name of Customer.
    */
-  @Column({ length: 50 })
+  @Column({
+    type: 'varchar',
+    length: Customer.limits.FIRST_NAME_MAX_LENGTH,
+  })
   firstName!: string;
 
   /**
    * First name of Customer.
    */
-  @Column({ length: 50 })
+  @Column({
+    type: 'varchar',
+    length: Customer.limits.LAST_NAME_MAX_LENGTH,
+  })
   lastName!: string;
 
   /**
    * Email of Customer.
    */
-  @Column({ length: 100 })
+  @Column({
+    type: 'varchar',
+    length: Customer.limits.EMAIL_MAX_LENGTH,
+  })
   email!: string;
 }

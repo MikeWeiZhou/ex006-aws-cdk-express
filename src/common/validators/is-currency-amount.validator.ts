@@ -3,7 +3,8 @@ import { registerDecorator, ValidationArguments } from 'class-validator';
 /**
  * Checks if number is a currency amount.
  *
- * Can only be zero or positive integer up to 999,999,99.
+ * Can only be zero or positive integer up to max.
+ * Max defaults to 99,999,999.
  */
 export function IsCurrencyAmount(max: number = 99999999) {
   return function (object: Object, propertyName: string) {

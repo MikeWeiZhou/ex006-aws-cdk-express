@@ -9,6 +9,9 @@ import { IBaseModel } from '../models/i-base.model';
  * A template for service with basic CRUD.
  */
 export abstract class ICrudService<Model extends IBaseModel> {
+  /**
+   * Resource ID prefix.
+   */
   protected readonly idPrefix: string;
 
   /**
@@ -87,7 +90,7 @@ export abstract class ICrudService<Model extends IBaseModel> {
    * https://github.com/typeorm/typeorm/issues/2707
    *
    * @param qb TypeORM SelectQueryBuilder
-   * @param clauses filter clauses as key-value pairs
+   * @param clauses filter clauses as key-value pairs, can be nested
    */
   protected buildListWhereClause<Entity>(
     qb: SelectQueryBuilder<Entity>,

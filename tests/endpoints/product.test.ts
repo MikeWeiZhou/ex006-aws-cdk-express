@@ -39,16 +39,67 @@ describe('/products', () => {
     });
 
     // eslint-disable-next-line jest/expect-expect
+    it('201: can create Product with lowest/greatest possible price', async () => {
+      let dto: ProductCreateDto;
+      let post: Response;
+
+      // price upper bound
+      dto = await fake.product.dto({ companyId: company.id });
+      (dto as any).price = 99999999;
+      post = await request.post(rootPath).send(dto);
+      expect(post.statusCode).toBe(201);
+      fake.product.addToGarbageBin(post.body);
+
+      // price lower bound
+      dto = await fake.product.dto({ companyId: company.id });
+      (dto as any).price = 0;
+      post = await request.post(rootPath).send(dto);
+      expect(post.statusCode).toBe(201);
+      fake.product.addToGarbageBin(post.body);
+    });
+
+    it('201: can create Product with identical sku for different company', async () => {
+      const product = await fake.product.create();
+
+      // same sku, different company
+      const productDto = await fake.product.dto({ sku: product.sku });
+      const post = await request.post(rootPath).send(productDto);
+      expect(post.statusCode).toBe(201);
+
+      fake.product.addToGarbageBin(post.body);
+    });
+
+    // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Product with missing parameters', async () => {
+      let dto: ProductCreateDto;
+      let post: Response;
+
       // missing parameters
-      const dto = await fake.product.dto({ companyId: company.id });
+      dto = await fake.product.dto({ companyId: company.id });
       delete (dto as any).companyId;
       delete (dto as any).name;
       delete (dto as any).sku;
       delete (dto as any).price;
       delete (dto as any).currency;
       delete (dto as any).description; // optional
-      const post = await request.post(rootPath).send(dto);
+      post = await request.post(rootPath).send(dto);
+      testUtility.expectRequestInvalidParams(post, [
+        'companyId',
+        'name',
+        'sku',
+        'price',
+        'currency',
+      ]);
+
+      // undefined should be treated as missing
+      dto = await fake.product.dto({ companyId: company.id });
+      (dto as any).companyId = undefined;
+      (dto as any).name = undefined;
+      (dto as any).sku = undefined;
+      (dto as any).price = undefined;
+      (dto as any).currency = undefined;
+      (dto as any).description = undefined; // optional
+      post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
         'companyId',
         'name',
@@ -65,6 +116,7 @@ describe('/products', () => {
 
       // all invalid
       dto = await fake.product.dto({ companyId: company.id });
+      (dto as any).companyId = '';
       (dto as any).name = '';
       (dto as any).sku = '';
       (dto as any).price = '50';
@@ -72,6 +124,7 @@ describe('/products', () => {
       (dto as any).description = '';
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
+        'companyId',
         'name',
         'sku',
         'price',
@@ -92,7 +145,24 @@ describe('/products', () => {
         'description',
       ]);
 
-      // price out of accepted range
+      // nulls are invalid
+      dto = await fake.product.dto({ companyId: company.id });
+      (dto as any).companyId = null;
+      (dto as any).name = null;
+      (dto as any).sku = null;
+      (dto as any).price = null;
+      (dto as any).currency = null;
+      (dto as any).description = null; // nullable, this should not error out
+      post = await request.post(rootPath).send(dto);
+      testUtility.expectRequestInvalidParams(post, [
+        'companyId',
+        'name',
+        'sku',
+        'price',
+        'currency',
+      ]);
+
+      // price just out of accepted range
       dto = await fake.product.dto({ companyId: company.id });
       (dto as any).price = -1;
       post = await request.post(rootPath).send(dto);
@@ -100,20 +170,24 @@ describe('/products', () => {
       (dto as any).price = 100000000;
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, ['price']);
+    });
 
-      // price in accepted upper range
-      dto = await fake.product.dto({ companyId: company.id });
-      (dto as any).price = 99999999;
-      post = await request.post(rootPath).send(dto);
-      expect(post.statusCode).toBe(201);
-      fake.product.addToGarbageBin(post.body);
+    it('409: cannot create Product with identical sku for same company', async () => {
+      const product1Dto = await fake.product.dto({ companyId: company.id });
+      const post1 = await request.post(rootPath).send(product1Dto);
+      expect(post1.statusCode).toBe(201);
+      expect(post1.body).toMatchObject(product1Dto);
 
-      // price in accepted lower range
-      dto = await fake.product.dto({ companyId: company.id });
-      (dto as any).price = 0;
-      post = await request.post(rootPath).send(dto);
-      expect(post.statusCode).toBe(201);
-      fake.product.addToGarbageBin(post.body);
+      // no duplicate sku for same company
+      const product2Dto = await fake.product.dto({
+        companyId: company.id,
+        sku: product1Dto.sku,
+      });
+      const post2 = await request.post(rootPath).send(product2Dto);
+      expect(post2.statusCode).toBe(409);
+      expect(post2.body.status).toBe(409);
+
+      fake.product.addToGarbageBin(post1.body);
     });
   });
 
@@ -216,6 +290,53 @@ describe('/products', () => {
         expect(customer.id).not.toBe(firstProduct.id);
       });
     });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('400: cannot list products with invalid filters', async () => {
+      let listDto: ProductListDto;
+      let get: Response;
+
+      // not nullable
+      listDto = {
+        companyId: null,
+        currency: null,
+        description: null, // this is nullable, this should not error out
+        name: null,
+        price: null,
+        sku: null,
+        options: null,
+      } as any;
+      get = await request.get(rootPath).send(listDto);
+      testUtility.expectRequestInvalidParams(get, [
+        'companyId',
+        'currency',
+        'name',
+        'price',
+        'sku',
+        'options',
+      ]);
+
+      // invalids
+      listDto = {
+        companyId: '',
+        currency: 'aud', // not a supported currency
+        description: '',
+        name: '',
+        price: -1, // minimum 0
+        sku: '',
+        options: '',
+      } as any;
+      get = await request.get(rootPath).send(listDto);
+      testUtility.expectRequestInvalidParams(get, [
+        'companyId',
+        'currency',
+        'description',
+        'name',
+        'price',
+        'sku',
+        'options',
+      ]);
+    });
   });
 });
 
@@ -257,6 +378,46 @@ describe('/products/:id', () => {
         ...update,
         id: product.id,
       });
+    });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('400: cannot update Product with invalid parameters', async () => {
+      const product: ProductModelDto = await fake.product.create({ companyId: company.id });
+      let dto: ProductUpdateDto;
+      let patch: Response;
+
+      // not nullable
+      dto = {
+        currency: null,
+        description: null, // this is nullable, this should not error out
+        name: null,
+        price: null,
+        sku: null,
+      } as any;
+      patch = await request.patch(`${rootPath}/${product.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(patch, [
+        'currency',
+        'name',
+        'price',
+        'sku',
+      ]);
+
+      // invalids
+      dto = {
+        currency: 'son', // not supported currency
+        description: '', // optional, but contains invalid value, should error out
+        name: '',
+        price: 10000000000, // way over the limit
+        sku: '',
+      } as any;
+      patch = await request.patch(`${rootPath}/${product.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(patch, [
+        'currency',
+        'description',
+        'name',
+        'price',
+        'sku',
+      ]);
     });
 
     it('404: cannot update non-existent Product', async () => {

@@ -1,8 +1,9 @@
 import { IBaseModelDto } from '@ear/common/dtos';
-import { IsResourceId } from '@ear/common/validators';
+import { IsMaxLength, IsResourceId } from '@ear/common/validators';
 import { AddressModelDto } from '@ear/modules/address/dtos';
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsObject, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, ValidateNested } from 'class-validator';
+import { Customer } from '../customer.model';
 
 /**
  * Customer database model DTO.
@@ -19,15 +20,15 @@ export class CustomerModelDto extends IBaseModelDto {
   readonly address!: AddressModelDto;
 
   @Expose()
-  @Length(1, 50)
+  @IsMaxLength(Customer.limits.FIRST_NAME_MAX_LENGTH)
   readonly firstName!: string;
 
   @Expose()
-  @Length(1, 50)
+  @IsMaxLength(Customer.limits.LAST_NAME_MAX_LENGTH)
   readonly lastName!: string;
 
   @Expose()
   @IsEmail()
-  @Length(1, 100)
+  @IsMaxLength(Customer.limits.EMAIL_MAX_LENGTH)
   readonly email!: string;
 }

@@ -219,6 +219,34 @@ describe('/companies', () => {
         expect(company.id).not.toBe(firstCustomer.id);
       });
     });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('400: cannot list companies with invalid filters', async () => {
+      let listDto: CompanyListDto;
+      let get: Response;
+
+      // not nullable
+      listDto = {
+        name: null,
+        email: null,
+      } as any;
+      get = await request.get(rootPath).send(listDto);
+      testUtility.expectRequestInvalidParams(get, [
+        'name',
+        'email',
+      ]);
+
+      // invalids
+      listDto = {
+        name: '',
+        email: 'not_an_email',
+      } as any;
+      get = await request.get(rootPath).send(listDto);
+      testUtility.expectRequestInvalidParams(get, [
+        'name',
+        'email',
+      ]);
+    });
   });
 });
 
@@ -261,6 +289,35 @@ describe('/companies/:id', () => {
         ...update,
         id: company.id,
       });
+    });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('400: cannot update Company with invalid parameters', async () => {
+      const company = await fake.company.create();
+      let dto: CompanyUpdateDto;
+      let get: Response;
+
+      // not nullable
+      dto = {
+        name: null,
+        email: null,
+      } as any;
+      get = await request.patch(`${rootPath}/${company.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(get, [
+        'name',
+        'email',
+      ]);
+
+      // invalids
+      dto = {
+        name: '',
+        email: 'not_an_email',
+      } as any;
+      get = await request.patch(`${rootPath}/${company.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(get, [
+        'name',
+        'email',
+      ]);
     });
 
     it('404: cannot update non-existent Company', async () => {

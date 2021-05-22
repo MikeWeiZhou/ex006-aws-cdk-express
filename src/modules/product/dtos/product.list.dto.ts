@@ -1,46 +1,47 @@
 import { IDto, ListOptionsDto } from '@ear/common/dtos';
 import { Currency } from '@ear/common/enums';
-import { IsCurrencyAmount, IsCurrencyCode, IsResourceId } from '@ear/common/validators';
+import { IsCurrencyAmount, IsCurrencyCode, IsMaxLength, IsResourceId, IsUndefinable, IsUndefinableAndNullable } from '@ear/common/validators';
 import { Expose, Type } from 'class-transformer';
-import { IsObject, IsOptional, Length, ValidateNested } from 'class-validator';
+import { IsObject, ValidateNested } from 'class-validator';
+import { Product } from '../product.model';
 
 /**
  * Parameters for listing products.
  */
 export class ProductListDto implements IDto {
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsResourceId()
   readonly companyId?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 100)
+  @IsUndefinable()
+  @IsMaxLength(Product.limits.NAME_MAX_LENGTH)
   readonly name?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 255)
+  @IsUndefinableAndNullable()
+  @IsMaxLength(Product.limits.DESCRIPTION_MAX_LENGTH)
   readonly description?: string;
 
   @Expose()
-  @IsOptional()
-  @Length(1, 100)
+  @IsUndefinable()
+  @IsMaxLength(Product.limits.SKU_MAX_LENGTH)
   readonly sku?: string;
 
   @Expose()
-  @IsOptional()
-  @IsCurrencyAmount()
+  @IsUndefinable()
+  @IsCurrencyAmount(Product.limits.PRICE_MAX_VALUE)
   readonly price?: number;
 
   @Expose()
-  @IsOptional()
+  @IsUndefinable()
   @IsCurrencyCode()
   readonly currency?: Currency;
 
   @Expose()
   @Type(() => ListOptionsDto)
-  @IsOptional()
+  @IsUndefinable()
   @IsObject()
   @ValidateNested()
   readonly options?: ListOptionsDto;

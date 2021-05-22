@@ -41,7 +41,7 @@ export class DtoUtility {
   sanitizeToDto<Dto extends IDto>(dtoConstructor: ClassConstructor<Dto>, dtoLikes: Dto): Dto;
   sanitizeToDto<Dto extends IDto>(dtoConstructor: ClassConstructor<Dto>, dtoLikes: Dto[]): Dto[];
   sanitizeToDto<Dto extends IDto>(dtoConstructor: ClassConstructor<Dto>, dtoLikes: any): any {
-    if (Array.isArray(dtoConstructor) && Array.isArray(dtoLikes)) {
+    if (Array.isArray(dtoLikes)) {
       return dtoLikes.map((dtoLike: Dto) => this.executeSanitizeToDto(dtoConstructor, dtoLike));
     }
     return this.executeSanitizeToDto(dtoConstructor, dtoLikes) as Dto;

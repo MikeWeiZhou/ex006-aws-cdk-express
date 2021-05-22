@@ -1,28 +1,29 @@
 import { IDto } from '@ear/common/dtos';
+import { IsMaxLength } from '@ear/common/validators';
 import { Expose } from 'class-transformer';
-import { Length } from 'class-validator';
+import { Address } from '../address.model';
 
 /**
  * Parameters required for creating an Address.
  */
 export class AddressCreateDto implements IDto {
   @Expose()
-  @Length(1, 150)
+  @IsMaxLength(Address.limits.ADDRESS_MAX_LENGTH)
   readonly address!: string;
 
   @Expose()
-  @Length(1, 10)
+  @IsMaxLength(Address.limits.POSTCODE_MAX_LENGTH)
   readonly postcode!: string;
 
   @Expose()
-  @Length(1, 100)
+  @IsMaxLength(Address.limits.CITY_MAX_LENGTH)
   readonly city!: string;
 
   @Expose()
-  @Length(1, 100)
+  @IsMaxLength(Address.limits.PROVINCE_MAX_LENGTH)
   readonly province!: string;
 
   @Expose()
-  @Length(1, 100)
+  @IsMaxLength(Address.limits.COUNTRY_MAX_LENGTH)
   readonly country!: string;
 }

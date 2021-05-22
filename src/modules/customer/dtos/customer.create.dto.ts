@@ -1,8 +1,9 @@
 import { IDto } from '@ear/common/dtos';
-import { IsResourceId } from '@ear/common/validators';
+import { IsMaxLength, IsResourceId } from '@ear/common/validators';
 import { AddressCreateDto } from '@ear/modules/address/dtos';
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsObject, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsObject, ValidateNested } from 'class-validator';
+import { Customer } from '../customer.model';
 
 /**
  * Parameters required for creating a Customer.
@@ -19,15 +20,15 @@ export class CustomerCreateDto implements IDto {
   readonly address!: AddressCreateDto;
 
   @Expose()
-  @Length(1, 50)
+  @IsMaxLength(Customer.limits.FIRST_NAME_MAX_LENGTH)
   readonly firstName!: string;
 
   @Expose()
-  @Length(1, 50)
+  @IsMaxLength(Customer.limits.LAST_NAME_MAX_LENGTH)
   readonly lastName!: string;
 
   @Expose()
   @IsEmail()
-  @Length(1, 100)
+  @IsMaxLength(Customer.limits.EMAIL_MAX_LENGTH)
   readonly email!: string;
 }
