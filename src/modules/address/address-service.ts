@@ -1,10 +1,10 @@
-import { ICrudService, IdDto } from '@ear/common';
+import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
 import { Address } from './address.model';
+import { AddressModelDto, AddressUpdateDto } from './dtos';
 import { AddressCreateDto } from './dtos/address-create-dto';
 import { AddressListDto } from './dtos/address-list-dto';
-import { AddressUpdateDto } from './dtos/address-update-dto';
 
 /**
  * Service to make changes to Address resources.
@@ -65,7 +65,10 @@ export class AddressService extends ICrudService<Address> {
    * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
-  async update(updateDto: AddressUpdateDto, entityManager?: EntityManager): Promise<void> {
+  async update(
+    updateDto: ServiceUpdateOverwrite<AddressModelDto, AddressUpdateDto>,
+    entityManager?: EntityManager,
+  ): Promise<void> {
     const manager = entityManager ?? getManager();
     const { id, ...updates } = updateDto;
     const result = await manager.update(Address, { id }, updates);

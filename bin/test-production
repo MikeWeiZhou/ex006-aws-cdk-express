@@ -26,4 +26,4 @@ else
 fi
 
 # Run tests
-jest --watch -t $2
+jest -t $2

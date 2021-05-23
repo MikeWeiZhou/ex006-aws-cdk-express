@@ -1,6 +1,7 @@
 import { ClassConstructor, classToPlain, plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { IDto } from '../common/dtos/i-dto';
+import { IErrorParameters } from '../core/types/i-error-parameters';
 
 /**
  * Data Transfer Object (DTO) utility functions.
@@ -79,10 +80,14 @@ export class DtoUtility {
   /**
    * Validates DTO and returns errors, if any.
    * @param dtoInstance DTO instance
-   * @returns validations errors, if any
+   * @returns validations errors or undefined
    */
-  async validateDto<Dto extends IDto>(dtoInstance: Dto): Promise<ValidationError[]> {
-    return validate(dtoInstance);
+  async validateDto<Dto extends IDto>(dtoInstance: Dto): Promise<IErrorParameters | undefined> {
+    const validationErrors = await validate(dtoInstance);
+    if (validationErrors.length > 0) {
+      return this.flattenValidationErrors(validationErrors);
+    }
+    return undefined;
   }
 
   /**
@@ -139,6 +144,38 @@ export class DtoUtility {
         delete obj[key]; // eslint-disable-line no-param-reassign
       }
     });
+  }
+
+  /**
+   * Flatten nested ValidationErrors into IErrorParameters.
+   * @param validationErrors validation errors from class-validator
+   * @param paramPrefix prefix for parameter name (used for nested validation)
+   * @returns flat IErrorParameters oject
+   */
+  private flattenValidationErrors(
+    validationErrors: ValidationError[],
+    paramPrefix?: string,
+  ): IErrorParameters {
+    let params: IErrorParameters = {};
+    validationErrors.forEach((validationError) => {
+      const { property, constraints, children } = validationError;
+      const paramName = (paramPrefix)
+        ? `${paramPrefix}${property}`
+        : property;
+      if (constraints) {
+        // use first constraint error only
+        [params[paramName]] = Object.values(constraints);
+      } else if (children) {
+        const childParams = this.flattenValidationErrors(children, `${paramName}.`);
+        params = {
+          ...params,
+          ...childParams,
+        };
+      } else {
+        params[paramName] = 'invalid or missing parameter';
+      }
+    });
+    return params;
   }
 }
 

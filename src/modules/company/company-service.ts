@@ -1,9 +1,9 @@
-import { ICrudService, IdDto } from '@ear/common';
+import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { addressService } from '@ear/modules/address';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
 import { Company } from './company.model';
-import { CompanyCreateDto, CompanyListDto, CompanyUpdateDto } from './dtos';
+import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from './dtos';
 
 /**
  * Service to make changes to Company resources.
@@ -73,7 +73,10 @@ export class CompanyService extends ICrudService<Company> {
    * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
-  async update(updateDto: CompanyUpdateDto, entityManager?: EntityManager): Promise<void> {
+  async update(
+    updateDto: ServiceUpdateOverwrite<CompanyModelDto, CompanyUpdateDto>,
+    entityManager?: EntityManager,
+  ): Promise<void> {
     return getManager().transaction(async (localEntityManager) => {
       const manager = entityManager ?? localEntityManager;
       const { id, address, ...updates } = updateDto;

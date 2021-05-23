@@ -1,7 +1,7 @@
-import { ICrudService, IdDto } from '@ear/common';
+import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
-import { ProductCreateDto, ProductListDto, ProductUpdateDto } from './dtos';
+import { ProductCreateDto, ProductListDto, ProductModelDto, ProductUpdateDto } from './dtos';
 import { Product } from './product.model';
 
 /**
@@ -63,7 +63,10 @@ export class ProductService extends ICrudService<Product> {
    * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
-  async update(updateDto: ProductUpdateDto, entityManager?: EntityManager): Promise<void> {
+  async update(
+    updateDto: ServiceUpdateOverwrite<ProductModelDto, ProductUpdateDto>,
+    entityManager?: EntityManager,
+  ): Promise<void> {
     const manager = entityManager ?? getManager();
     const { id, ...updates } = updateDto;
     const result = await manager.update(Product, { id }, updates);

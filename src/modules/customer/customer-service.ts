@@ -1,9 +1,9 @@
-import { ICrudService, IdDto } from '@ear/common';
+import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { addressService } from '@ear/modules/address';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
 import { Customer } from './customer.model';
-import { CustomerCreateDto, CustomerListDto, CustomerUpdateDto } from './dtos';
+import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from './dtos';
 
 /**
  * Service to make changes to Customer resources.
@@ -73,7 +73,10 @@ export class CustomerService extends ICrudService<Customer> {
    * @param entityManager used for transactions
    * @throws {NotFoundError}
    */
-  async update(updateDto: CustomerUpdateDto, entityManager?: EntityManager): Promise<void> {
+  async update(
+    updateDto: ServiceUpdateOverwrite<CustomerModelDto, CustomerUpdateDto>,
+    entityManager?: EntityManager,
+  ): Promise<void> {
     return getManager().transaction(async (localEntityManager) => {
       const manager = entityManager ?? localEntityManager;
       const { id, address, ...updates } = updateDto;
