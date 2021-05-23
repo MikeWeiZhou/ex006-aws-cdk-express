@@ -1,3 +1,5 @@
+ALTER TABLE `sale` DROP FOREIGN KEY `fk_sale_customerId`
+;
 ALTER TABLE `product` DROP FOREIGN KEY `fk_product_companyId`
 ;
 ALTER TABLE `customer` DROP FOREIGN KEY `fk_customer_addressId`
@@ -5,6 +7,8 @@ ALTER TABLE `customer` DROP FOREIGN KEY `fk_customer_addressId`
 ALTER TABLE `customer` DROP FOREIGN KEY `fk_customer_companyId`
 ;
 ALTER TABLE `company` DROP FOREIGN KEY `fk_company_addressId`
+;
+DROP TABLE `sale`
 ;
 DROP INDEX `idx_product_companyId_sku` ON `product`
 ;

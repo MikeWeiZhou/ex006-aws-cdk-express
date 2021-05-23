@@ -47,7 +47,7 @@ export class Customer extends IBaseModel {
   /**
    * Company Customer belongs to.
    */
-  @OneToOne(() => Address, { cascade: ['insert', 'update', 'remove'] })
+  @OneToOne(() => Address)
   @JoinColumn({ name: 'addressId' })
   address!: Address;
 

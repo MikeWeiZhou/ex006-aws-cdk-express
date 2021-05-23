@@ -1,4 +1,5 @@
 import { Currency } from '@ear/common/enums';
+import { companyService } from '@ear/modules/company';
 import { ProductCreateDto, ProductModelDto } from '@ear/modules/product/dtos';
 import faker from 'faker';
 import { request } from '../request';
@@ -16,10 +17,15 @@ export class ProductFaker extends IFaker<ProductCreateDto, ProductModelDto> {
   /**
    * Returns DTO used for creating a Product.
    * @param dto uses any provided properties over generated ones
+   * @param noDatabaseWrites do not create dependency entities in database, defaults to false
    * @returns DTO
    */
-  async dto(dto?: Partial<ProductCreateDto>): Promise<ProductCreateDto> {
-    const companyId = dto?.companyId ?? (await company.create()).id;
+  async dto(
+    dto?: Partial<ProductCreateDto>,
+    noDatabaseWrites: boolean = false,
+  ): Promise<ProductCreateDto> {
+    const companyId = dto?.companyId
+      ?? ((noDatabaseWrites && await companyService.generateId()) || (await company.create()).id);
     const name = dto?.name ?? `${faker.commerce.productName()}`;
     const description = dto?.description ?? `${faker.commerce.productDescription()}`;
     const sku = dto?.sku ?? `${faker.datatype.string(20)}`;

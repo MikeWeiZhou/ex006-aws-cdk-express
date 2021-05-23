@@ -1,7 +1,7 @@
 import { IdDto } from '@ear/common/dtos';
 import { ICrudService } from '@ear/common/services';
 import { NotFoundError } from '@ear/core/errors';
-import { EntityManager, FindManyOptions, getManager } from 'typeorm';
+import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
 import { ProductCreateDto, ProductListDto, ProductUpdateDto } from './dtos';
 import { Product } from './product.model';
 
@@ -65,14 +65,12 @@ export class ProductService extends ICrudService<Product> {
    * @throws {NotFoundError}
    */
   async update(updateDto: ProductUpdateDto, entityManager?: EntityManager): Promise<void> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
-      const { id, ...updates } = updateDto;
-      const result = await manager.update(Product, { id }, updates);
-      if (result.affected === 0) {
-        throw new NotFoundError(`Cannot update Product. ID ${id} does not exist.`);
-      }
-    });
+    const manager = entityManager ?? getManager();
+    const { id, ...updates } = updateDto;
+    const result = await manager.update(Product, { id }, updates);
+    if (result.raw.affectedRows === 0) {
+      throw new NotFoundError(`Cannot update Product. ID ${id} does not exist.`);
+    }
   }
 
   /**
@@ -82,13 +80,11 @@ export class ProductService extends ICrudService<Product> {
    * @throws {NotFoundError}
    */
   async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
-      const result = await manager.delete(Product, { id: idDto.id });
-      if (result.affected === 0) {
-        throw new NotFoundError(`Cannot delete Product. ID ${idDto.id} does not exist.`);
-      }
-    });
+    const manager = entityManager ?? getManager();
+    const result = await manager.delete(Product, { id: idDto.id });
+    if (result.raw.affectedRows === 0) {
+      throw new NotFoundError(`Cannot delete Product. ID ${idDto.id} does not exist.`);
+    }
   }
 
   /**
@@ -105,7 +101,9 @@ export class ProductService extends ICrudService<Product> {
       const { options, ...filters } = listDto;
 
       // filters
-      findManyOptions.where = filters;
+      findManyOptions.where = (qb: SelectQueryBuilder<Product>) => {
+        this.buildListWhereClause(qb, 'Product', filters);
+      };
 
       // pagination
       if (typeof options?.limit !== 'undefined') {

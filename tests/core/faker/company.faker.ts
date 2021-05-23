@@ -15,16 +15,20 @@ export class CompanyFaker extends IFaker<CompanyCreateDto, CompanyModelDto> {
   /**
    * Returns DTO used for creating a Company.
    * @param dto uses any provided properties over generated ones
+   * @param noDatabaseWrites do not create dependency entities in database, defaults to false
    * @returns DTO
    */
-  async dto(dto?: Partial<CompanyCreateDto>): Promise<CompanyCreateDto> {
+  async dto(
+    dto?: Partial<CompanyCreateDto>,
+    noDatabaseWrites: boolean = false,
+  ): Promise<CompanyCreateDto> {
     const name = dto?.name ?? `${faker.company.companyName()}`;
     const email = dto?.email ?? `${faker.internet.email(
       undefined,
       undefined,
       `${faker.helpers.slugify(name)}.com`,
     )}`;
-    const addr = await address.dto(dto?.address);
+    const addr = await address.dto(dto?.address, noDatabaseWrites);
     return {
       name,
       email,

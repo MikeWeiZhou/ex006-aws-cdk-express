@@ -79,7 +79,7 @@ export class CustomerService extends ICrudService<Customer> {
       const manager = entityManager ?? localEntityManager;
       const { id, address, ...updates } = updateDto;
       const result = await manager.update(Customer, { id }, updates);
-      if (result.affected === 0) {
+      if (result.raw.affectedRows === 0) {
         throw new NotFoundError(`Cannot update Customer. ID ${id} does not exist.`);
       }
       // update address fields
@@ -107,7 +107,7 @@ export class CustomerService extends ICrudService<Customer> {
       const manager = entityManager ?? localEntityManager;
       const customer = await this.getOrFail(idDto, manager);
       const result = await manager.delete(Customer, { id: idDto.id });
-      if (result.affected === 0) {
+      if (result.raw.affectedRows === 0) {
         throw new NotFoundError(`Cannot delete Customer. ID ${idDto.id} does not exist.`);
       }
       await addressService.delete({ id: customer.addressId }, manager);

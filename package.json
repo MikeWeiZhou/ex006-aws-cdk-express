@@ -4,6 +4,7 @@
   "main": "dist/main.js",
   "author": "Mike Zhou",
   "scripts": {
+    "help": "npm-scripts-info",
     "dev:mysql": "./bin/mysql-client dev",
     "dev:server": "./bin/server dev",
     "dev:server:debug": "./bin/server-debug dev",
@@ -22,8 +23,8 @@
     "test:migrations:run": "./bin/migrations-run test",
     "test:migrations:reset": "./bin/migrations-run test 0 && ./bin/migrations-run test",
     "test:migrations:generate": "./bin/migrations-generate test",
-    "util:generate-index-export": "./bin/generate-index",
-    "help": "npm-scripts-info",
+    "gen:index-export": "./bin/generate-index",
+    "gen:create-dto": "./bin/generate-create-dto.ts",
     "prepare": "husky install"
   },
   "scripts-info": {
@@ -40,7 +41,8 @@
     "ear [env]:migrations:run [target-version]": "run migration scripts to targetted db schema version",
     "ear [env]:migrations:reset": "run all downgrade migration scripts, then all upgrade migration scripts",
     "ear [env]:migrations:generate [migration-name]": "generate new migration based on differences in actual MySQL database schema and TypeORM models (.model.ts files)",
-    "ear util:generate-index-export [target-folder]": "generate index.ts exporting all files within target folder"
+    "ear gen:index-export [target-folder]": "generate index.ts exporting all files within target folder",
+    "ear gen:create-dto [target-model]": "generate and console log a create DTO JSON for specified target-model (lowercase, e.g. company)"
   },
   "devDependencies": {
     "@types/faker": "^5.5.5",

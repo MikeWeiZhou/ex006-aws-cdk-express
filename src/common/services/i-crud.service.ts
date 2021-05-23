@@ -78,7 +78,7 @@ export abstract class ICrudService<Model extends IBaseModel> {
    * Generate a secure random resource ID with prefix.
    * @returns resource ID
    */
-  protected async generateId(): Promise<string> {
+  async generateId(): Promise<string> {
     const generated = await nanoid(constants.RESOURCE_ID_GENERATED_LENGTH);
     return `${this.idPrefix}${generated}`;
   }

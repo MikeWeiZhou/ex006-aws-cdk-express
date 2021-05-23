@@ -13,9 +13,13 @@ export class AddressFaker extends IFaker<AddressCreateDto, AddressModelDto> {
   /**
    * Returns DTO used for creating an Address.
    * @param dto uses any provided properties over generated ones
+   * @param noDatabaseWrites do not create dependency entities in database, defaults to false
    * @returns DTO
    */
-  async dto(dto?: Partial<AddressCreateDto>): Promise<AddressCreateDto> {
+  async dto(
+    dto?: Partial<AddressCreateDto>,
+    noDatabaseWrites: boolean = false,
+  ): Promise<AddressCreateDto> {
     const address = dto?.address ?? `${faker.address.streetAddress()} ${faker.address.streetName()}`;
     const postcode = dto?.postcode ?? `${faker.address.zipCode()}`;
     const city = dto?.city ?? `${faker.address.cityName()}`;

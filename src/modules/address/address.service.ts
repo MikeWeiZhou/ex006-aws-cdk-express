@@ -1,7 +1,7 @@
 import { IdDto } from '@ear/common/dtos';
 import { ICrudService } from '@ear/common/services';
 import { NotFoundError } from '@ear/core/errors';
-import { EntityManager, FindManyOptions, getManager } from 'typeorm';
+import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
 import { Address } from './address.model';
 import { AddressUpdateDto } from './dtos';
 import { AddressCreateDto } from './dtos/address.create.dto';
@@ -70,7 +70,7 @@ export class AddressService extends ICrudService<Address> {
     const manager = entityManager ?? getManager();
     const { id, ...updates } = updateDto;
     const result = await manager.update(Address, { id }, updates);
-    if (result.affected === 0) {
+    if (result.raw.affectedRows === 0) {
       throw new NotFoundError(`Cannot update Address. ID ${id} does not exist.`);
     }
   }
@@ -84,7 +84,7 @@ export class AddressService extends ICrudService<Address> {
   async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
     const manager = entityManager ?? getManager();
     const result = await manager.delete(Address, { id: idDto.id });
-    if (result.affected === 0) {
+    if (result.raw.affectedRows === 0) {
       throw new NotFoundError(`Cannot delete Address. ID ${idDto.id} does not exist.`);
     }
   }
@@ -103,7 +103,9 @@ export class AddressService extends ICrudService<Address> {
       const { options, ...filters } = listDto;
 
       // filters
-      findManyOptions.where = filters;
+      findManyOptions.where = (qb: SelectQueryBuilder<Address>) => {
+        this.buildListWhereClause(qb, 'Address', filters);
+      };
 
       // pagination
       if (typeof options?.limit !== 'undefined') {
