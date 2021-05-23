@@ -1,5 +1,5 @@
 import { IdDto } from '@ear/common';
-import { Controller } from '@ear/core';
+import { Controller, ResponseStatusCode } from '@ear/core';
 import { companyService } from './company-service';
 import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from './dtos';
 
@@ -14,9 +14,10 @@ export class CompanyController {
    * @param res Express Response
    * @returns company
    */
-  @Controller.Create({
+  @Controller.decorate({
     requestDto: CompanyCreateDto,
     responseDto: CompanyModelDto,
+    responseStatusCode: ResponseStatusCode.CREATED,
   })
   async create(requestDto: CompanyCreateDto): Promise<CompanyModelDto> {
     const id = await companyService.create(requestDto);
@@ -30,10 +31,11 @@ export class CompanyController {
    * @param res Express Response
    * @returns Company
    */
-  @Controller.Get({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: IdDto,
     responseDto: CompanyModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async get(requestDto: IdDto): Promise<CompanyModelDto> {
     return companyService.getOrFail(requestDto);
@@ -46,10 +48,11 @@ export class CompanyController {
    * @param res Express Response
    * @returns updated Company
    */
-  @Controller.Update({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: CompanyUpdateDto,
     responseDto: CompanyModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async update(requestDto: CompanyUpdateDto): Promise<CompanyModelDto> {
     await companyService.update(requestDto);
@@ -62,9 +65,10 @@ export class CompanyController {
    * @param req Express Request
    * @param res Express Response
    */
-  @Controller.Delete({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: IdDto,
+    responseStatusCode: ResponseStatusCode.NO_CONTENT,
   })
   async delete(requestDto: IdDto): Promise<void> {
     await companyService.delete(requestDto);
@@ -77,9 +81,10 @@ export class CompanyController {
    * @param res Express Response
    * @returns companies
    */
-  @Controller.List({
+  @Controller.decorate({
     requestDto: CompanyListDto,
     responseDto: CompanyModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async list(requestDto: CompanyListDto): Promise<CompanyModelDto[]> {
     return companyService.list(requestDto);

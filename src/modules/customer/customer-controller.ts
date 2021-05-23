@@ -1,5 +1,5 @@
 import { IdDto } from '@ear/common';
-import { Controller } from '@ear/core';
+import { Controller, ResponseStatusCode } from '@ear/core';
 import { customerService } from './customer-service';
 import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from './dtos';
 
@@ -14,9 +14,10 @@ export class CustomerController {
    * @param res Express Response
    * @returns Customer
    */
-  @Controller.Create({
+  @Controller.decorate({
     requestDto: CustomerCreateDto,
     responseDto: CustomerModelDto,
+    responseStatusCode: ResponseStatusCode.CREATED,
   })
   async create(requestDto: CustomerCreateDto): Promise<CustomerModelDto> {
     const id = await customerService.create(requestDto);
@@ -30,10 +31,11 @@ export class CustomerController {
    * @param res Express Response
    * @returns Customer
    */
-  @Controller.Get({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: IdDto,
     responseDto: CustomerModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async get(requestDto: IdDto): Promise<CustomerModelDto> {
     return customerService.getOrFail(requestDto);
@@ -46,10 +48,11 @@ export class CustomerController {
    * @param res Express Response
    * @returns updated Customer
    */
-  @Controller.Update({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: CustomerUpdateDto,
     responseDto: CustomerModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async update(requestDto: CustomerUpdateDto): Promise<CustomerModelDto> {
     await customerService.update(requestDto);
@@ -62,9 +65,10 @@ export class CustomerController {
    * @param req Express Request
    * @param res Express Response
    */
-  @Controller.Delete({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: IdDto,
+    responseStatusCode: ResponseStatusCode.NO_CONTENT,
   })
   async delete(requestDto: IdDto): Promise<void> {
     await customerService.delete(requestDto);
@@ -77,9 +81,10 @@ export class CustomerController {
    * @param res Express Response
    * @returns customers
    */
-  @Controller.List({
+  @Controller.decorate({
     requestDto: CustomerListDto,
     responseDto: CustomerModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async list(requestDto: CustomerListDto): Promise<CustomerModelDto[]> {
     return customerService.list(requestDto);

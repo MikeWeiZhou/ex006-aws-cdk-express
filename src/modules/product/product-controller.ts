@@ -1,5 +1,5 @@
 import { IdDto } from '@ear/common';
-import { Controller } from '@ear/core';
+import { Controller, ResponseStatusCode } from '@ear/core';
 import { ProductCreateDto, ProductListDto, ProductModelDto, ProductUpdateDto } from './dtos';
 import { productService } from './product-service';
 
@@ -14,9 +14,10 @@ export class ProductController {
    * @param res Express Response
    * @returns Product
    */
-  @Controller.Create({
+  @Controller.decorate({
     requestDto: ProductCreateDto,
     responseDto: ProductModelDto,
+    responseStatusCode: ResponseStatusCode.CREATED,
   })
   async create(requestDto: ProductCreateDto): Promise<ProductModelDto> {
     const id = await productService.create(requestDto);
@@ -30,10 +31,11 @@ export class ProductController {
    * @param res Express Response
    * @returns Product
    */
-  @Controller.Get({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: IdDto,
     responseDto: ProductModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async get(requestDto: IdDto): Promise<ProductModelDto> {
     return productService.getOrFail(requestDto);
@@ -46,10 +48,11 @@ export class ProductController {
    * @param res Express Response
    * @returns updated Product
    */
-  @Controller.Update({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: ProductUpdateDto,
     responseDto: ProductModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async update(requestDto: ProductUpdateDto): Promise<ProductModelDto> {
     await productService.update(requestDto);
@@ -62,9 +65,10 @@ export class ProductController {
    * @param req Express Request
    * @param res Express Response
    */
-  @Controller.Delete({
+  @Controller.decorate({
     mergeParams: ['id'],
     requestDto: IdDto,
+    responseStatusCode: ResponseStatusCode.NO_CONTENT,
   })
   async delete(requestDto: IdDto): Promise<void> {
     await productService.delete(requestDto);
@@ -77,9 +81,10 @@ export class ProductController {
    * @param res Express Response
    * @returns products
    */
-  @Controller.List({
+  @Controller.decorate({
     requestDto: ProductListDto,
     responseDto: ProductModelDto,
+    responseStatusCode: ResponseStatusCode.OK,
   })
   async list(requestDto: ProductListDto): Promise<ProductModelDto[]> {
     return productService.list(requestDto);

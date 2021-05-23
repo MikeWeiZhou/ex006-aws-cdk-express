@@ -1,4 +1,4 @@
-import { ValidationError } from 'class-validator';
+import { IErrorParameters } from '../types';
 import { ErrorType } from '../types/error-type';
 import { IError } from './i-error';
 
@@ -7,21 +7,21 @@ import { IError } from './i-error';
  */
 export class InvalidRequestError extends IError {
   /**
-   * List of parameter validation errors.
+   * Key-values of parameter validation errors.
    */
-  readonly validationErrors?: ValidationError[];
+  readonly params?: IErrorParameters;
 
   /**
    * Create new invalid request error.
-   * @param validationErrors param validation errors
+   * @param params param validation errors
    * @param [message='An unknown invalid request error occurred.'] short description of error
    */
   constructor(
-    validationErrors?: ValidationError[],
+    params?: IErrorParameters,
     message: string = 'An unknown invalid request error occurred.',
   ) {
     super(ErrorType.INVALID_REQUEST, message);
 
-    this.validationErrors = validationErrors;
+    this.params = params;
   }
 }

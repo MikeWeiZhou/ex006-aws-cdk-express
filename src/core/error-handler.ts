@@ -1,9 +1,8 @@
-import { ValidationError } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
 import { DuplicateError, IError, InternalError, InvalidRequestError, NotFoundError } from './errors';
 import { BadRequestResponse, ConflictResponse, InternalErrorResponse, NotFoundResponse } from './responses';
-import { ErrorType, IErrorParameters } from './types';
+import { ErrorType } from './types';
 
 /**
  * Error handler maps an error to a response.
@@ -146,10 +145,7 @@ export class ErrorHandler {
     }
 
     if (err instanceof InvalidRequestError) {
-      const params: IErrorParameters = (err.validationErrors)
-        ? ErrorHandler.toErrorParameters(err.validationErrors)
-        : {};
-      const response = new BadRequestResponse(err.type, err.message, params);
+      const response = new BadRequestResponse(err.type, err.message, err.params);
       response.send(res);
       return true;
     }
@@ -170,37 +166,5 @@ export class ErrorHandler {
     const response = new InternalErrorResponse(ErrorType.INTERNAL, err.message);
     response.send(res);
     return true;
-  }
-
-  /**
-   * Flatten ValidationErrors into IErrorParameters object
-   * @param validationErrors validation errors from class-validator
-   * @param paramPrefix prefix for parameter name (used for nested validation)
-   * @returns flat IErrorParameters oject
-   */
-  private static toErrorParameters(
-    validationErrors: ValidationError[],
-    paramPrefix?: string,
-  ): IErrorParameters {
-    let params: IErrorParameters = {};
-    validationErrors.forEach((validationError) => {
-      const { property, constraints, children } = validationError;
-      const paramName = (paramPrefix)
-        ? `${paramPrefix}${property}`
-        : property;
-      if (constraints) {
-        // use first constraint error only
-        [params[paramName]] = Object.values(constraints);
-      } else if (children) {
-        const childParams = ErrorHandler.toErrorParameters(children, `${paramName}.`);
-        params = {
-          ...params,
-          ...childParams,
-        };
-      } else {
-        params[paramName] = 'invalid or missing parameter';
-      }
-    });
-    return params;
   }
 }
