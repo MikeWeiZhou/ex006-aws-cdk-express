@@ -1,5 +1,4 @@
-import { Currency } from '@ear/common/enums';
-import { IBaseModel } from '@ear/common/models';
+import { CurrencyCode, IModel } from '@ear/common';
 import { constants } from '@ear/config';
 import { Company } from '@ear/modules/company';
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
@@ -9,7 +8,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
  */
 @Entity()
 @Index(['companyId', 'sku'], { unique: true })
-export class Product extends IBaseModel {
+export class Product extends IModel {
   /**
    * Data model limits for Product.
    */
@@ -92,5 +91,5 @@ export class Product extends IBaseModel {
     type: 'char',
     length: 3,
   })
-  currency!: Currency;
+  currency!: CurrencyCode;
 }

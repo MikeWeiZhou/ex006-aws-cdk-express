@@ -1,11 +1,11 @@
-import { IBaseModel } from '@ear/common/models';
+import { IModel } from '@ear/common';
 import { Column, Entity } from 'typeorm';
 
 /**
  * Address model.
  */
 @Entity()
-export class Address extends IBaseModel {
+export class Address extends IModel {
   /**
    * Data model limits for Address.
    */

@@ -1,4 +1,4 @@
-import { CompanyCreateDto, CompanyModelDto } from '@ear/modules/company/dtos';
+import { CompanyCreateDto, CompanyModelDto } from '@ear/modules/company';
 import faker from 'faker';
 import { request } from '../request';
 import { address } from './address.faker';

@@ -1,8 +1,9 @@
 import { ValidationError } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
-import { DuplicateError, ErrorType, IError, InternalError, InvalidRequestError, NotFoundError } from './errors';
-import { BadRequestResponse, ConflictResponse, IErrorParameters, InternalErrorResponse, NotFoundResponse } from './responses';
+import { DuplicateError, IError, InternalError, InvalidRequestError, NotFoundError } from './errors';
+import { BadRequestResponse, ConflictResponse, InternalErrorResponse, NotFoundResponse } from './responses';
+import { ErrorType, IErrorParameters } from './types';
 
 /**
  * Error handler maps an error to a response.

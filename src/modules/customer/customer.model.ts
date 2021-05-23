@@ -1,4 +1,4 @@
-import { IBaseModel } from '@ear/common/models';
+import { IModel } from '@ear/common';
 import { constants } from '@ear/config';
 import { Address } from '@ear/modules/address';
 import { Company } from '@ear/modules/company';
@@ -9,7 +9,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne } from 'typeorm'
  */
 @Entity()
 @Index(['companyId', 'email'], { unique: true })
-export class Customer extends IBaseModel {
+export class Customer extends IModel {
   /**
    * Data model limits for Customer.
    */

@@ -1,7 +1,7 @@
-import { IDto } from '@ear/common/dtos';
-import { dtoUtility } from '@ear/utilities';
 import { ClassConstructor } from 'class-transformer';
 import { NextFunction, Request, Response } from 'express';
+import { IDto } from '../common/dtos/i-dto';
+import { dtoUtility } from '../utilities/dto.utility';
 import { InternalError, InvalidRequestError } from './errors';
 import { CreatedResponse, IResponse, NoContentResponse, OkResponse } from './responses';
 

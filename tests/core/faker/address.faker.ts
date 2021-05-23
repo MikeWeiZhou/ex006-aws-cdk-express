@@ -1,4 +1,4 @@
-import { AddressCreateDto, AddressModelDto } from '@ear/modules/address/dtos';
+import { AddressCreateDto, AddressModelDto } from '@ear/modules/address';
 import faker from 'faker';
 import { IFaker } from './i.faker';
 

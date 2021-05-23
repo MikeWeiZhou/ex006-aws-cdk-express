@@ -10,4 +10,4 @@ cd "$(dirname $0)"
 cd ..
 cd $TARGET_DIR
 
-printf "export * from './%s';\n" $(ls -1 | grep .ts | grep -v "index" | grep -Po '.*(?=\.)') > index.ts
+printf "export * from './%s';\n" $(ls -1 | grep -v "index" | sed 's/\.[^.]*$//') > index.ts

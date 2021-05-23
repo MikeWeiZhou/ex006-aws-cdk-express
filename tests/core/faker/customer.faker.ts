@@ -1,5 +1,5 @@
 import { companyService } from '@ear/modules/company';
-import { CustomerCreateDto, CustomerModelDto } from '@ear/modules/customer/dtos';
+import { CustomerCreateDto, CustomerModelDto } from '@ear/modules/customer';
 import faker from 'faker';
 import { request } from '../request';
 import { address } from './address.faker';

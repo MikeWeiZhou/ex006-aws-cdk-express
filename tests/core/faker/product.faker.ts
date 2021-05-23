@@ -1,6 +1,6 @@
-import { Currency } from '@ear/common/enums';
+import { CurrencyCode } from '@ear/common';
 import { companyService } from '@ear/modules/company';
-import { ProductCreateDto, ProductModelDto } from '@ear/modules/product/dtos';
+import { ProductCreateDto, ProductModelDto } from '@ear/modules/product';
 import faker from 'faker';
 import { request } from '../request';
 import { company } from './company.faker';
@@ -66,8 +66,8 @@ export class ProductFaker extends IFaker<ProductCreateDto, ProductModelDto> {
    * Generate random supported currency value.
    * @returns SupportedCurrency
    */
-  private randomSupportedCurrency(): Currency {
-    const currencies = Object.values(Currency);
+  private randomSupportedCurrency(): CurrencyCode {
+    const currencies = Object.values(CurrencyCode);
     const index = faker.datatype.number({ min: 0, max: currencies.length - 1 });
     return currencies[index];
   }
