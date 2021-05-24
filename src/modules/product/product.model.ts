@@ -1,4 +1,4 @@
-import { CurrencyCode, IModel } from '@ear/common';
+import { IModel } from '@ear/common';
 import { constants } from '@ear/config';
 import { Company } from '@ear/modules/company';
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
@@ -83,13 +83,4 @@ export class Product extends IModel {
     unsigned: true,
   }) // MySQL 5.7 unsigned int max value: 4,294,967,295
   price!: number;
-
-  /**
-   * Currency that price is in.
-   */
-  @Column({
-    type: 'char',
-    length: 3,
-  })
-  currency!: CurrencyCode;
 }

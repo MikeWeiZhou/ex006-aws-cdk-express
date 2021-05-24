@@ -1,4 +1,4 @@
-import { CurrencyCode, IdDto, IsCurrencyAmount, IsCurrencyCode, IsMaxLength, IsUndefinable, IsUndefinableAndNullable } from '@ear/common';
+import { IdDto, IsCurrencyAmount, IsMaxLength, IsUndefinable, IsUndefinableAndNullable } from '@ear/common';
 import { Expose } from 'class-transformer';
 import { Product } from '../product.model';
 
@@ -25,9 +25,4 @@ export class ProductUpdateDto extends IdDto {
   @IsUndefinable()
   @IsCurrencyAmount(Product.limits.PRICE_MAX_VALUE)
   readonly price?: number;
-
-  @Expose()
-  @IsUndefinable()
-  @IsCurrencyCode()
-  readonly currency?: CurrencyCode;
 }

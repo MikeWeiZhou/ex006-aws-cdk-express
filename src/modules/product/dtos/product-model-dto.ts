@@ -1,4 +1,4 @@
-import { CurrencyCode, IModelDto, IsCurrencyAmount, IsCurrencyCode, IsMaxLength, IsResourceId, IsUndefinableAndNullable } from '@ear/common';
+import { IModelDto, IsCurrencyAmount, IsMaxLength, IsResourceId, IsUndefinableAndNullable } from '@ear/common';
 import { Expose } from 'class-transformer';
 import { Product } from '../product.model';
 
@@ -26,8 +26,4 @@ export class ProductModelDto extends IModelDto {
   @Expose()
   @IsCurrencyAmount(Product.limits.PRICE_MAX_VALUE)
   readonly price!: number;
-
-  @Expose()
-  @IsCurrencyCode()
-  readonly currency!: CurrencyCode;
 }

@@ -1,4 +1,4 @@
-import { CurrencyCode, IDto, IsCurrencyAmount, IsCurrencyCode, IsMaxLength, IsResourceId, IsUndefinable, IsUndefinableAndNullable, ListOptionsDto } from '@ear/common';
+import { IDto, IsCurrencyAmount, IsMaxLength, IsResourceId, IsUndefinable, IsUndefinableAndNullable, ListOptionsDto } from '@ear/common';
 import { Expose, Type } from 'class-transformer';
 import { IsObject, ValidateNested } from 'class-validator';
 import { Product } from '../product.model';
@@ -31,11 +31,6 @@ export class ProductListDto implements IDto {
   @IsUndefinable()
   @IsCurrencyAmount(Product.limits.PRICE_MAX_VALUE)
   readonly price?: number;
-
-  @Expose()
-  @IsUndefinable()
-  @IsCurrencyCode()
-  readonly currency?: CurrencyCode;
 
   @Expose()
   @Type(() => ListOptionsDto)

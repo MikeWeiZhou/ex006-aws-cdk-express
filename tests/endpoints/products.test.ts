@@ -80,7 +80,6 @@ describe('/products', () => {
       delete (dto as any).name;
       delete (dto as any).sku;
       delete (dto as any).price;
-      delete (dto as any).currency;
       delete (dto as any).description; // optional
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
@@ -88,7 +87,6 @@ describe('/products', () => {
         'name',
         'sku',
         'price',
-        'currency',
       ]);
 
       // undefined should be treated as missing
@@ -97,7 +95,6 @@ describe('/products', () => {
       (dto as any).name = undefined;
       (dto as any).sku = undefined;
       (dto as any).price = undefined;
-      (dto as any).currency = undefined;
       (dto as any).description = undefined; // optional
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
@@ -105,7 +102,6 @@ describe('/products', () => {
         'name',
         'sku',
         'price',
-        'currency',
       ]);
     });
 
@@ -120,7 +116,6 @@ describe('/products', () => {
       (dto as any).name = '';
       (dto as any).sku = '';
       (dto as any).price = '50';
-      (dto as any).currency = 'uad';
       (dto as any).description = '';
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
@@ -128,7 +123,6 @@ describe('/products', () => {
         'name',
         'sku',
         'price',
-        'currency',
         'description',
       ]);
 
@@ -137,7 +131,6 @@ describe('/products', () => {
       (dto as any).name = 'Mars Bar'; // valid
       (dto as any).sku = '100-19920-01'; // valid
       (dto as any).price = '50';
-      (dto as any).currency = 'usd'; // valid
       (dto as any).description = '';
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
@@ -151,7 +144,6 @@ describe('/products', () => {
       (dto as any).name = null;
       (dto as any).sku = null;
       (dto as any).price = null;
-      (dto as any).currency = null;
       (dto as any).description = null; // nullable, this should not error out
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
@@ -159,7 +151,6 @@ describe('/products', () => {
         'name',
         'sku',
         'price',
-        'currency',
       ]);
 
       // price just out of accepted range
@@ -223,7 +214,6 @@ describe('/products', () => {
         'description',
         'sku',
         'price',
-        'currency',
       ].forEach((param) => expect(get.body[0]).toHaveProperty(param));
     });
 
@@ -299,7 +289,6 @@ describe('/products', () => {
       // not nullable
       listDto = {
         companyId: null,
-        currency: null,
         description: null, // this is nullable, this should not error out
         name: null,
         price: null,
@@ -309,7 +298,6 @@ describe('/products', () => {
       get = await request.get(rootPath).send(listDto);
       testUtility.expectRequestInvalidParams(get, [
         'companyId',
-        'currency',
         'name',
         'price',
         'sku',
@@ -319,7 +307,6 @@ describe('/products', () => {
       // invalids
       listDto = {
         companyId: '',
-        currency: 'aud', // not a supported currency
         description: '',
         name: '',
         price: -1, // minimum 0
@@ -329,7 +316,6 @@ describe('/products', () => {
       get = await request.get(rootPath).send(listDto);
       testUtility.expectRequestInvalidParams(get, [
         'companyId',
-        'currency',
         'description',
         'name',
         'price',
@@ -388,7 +374,6 @@ describe('/products/:id', () => {
 
       // not nullable
       dto = {
-        currency: null,
         description: null, // this is nullable, this should not error out
         name: null,
         price: null,
@@ -396,7 +381,6 @@ describe('/products/:id', () => {
       } as any;
       patch = await request.patch(`${rootPath}/${product.id}`).send(dto);
       testUtility.expectRequestInvalidParams(patch, [
-        'currency',
         'name',
         'price',
         'sku',
@@ -404,7 +388,6 @@ describe('/products/:id', () => {
 
       // invalids
       dto = {
-        currency: 'son', // not supported currency
         description: '', // optional, but contains invalid value, should error out
         name: '',
         price: 10000000000, // way over the limit
@@ -412,7 +395,6 @@ describe('/products/:id', () => {
       } as any;
       patch = await request.patch(`${rootPath}/${product.id}`).send(dto);
       testUtility.expectRequestInvalidParams(patch, [
-        'currency',
         'description',
         'name',
         'price',

@@ -1,4 +1,3 @@
-import { CurrencyCode } from '@ear/common';
 import { companyService } from '@ear/modules/company';
 import { ProductCreateDto, ProductModelDto } from '@ear/modules/product';
 import faker from 'faker';
@@ -30,14 +29,12 @@ export class ProductFaker extends IFaker<ProductCreateDto, ProductModelDto> {
     const description = dto?.description ?? `${faker.commerce.productDescription()}`;
     const sku = dto?.sku ?? `${faker.datatype.string(20)}`;
     const price = dto?.price ?? faker.datatype.number({ min: 0, max: 99999999 });
-    const currency = dto?.currency ?? this.randomSupportedCurrency();
     return {
       companyId,
       name,
       description,
       sku,
       price,
-      currency,
     };
   }
 
@@ -60,16 +57,6 @@ export class ProductFaker extends IFaker<ProductCreateDto, ProductModelDto> {
   async cleanGarbage(): Promise<void> {
     await super.cleanGarbage();
     await company.cleanGarbage();
-  }
-
-  /**
-   * Generate random supported currency value.
-   * @returns SupportedCurrency
-   */
-  private randomSupportedCurrency(): CurrencyCode {
-    const currencies = Object.values(CurrencyCode);
-    const index = faker.datatype.number({ min: 0, max: currencies.length - 1 });
-    return currencies[index];
   }
 }
 
