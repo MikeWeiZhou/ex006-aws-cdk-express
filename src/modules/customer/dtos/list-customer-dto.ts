@@ -1,40 +1,40 @@
 import { IDto, IsMaxLength, IsResourceId, IsUndefinable, ListOptionsDto } from '@ear/common';
-import { AddressListDto } from '@ear/modules/address';
+import { NestedListAddressDto } from '@ear/modules/address';
 import { Expose, Type } from 'class-transformer';
 import { IsEmail, IsObject, ValidateNested } from 'class-validator';
-import { Customer } from '../customer.model';
+import { CustomerEntityConstraints } from '../customer-entity';
 
 /**
- * Parameters for listing customers.
+ * List Customer request parameters sanitized and validated to spec.
  */
-export class CustomerListDto implements IDto {
+export class ListCustomerDto implements IDto {
+  @Expose()
+  @IsUndefinable()
+  @IsMaxLength(CustomerEntityConstraints.FIRST_NAME_MAX_LENGTH)
+  readonly firstName?: string;
+
+  @Expose()
+  @IsUndefinable()
+  @IsMaxLength(CustomerEntityConstraints.LAST_NAME_MAX_LENGTH)
+  readonly lastName?: string;
+
+  @Expose()
+  @IsUndefinable()
+  @IsEmail()
+  @IsMaxLength(CustomerEntityConstraints.EMAIL_MAX_LENGTH)
+  readonly email?: string;
+
   @Expose()
   @IsUndefinable()
   @IsResourceId()
   readonly companyId?: string;
 
   @Expose()
-  @IsUndefinable()
-  @IsMaxLength(Customer.limits.FIRST_NAME_MAX_LENGTH)
-  readonly firstName?: string;
-
-  @Expose()
-  @IsUndefinable()
-  @IsMaxLength(Customer.limits.LAST_NAME_MAX_LENGTH)
-  readonly lastName?: string;
-
-  @Expose()
-  @IsUndefinable()
-  @IsEmail()
-  @IsMaxLength(Customer.limits.EMAIL_MAX_LENGTH)
-  readonly email?: string;
-
-  @Expose()
-  @Type(() => AddressListDto)
+  @Type(() => NestedListAddressDto)
   @IsUndefinable()
   @IsObject()
   @ValidateNested()
-  readonly address?: AddressListDto;
+  readonly address?: NestedListAddressDto;
 
   @Expose()
   @Type(() => ListOptionsDto)

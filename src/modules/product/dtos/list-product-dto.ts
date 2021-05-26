@@ -1,36 +1,36 @@
 import { IDto, IsCurrencyAmount, IsMaxLength, IsResourceId, IsUndefinable, IsUndefinableAndNullable, ListOptionsDto } from '@ear/common';
 import { Expose, Type } from 'class-transformer';
 import { IsObject, ValidateNested } from 'class-validator';
-import { Product } from '../product.model';
+import { ProductEntityConstraints } from '../product-entity';
 
 /**
- * Parameters for listing products.
+ * List Product request parameters sanitized and validated to spec.
  */
-export class ProductListDto implements IDto {
+export class ListProductDto implements IDto {
   @Expose()
   @IsUndefinable()
-  @IsResourceId()
-  readonly companyId?: string;
-
-  @Expose()
-  @IsUndefinable()
-  @IsMaxLength(Product.limits.NAME_MAX_LENGTH)
+  @IsMaxLength(ProductEntityConstraints.NAME_MAX_LENGTH)
   readonly name?: string;
 
   @Expose()
   @IsUndefinableAndNullable()
-  @IsMaxLength(Product.limits.DESCRIPTION_MAX_LENGTH)
+  @IsMaxLength(ProductEntityConstraints.DESCRIPTION_MAX_LENGTH)
   readonly description?: string;
 
   @Expose()
   @IsUndefinable()
-  @IsMaxLength(Product.limits.SKU_MAX_LENGTH)
+  @IsMaxLength(ProductEntityConstraints.SKU_MAX_LENGTH)
   readonly sku?: string;
 
   @Expose()
   @IsUndefinable()
-  @IsCurrencyAmount(Product.limits.PRICE_MAX_VALUE)
+  @IsCurrencyAmount(ProductEntityConstraints.PRICE_MAX_VALUE)
   readonly price?: number;
+
+  @Expose()
+  @IsUndefinable()
+  @IsResourceId()
+  readonly companyId?: string;
 
   @Expose()
   @Type(() => ListOptionsDto)

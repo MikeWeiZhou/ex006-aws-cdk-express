@@ -1,12 +1,12 @@
 import { companyService } from '@ear/modules/company';
-import { CustomerCreateDto, CustomerModelDto } from '@ear/modules/customer';
+import { CreateCustomerDto, CustomerDto } from '@ear/modules/customer';
 import faker from 'faker';
 import { request } from '../request';
 import { address } from './address.faker';
 import { company } from './company.faker';
 import { IFaker } from './i.faker';
 
-export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
+export class CustomerFaker extends IFaker<CreateCustomerDto, CustomerDto> {
   /**
    * Constructor.
    */
@@ -21,9 +21,9 @@ export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
    * @returns DTO
    */
   async dto(
-    dto?: Partial<CustomerCreateDto>,
+    dto?: Partial<CreateCustomerDto>,
     noDatabaseWrites: boolean = false,
-  ): Promise<CustomerCreateDto> {
+  ): Promise<CreateCustomerDto> {
     const companyId = dto?.companyId
       ?? ((noDatabaseWrites && await companyService.generateId()) || (await company.create()).id);
     const firstName = dto?.firstName ?? `${faker.name.firstName()}`;
@@ -44,7 +44,7 @@ export class CustomerFaker extends IFaker<CustomerCreateDto, CustomerModelDto> {
    * @param dto uses any provided properties over generated ones
    * @returns a model-like DTO
    */
-  async create(dto?: Partial<CustomerCreateDto>): Promise<CustomerModelDto> {
+  async create(dto?: Partial<CreateCustomerDto>): Promise<CustomerDto> {
     const createDto = await this.dto(dto);
     const create = await request.post(this.rootPath).send(createDto);
     this.addToGarbageBin(create.body);

@@ -1,13 +1,12 @@
-import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
-import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
-import { Address } from './address.model';
-import { AddressModelDto, AddressUpdateDto } from './dtos';
-import { AddressCreateDto } from './dtos/address-create-dto';
-import { AddressListDto } from './dtos/address-list-dto';
+import { EntityManager, getManager } from 'typeorm';
+import { Address, AddressEntity } from './address-entity';
+import { NestedUpdateAddressDto } from './dtos';
+import { NestedCreateAddressDto } from './dtos/nested-create-address-dto';
 
 /**
- * Service to make changes to Address resources.
+ * Retrieves and modifies Addresses.
  */
 export class AddressService extends ICrudService<Address> {
   /**
@@ -19,13 +18,13 @@ export class AddressService extends ICrudService<Address> {
 
   /**
    * Create an Address.
-   * @param createDto contains company info
+   * @param createDto contains data to create resource
    * @param entityManager used for transactions
-   * @returns resource id
+   * @returns resource ID
    */
-  async create(createDto: AddressCreateDto, entityManager?: EntityManager): Promise<string> {
+  async create(createDto: NestedCreateAddressDto, entityManager?: EntityManager): Promise<string> {
     const manager = entityManager ?? getManager();
-    const result = await manager.insert(Address, {
+    const result = await manager.insert(AddressEntity, {
       id: await this.generateId(),
       ...createDto,
     });
@@ -34,23 +33,22 @@ export class AddressService extends ICrudService<Address> {
 
   /**
    * Returns an Address.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
    * @returns Company or undefined if not found
    */
-  async get(idDto: IdDto, entityManager?: EntityManager): Promise<Address | undefined> {
+  async get(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Address | undefined> {
     const manager = entityManager ?? getManager();
-    return manager.findOne(Address, { id: idDto.id });
+    return manager.findOne(AddressEntity, { id: idDto.id });
   }
 
   /**
-   * Returns a Company or throw an error if not found.
-   * @param idDto contains resource id
+   * Returns a Company or fail.
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    * @returns Company
    */
-  async getOrFail(idDto: IdDto, entityManager?: EntityManager): Promise<Address> {
+  async getOrFail(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Address> {
     const manager = entityManager ?? getManager();
     const result = await this.get(idDto, manager);
     if (typeof result === 'undefined') {
@@ -61,17 +59,16 @@ export class AddressService extends ICrudService<Address> {
 
   /**
    * Update an Address.
-   * @param updateDto DTO containing fields needing update
+   * @param updateDto contains data to update resource
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<AddressModelDto, AddressUpdateDto>,
+    updateDto: ServiceUpdateOverwrite<Address, NestedUpdateAddressDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
     const manager = entityManager ?? getManager();
     const { id, ...updates } = updateDto;
-    const result = await manager.update(Address, { id }, updates);
+    const result = await manager.update(AddressEntity, { id }, updates);
     if (result.raw.affectedRows === 0) {
       throw new NotFoundError(`Cannot update Address. ID ${id} does not exist.`);
     }
@@ -79,46 +76,15 @@ export class AddressService extends ICrudService<Address> {
 
   /**
    * Delete an Address.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
-  async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
+  async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
     const manager = entityManager ?? getManager();
-    const result = await manager.delete(Address, { id: idDto.id });
+    const result = await manager.delete(AddressEntity, { id: idDto.id });
     if (result.raw.affectedRows === 0) {
       throw new NotFoundError(`Cannot delete Address. ID ${idDto.id} does not exist.`);
     }
-  }
-
-  /**
-   * List all addresses.
-   * @param listDto contains filters and list options
-   * @param entityManager used for transactions
-   * @returns list of addresses
-   */
-  async list(listDto?: AddressListDto, entityManager?: EntityManager): Promise<Address[]> {
-    const manager = entityManager ?? getManager();
-    const findManyOptions: FindManyOptions<Address> = {};
-
-    if (listDto) {
-      const { options, ...filters } = listDto;
-
-      // filters
-      findManyOptions.where = (qb: SelectQueryBuilder<Address>) => {
-        this.buildListWhereClause(qb, 'Address', filters);
-      };
-
-      // pagination
-      if (typeof options?.limit !== 'undefined') {
-        findManyOptions.take = options?.limit;
-        if (typeof options?.page !== 'undefined') {
-          findManyOptions.skip = (options?.page - 1) * options?.limit;
-        }
-      }
-    }
-
-    return manager.find(Address, findManyOptions);
   }
 }
 

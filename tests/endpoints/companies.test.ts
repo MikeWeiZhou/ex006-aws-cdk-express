@@ -1,5 +1,5 @@
 import { fake, request, testUtility } from '@ear-tests/core';
-import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from '@ear/modules/company/dtos';
+import { CompanyDto, CreateCompanyDto, ListCompanyDto, UpdateCompanyDto } from '@ear/modules/company';
 import { Response } from 'supertest';
 
 // root url path
@@ -31,7 +31,7 @@ describe('/companies', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Company with missing parameters', async () => {
-      let dto: CompanyCreateDto;
+      let dto: CreateCompanyDto;
       let post: Response;
 
       // missing root-level parameters and object
@@ -55,13 +55,13 @@ describe('/companies', () => {
       ]);
       // missing nested parameters
       dto = await fake.company.dto();
-      delete (dto as any).address.address;
+      delete (dto as any).address.line1;
       delete (dto as any).address.postcode;
       delete (dto as any).address.city;
       delete (dto as any).address.province;
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
-        'address.address',
+        'address.line1',
         'address.postcode',
         'address.city',
         'address.province',
@@ -70,7 +70,7 @@ describe('/companies', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Company with invalid parameters', async () => {
-      let dto: CompanyCreateDto;
+      let dto: CreateCompanyDto;
       let post: Response;
 
       // invalid root-level parameters and object
@@ -87,14 +87,14 @@ describe('/companies', () => {
 
       // invalid nested parameters
       dto = await fake.company.dto();
-      (dto as any).address.address = '';
+      (dto as any).address.line1 = '';
       (dto as any).address.postcode = '';
       (dto as any).address.city = '';
       (dto as any).address.province = '';
       (dto as any).address.country = '';
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
-        'address.address',
+        'address.line1',
         'address.postcode',
         'address.city',
         'address.province',
@@ -147,8 +147,7 @@ describe('/companies', () => {
         'id',
         'name',
         'email',
-        'address.id',
-        'address.address',
+        'address.line1',
         'address.postcode',
         'address.city',
         'address.province',
@@ -158,15 +157,15 @@ describe('/companies', () => {
 
     it('200: can list companies with zero results', async () => {
       const createDto = await fake.company.dto();
-      const listDto: CompanyListDto = { email: createDto.email };
+      const listDto: ListCompanyDto = { email: createDto.email };
       const get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       expect(get.body.length).toBe(0);
     });
 
     it('200: can list companies with filters', async () => {
-      let company: CompanyModelDto;
-      let listDto: CompanyListDto;
+      let company: CompanyDto;
+      let listDto: ListCompanyDto;
       let get: Response;
 
       // results of companies with root filters
@@ -174,7 +173,7 @@ describe('/companies', () => {
       listDto = { email: company.email };
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
-      get.body.forEach((comp: CompanyModelDto) => {
+      get.body.forEach((comp: CompanyDto) => {
         expect(comp).toHaveProperty('email', listDto.email);
       });
 
@@ -183,7 +182,7 @@ describe('/companies', () => {
       listDto = { address: company.address };
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
-      get.body.forEach((comp: CompanyModelDto) => {
+      get.body.forEach((comp: CompanyDto) => {
         expect(comp).toHaveProperty('address', listDto.address);
       });
 
@@ -192,14 +191,14 @@ describe('/companies', () => {
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       expect(get.body.length).toBe(7);
-      get.body.forEach((comp: CompanyModelDto) => {
+      get.body.forEach((comp: CompanyDto) => {
         expect(comp.name).toBe(nameWith7);
       });
     });
 
     it('200: can list companies with pagination', async () => {
       let get: Response;
-      let listDto: CompanyListDto;
+      let listDto: ListCompanyDto;
 
       // has more than 5 results
       get = await request.get(rootPath);
@@ -215,14 +214,14 @@ describe('/companies', () => {
       listDto = { options: { limit: 3, page: 2 } };
       get = await request.get(rootPath).send(listDto);
       expect(get.body.length).toBe(3);
-      get.body.forEach((company: CompanyModelDto) => {
+      get.body.forEach((company: CompanyDto) => {
         expect(company.id).not.toBe(firstCustomer.id);
       });
     });
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot list companies with invalid filters', async () => {
-      let listDto: CompanyListDto;
+      let listDto: ListCompanyDto;
       let get: Response;
 
       // not nullable
@@ -256,14 +255,14 @@ describe('/companies/:id', () => {
    */
   describe('get /companies/:id', () => {
     it('200: can get Company', async () => {
-      const company: CompanyModelDto = await fake.company.create();
+      const company: CompanyDto = await fake.company.create();
       const get = await request.get(`${rootPath}/${company.id}`);
       expect(get.statusCode).toBe(200);
       expect(get.body).toMatchObject(company);
     });
 
     it('404: cannot get non-existent Company', async () => {
-      const company: CompanyModelDto = await fake.company.create();
+      const company: CompanyDto = await fake.company.create();
       const nonExistentResourceId = `${company.id.slice(0, -3)}abc`;
       const get = await request.get(`${rootPath}/${nonExistentResourceId}`);
       expect(get.statusCode).toBe(404);
@@ -275,10 +274,10 @@ describe('/companies/:id', () => {
    */
   describe('patch /companies/:id', () => {
     it('200: can update Company', async () => {
-      const company: CompanyModelDto = await fake.company.create();
-      const dto: CompanyCreateDto = await fake.company.dto();
+      const company: CompanyDto = await fake.company.create();
+      const dto: CreateCompanyDto = await fake.company.dto();
 
-      const update: CompanyUpdateDto = {
+      const update: UpdateCompanyDto = {
         ...dto,
         id: company.id,
       };
@@ -294,7 +293,7 @@ describe('/companies/:id', () => {
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot update Company with invalid parameters', async () => {
       const company = await fake.company.create();
-      let dto: CompanyUpdateDto;
+      let dto: UpdateCompanyDto;
       let get: Response;
 
       // not nullable
@@ -321,18 +320,18 @@ describe('/companies/:id', () => {
     });
 
     it('404: cannot update non-existent Company', async () => {
-      const company: CompanyModelDto = await fake.company.create();
+      const company: CompanyDto = await fake.company.create();
       const nonExistentId = `${company.id.slice(0, -3)}abc`;
       const patch = await request.patch(`${rootPath}/${nonExistentId}`);
       expect(patch.statusCode).toBe(404);
     });
 
     it('409: cannot update Company leading to duplicate email', async () => {
-      const original: CompanyModelDto = await fake.company.create();
-      const another: CompanyModelDto = await fake.company.create();
+      const original: CompanyDto = await fake.company.create();
+      const another: CompanyDto = await fake.company.create();
 
       // duplicate email
-      const update: Partial<CompanyUpdateDto> = { email: another.email };
+      const update: Partial<UpdateCompanyDto> = { email: another.email };
       const patch = await request.patch(`${rootPath}/${original.id}`).send(update);
       expect(patch.statusCode).toBe(409);
       expect(patch.body.status).toBe(409);
@@ -348,7 +347,7 @@ describe('/companies/:id', () => {
    */
   describe('delete /companies/:id', () => {
     it('204: can delete Company', async () => {
-      const company: CompanyModelDto = await fake.company.create();
+      const company: CompanyDto = await fake.company.create();
       const del = await request.delete(`${rootPath}/${company.id}`);
       expect(del.statusCode).toBe(204);
 
@@ -358,7 +357,7 @@ describe('/companies/:id', () => {
     });
 
     it('404: cannot delete same Company twice', async () => {
-      const company: CompanyModelDto = await fake.company.create();
+      const company: CompanyDto = await fake.company.create();
       const del = await request.delete(`${rootPath}/${company.id}`);
       expect(del.statusCode).toBe(204);
 
@@ -367,7 +366,7 @@ describe('/companies/:id', () => {
     });
 
     it('404: cannot delete non-existent Company', async () => {
-      const company: CompanyModelDto = await fake.company.create();
+      const company: CompanyDto = await fake.company.create();
       const nonExistentResourceId = `${company.id.slice(0, -3)}abc`;
       const get = await request.get(`${rootPath}/${nonExistentResourceId}`);
       expect(get.statusCode).toBe(404);

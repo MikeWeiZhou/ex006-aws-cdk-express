@@ -1,8 +1,8 @@
-import { AddressCreateDto, AddressModelDto } from '@ear/modules/address';
+import { NestedAddressDto, NestedCreateAddressDto } from '@ear/modules/address';
 import faker from 'faker';
 import { IFaker } from './i.faker';
 
-export class AddressFaker extends IFaker<AddressCreateDto, AddressModelDto> {
+export class AddressFaker extends IFaker<NestedCreateAddressDto, any> {
   /**
    * Constructor.
    */
@@ -11,22 +11,22 @@ export class AddressFaker extends IFaker<AddressCreateDto, AddressModelDto> {
   }
 
   /**
-   * Returns DTO used for creating an Address.
+   * Returns generated data to create an Address.
    * @param dto uses any provided properties over generated ones
    * @param noDatabaseWrites do not create dependency entities in database, defaults to false
    * @returns DTO
    */
   async dto(
-    dto?: Partial<AddressCreateDto>,
+    dto?: Partial<NestedCreateAddressDto>,
     noDatabaseWrites: boolean = false,
-  ): Promise<AddressCreateDto> {
-    const address = dto?.address ?? `${faker.address.streetAddress()} ${faker.address.streetName()}`;
+  ): Promise<NestedCreateAddressDto> {
+    const line1 = dto?.line1 ?? `${faker.address.streetAddress()}`;
     const postcode = dto?.postcode ?? `${faker.address.zipCode()}`;
     const city = dto?.city ?? `${faker.address.cityName()}`;
     const province = dto?.province ?? `${faker.address.state()}`;
     const country = dto?.country ?? `${faker.address.country()}`;
     return {
-      address,
+      line1,
       postcode,
       city,
       province,
@@ -37,12 +37,11 @@ export class AddressFaker extends IFaker<AddressCreateDto, AddressModelDto> {
   /**
    * Not implemented.
    */
-  async create(): Promise<AddressModelDto> {
+  async create(): Promise<NestedAddressDto> {
     throw new Error('NOT IMPLEMENTED');
   }
 
   /**
-   * @override
    * Not implemented.
    */
   async cleanGarbage(): Promise<void> {
@@ -50,7 +49,6 @@ export class AddressFaker extends IFaker<AddressCreateDto, AddressModelDto> {
   }
 
   /**
-   * @override
    * Not implemented.
    */
   async addToGarbageBin(): Promise<void> {

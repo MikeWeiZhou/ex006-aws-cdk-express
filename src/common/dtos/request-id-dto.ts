@@ -3,9 +3,9 @@ import { IsResourceId } from '../validators/is-resource-id';
 import { IDto } from './i-dto';
 
 /**
- * DTO containing only resource ID.
+ * Request resource ID parameter sanitized and validated to spec.
  */
-export class IdDto implements IDto {
+export class RequestIdDto implements IDto {
   /**
    * Resource ID.
    */

@@ -1,14 +1,44 @@
-import { constants } from '@ear/config';
 import { InternalError } from '@ear/core';
 import { nanoid } from 'nanoid/async';
-import { EntityManager, SelectQueryBuilder } from 'typeorm';
+import { EntityManager, getConnection, SelectQueryBuilder } from 'typeorm';
 import { IDto } from './dtos/i-dto';
-import { IModel } from './i-model';
+import { BaseEntityConstraints } from './i-base-entity';
 
 /**
  * A template for service with basic CRUD.
  */
-export abstract class ICrudService<Model extends IModel> {
+export abstract class ICrudService<Entity> {
+  /**
+   * Run database queries in a transaction.
+   * @param callback function containing queries to run
+   * @param entityManager manager from an existing transaction
+   * @returns value from callback method
+   */
+  static async transaction<ReturnValue>(
+    callback: (manager: EntityManager) => Promise<ReturnValue>,
+    entityManager?: EntityManager,
+  ): Promise<ReturnValue> {
+    let manager = entityManager;
+    let queryRunner;
+
+    if (typeof manager === 'undefined') {
+      queryRunner = getConnection().createQueryRunner();
+      await queryRunner.startTransaction();
+      manager = queryRunner.manager;
+    }
+
+    try {
+      const returnValue = await callback(manager);
+      await queryRunner?.commitTransaction();
+      return returnValue;
+    } catch (error) {
+      await queryRunner?.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner?.release();
+    }
+  }
+
   /**
    * Resource ID prefix.
    */
@@ -19,67 +49,56 @@ export abstract class ICrudService<Model extends IModel> {
    * @param idPrefix resource id prefix. (must be length of RESOURCE_ID_PREFIX_LENGTH)
    */
   constructor(idPrefix: string) {
-    if (idPrefix.length !== constants.RESOURCE_ID_PREFIX_LENGTH) {
-      throw new InternalError(`Database resource ID prefix length must be ${constants.RESOURCE_ID_PREFIX_LENGTH}.`);
+    if (idPrefix.length !== BaseEntityConstraints.RESOURCE_ID_PREFIX_LENGTH) {
+      throw new InternalError(`Database resource ID prefix length must be ${BaseEntityConstraints.RESOURCE_ID_PREFIX_LENGTH}.`);
     }
     this.idPrefix = idPrefix;
   }
 
   /**
    * Create a resource.
-   * @param createDto contains fields to insert to database
+   * @param createDto contains data to create resource
    * @param entityManager used for transactions
-   * @returns resource id
+   * @returns resource ID
    */
   abstract create(createDto: IDto, entityManager?: EntityManager): Promise<string>;
 
   /**
-   * Find a resource.
-   * @param getDto contains filters identifying a single wanted resource
+   * Returns a resource.
+   * @param getDto contains data identifying a single resource
    * @param entityManager used for transactions
-   * @returns resource
+   * @returns resource or undefined if not found
    */
-  abstract get(getDto: IDto, entityManager?: EntityManager): Promise<Model | undefined>;
+  abstract get(getDto: IDto, entityManager?: EntityManager): Promise<Entity | undefined>;
 
   /**
-   * Find a resource or fail.
-   * @param getDto contains filters identifying a single wanted resource
+   * Returns a resource or fail.
+   * @param getDto contains data identifying a single resource
    * @param entityManager used for transactions
-   * @throws NotFoundError
    * @returns resource
    */
-  abstract getOrFail(getDto: IDto, entityManager?: EntityManager): Promise<Model>;
+  abstract getOrFail(getDto: IDto, entityManager?: EntityManager): Promise<Entity>;
 
   /**
    * Update a resource.
-   * @param updateDto contains fields needing update
+   * @param updateDto contains data to update resource
    * @param entityManager used for transactions
-   * @throws NotFoundError
    */
   abstract update(updateDto: IDto, entityManager?: EntityManager): Promise<void>;
 
   /**
    * Delete a resource.
-   * @param deleteDto contains filters identifying a single wanted resource
+   * @param deleteDto contains data identifying a single resource
    * @param entityManager used for transactions
-   * @throws NotFoundError
    */
   abstract delete(deleteDto: IDto, entityManager?: EntityManager): Promise<void>;
-
-  /**
-   * List all resources of one type.
-   * @param listDto contains filters and list options
-   * @param entityManager used for transactions
-   * @returns list of resources
-   */
-  abstract list(listDto?: IDto, entityManager?: EntityManager): Promise<Model[]>;
 
   /**
    * Generate a secure random resource ID with prefix.
    * @returns resource ID
    */
   async generateId(): Promise<string> {
-    const generated = await nanoid(constants.RESOURCE_ID_GENERATED_LENGTH);
+    const generated = await nanoid(BaseEntityConstraints.RESOURCE_ID_GENERATED_LENGTH);
     return `${this.idPrefix}${generated}`;
   }
 
@@ -92,7 +111,7 @@ export abstract class ICrudService<Model extends IModel> {
    * @param qb TypeORM SelectQueryBuilder
    * @param clauses filter clauses as key-value pairs, can be nested
    */
-  protected buildListWhereClause<Entity>(
+  protected buildListWhereClause(
     qb: SelectQueryBuilder<Entity>,
     tableAlias: string,
     filters: any,

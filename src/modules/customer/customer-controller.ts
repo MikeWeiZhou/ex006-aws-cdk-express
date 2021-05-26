@@ -1,7 +1,8 @@
-import { IdDto } from '@ear/common';
+import { ICrudService, RequestIdDto } from '@ear/common';
 import { Controller, ResponseStatusCode } from '@ear/core';
+import { Customer } from './customer-entity';
 import { customerService } from './customer-service';
-import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from './dtos';
+import { CreateCustomerDto, CustomerDto, ListCustomerDto, UpdateCustomerDto } from './dtos';
 
 /**
  * Processes incoming `Customer` requests and returns a suitable response.
@@ -9,84 +10,80 @@ import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto
 export class CustomerController {
   /**
    * {post} /customers Create a Customer.
-   * @param requestDto contains fields to insert to database
-   * @param req Express Request
-   * @param res Express Response
+   * @param requestDto contains data to create resource
    * @returns Customer
    */
   @Controller.decorate({
-    requestDto: CustomerCreateDto,
-    responseDto: CustomerModelDto,
+    requestDto: CreateCustomerDto,
+    responseDto: CustomerDto,
     responseStatusCode: ResponseStatusCode.CREATED,
   })
-  async create(requestDto: CustomerCreateDto): Promise<CustomerModelDto> {
-    const id = await customerService.create(requestDto);
-    return customerService.getOrFail({ id });
+  async create(requestDto: CreateCustomerDto): Promise<Customer> {
+    return ICrudService.transaction(async (manager) => {
+      const id = await customerService.create(requestDto, manager);
+      return customerService.getOrFail({ id }, manager);
+    });
   }
 
   /**
-   * {get} /customers/:id Request Customer info.
-   * @param requestDto contains resource id
+   * {get} /customers/:id Returns a Customer.
+   * @param requestDto contains resource ID
    * @param req Express Request
    * @param res Express Response
    * @returns Customer
    */
   @Controller.decorate({
     mergeParams: ['id'],
-    requestDto: IdDto,
-    responseDto: CustomerModelDto,
+    requestDto: RequestIdDto,
+    responseDto: CustomerDto,
     responseStatusCode: ResponseStatusCode.OK,
   })
-  async get(requestDto: IdDto): Promise<CustomerModelDto> {
+  async get(requestDto: RequestIdDto): Promise<CustomerDto> {
     return customerService.getOrFail(requestDto);
   }
 
   /**
-   * {patch} /customers/:id Update Customer info.
-   * @param requestDto contains fields needing update
-   * @param req Express Request
-   * @param res Express Response
+   * {patch} /customers/:id Update a Customer.
+   * @param requestDto contains data to update resource
    * @returns updated Customer
    */
   @Controller.decorate({
     mergeParams: ['id'],
-    requestDto: CustomerUpdateDto,
-    responseDto: CustomerModelDto,
+    requestDto: UpdateCustomerDto,
+    responseDto: CustomerDto,
     responseStatusCode: ResponseStatusCode.OK,
   })
-  async update(requestDto: CustomerUpdateDto): Promise<CustomerModelDto> {
-    await customerService.update(requestDto);
-    return customerService.getOrFail(requestDto);
+  async update(requestDto: UpdateCustomerDto): Promise<CustomerDto> {
+    return ICrudService.transaction(async (manager) => {
+      await customerService.update(requestDto, manager);
+      return customerService.getOrFail(requestDto, manager);
+    });
   }
 
   /**
    * {delete} /companies/:id Delete a Customer.
-   * @param requestDto contains resource id
-   * @param req Express Request
-   * @param res Express Response
+   * @param requestDto contains resource ID
    */
   @Controller.decorate({
     mergeParams: ['id'],
-    requestDto: IdDto,
+    requestDto: RequestIdDto,
     responseStatusCode: ResponseStatusCode.NO_CONTENT,
   })
-  async delete(requestDto: IdDto): Promise<void> {
+  async delete(requestDto: RequestIdDto): Promise<void> {
     await customerService.delete(requestDto);
   }
 
   /**
-   * {get} /customers Request list of customers.
-   * @param listDto contains filters and list options
-   * @param req Express Request
-   * @param res Express Response
-   * @returns customers
+   * {get} /customers List Customers.
+   * @param requestDto contains filters and list options
+   * @returns Customers
    */
   @Controller.decorate({
-    requestDto: CustomerListDto,
-    responseDto: CustomerModelDto,
+    requestDto: ListCustomerDto,
+    responseDto: CustomerDto,
     responseStatusCode: ResponseStatusCode.OK,
   })
-  async list(requestDto: CustomerListDto): Promise<CustomerModelDto[]> {
+  async list(requestDto: ListCustomerDto): Promise<CustomerDto[]> {
     return customerService.list(requestDto);
   }
 }

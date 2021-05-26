@@ -1,11 +1,11 @@
-import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
-import { ProductCreateDto, ProductListDto, ProductModelDto, ProductUpdateDto } from './dtos';
-import { Product } from './product.model';
+import { CreateProductDto, ListProductDto, UpdateProductDto } from './dtos';
+import { Product, ProductEntity } from './product-entity';
 
 /**
- * Service to make changes to Customer resources.
+ * Retrieves and modifies Products.
  */
 export class ProductService extends ICrudService<Product> {
   /**
@@ -17,13 +17,13 @@ export class ProductService extends ICrudService<Product> {
 
   /**
    * Create a Product.
-   * @param createDto contains fields to insert to database
+   * @param createDto contains data to create resource
    * @param entityManager used for transactions
-   * @returns resource id
+   * @returns resource ID
    */
-  async create(createDto: ProductCreateDto, entityManager?: EntityManager): Promise<string> {
+  async create(createDto: CreateProductDto, entityManager?: EntityManager): Promise<string> {
     const manager = entityManager ?? getManager();
-    const result = await manager.insert(Product, {
+    const result = await manager.insert(ProductEntity, {
       id: await this.generateId(),
       ...createDto,
     });
@@ -32,23 +32,22 @@ export class ProductService extends ICrudService<Product> {
 
   /**
    * Returns a Product.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
    * @returns Product or undefined if not found
    */
-  async get(idDto: IdDto, entityManager?: EntityManager): Promise<Product | undefined> {
+  async get(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Product | undefined> {
     const manager = entityManager ?? getManager();
-    return manager.findOne(Product, { id: idDto.id });
+    return manager.findOne(ProductEntity, { id: idDto.id });
   }
 
   /**
-   * Returns a Product or throw an error if not found.
+   * Returns a Product or fail.
    * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    * @returns Product
    */
-  async getOrFail(idDto: IdDto, entityManager?: EntityManager): Promise<Product> {
+  async getOrFail(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Product> {
     const manager = entityManager ?? getManager();
     const result = await this.get(idDto, manager);
     if (typeof result === 'undefined') {
@@ -59,17 +58,16 @@ export class ProductService extends ICrudService<Product> {
 
   /**
    * Update a Product.
-   * @param updateDto DTO containing fields needing update
+   * @param updateDto contains data to update resource
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<ProductModelDto, ProductUpdateDto>,
+    updateDto: ServiceUpdateOverwrite<Product, UpdateProductDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
     const manager = entityManager ?? getManager();
     const { id, ...updates } = updateDto;
-    const result = await manager.update(Product, { id }, updates);
+    const result = await manager.update(ProductEntity, { id }, updates);
     if (result.raw.affectedRows === 0) {
       throw new NotFoundError(`Cannot update Product. ID ${id} does not exist.`);
     }
@@ -77,25 +75,24 @@ export class ProductService extends ICrudService<Product> {
 
   /**
    * Delete a Product.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
-  async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
+  async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
     const manager = entityManager ?? getManager();
-    const result = await manager.delete(Product, { id: idDto.id });
+    const result = await manager.delete(ProductEntity, { id: idDto.id });
     if (result.raw.affectedRows === 0) {
       throw new NotFoundError(`Cannot delete Product. ID ${idDto.id} does not exist.`);
     }
   }
 
   /**
-   * List all products.
+   * List Products
    * @param listDto contains filters and list options
    * @param entityManager used for transactions
-   * @returns list of products
+   * @returns Products
    */
-  async list(listDto?: ProductListDto, entityManager?: EntityManager): Promise<Product[]> {
+  async list(listDto?: ListProductDto, entityManager?: EntityManager): Promise<Product[]> {
     const manager = entityManager ?? getManager();
     const findManyOptions: FindManyOptions<Product> = {};
 
@@ -116,7 +113,7 @@ export class ProductService extends ICrudService<Product> {
       }
     }
 
-    return manager.find(Product, findManyOptions);
+    return manager.find(ProductEntity, findManyOptions);
   }
 }
 

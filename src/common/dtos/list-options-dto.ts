@@ -4,7 +4,7 @@ import { IsUndefinable } from '../validators/is-undefinable';
 import { IDto } from './i-dto';
 
 /**
- * Options for listing a resource type.
+ * List resource options request parameters sanitized and validated to spec.
  */
 export class ListOptionsDto implements IDto {
   /**

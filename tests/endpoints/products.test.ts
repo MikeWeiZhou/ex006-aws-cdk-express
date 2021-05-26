@@ -1,14 +1,14 @@
 import { fake, request, testUtility } from '@ear-tests/core';
-import { CompanyModelDto } from '@ear/modules/company/dtos';
-import { CustomerModelDto } from '@ear/modules/customer/dtos';
-import { ProductCreateDto, ProductListDto, ProductModelDto, ProductUpdateDto } from '@ear/modules/product/dtos';
+import { CompanyDto } from '@ear/modules/company';
+import { CustomerDto } from '@ear/modules/customer';
+import { CreateProductDto, ListProductDto, ProductDto, UpdateProductDto } from '@ear/modules/product';
 import { Response } from 'supertest';
 
 // root url path
 const { rootPath } = fake.product;
 
 // use one company for most of tests
-let company: CompanyModelDto;
+let company: CompanyDto;
 beforeAll(async () => {
   company = await fake.company.create();
 });
@@ -40,7 +40,7 @@ describe('/products', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('201: can create Product with lowest/greatest possible price', async () => {
-      let dto: ProductCreateDto;
+      let dto: CreateProductDto;
       let post: Response;
 
       // price upper bound
@@ -71,7 +71,7 @@ describe('/products', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Product with missing parameters', async () => {
-      let dto: ProductCreateDto;
+      let dto: CreateProductDto;
       let post: Response;
 
       // missing parameters
@@ -107,7 +107,7 @@ describe('/products', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Product with invalid parameters', async () => {
-      let dto: ProductCreateDto;
+      let dto: CreateProductDto;
       let post: Response;
 
       // all invalid
@@ -219,15 +219,15 @@ describe('/products', () => {
 
     it('200: can list products with zero results', async () => {
       const createDto = await fake.product.dto();
-      const listDto: ProductListDto = { companyId: createDto.companyId };
+      const listDto: ListProductDto = { companyId: createDto.companyId };
       const get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       expect(get.body.length).toBe(0);
     });
 
     it('200: can list products with filters', async () => {
-      let product: ProductModelDto;
-      let listDto: ProductListDto;
+      let product: ProductDto;
+      let listDto: ListProductDto;
       let get: Response;
 
       // filtering by sku
@@ -235,7 +235,7 @@ describe('/products', () => {
       listDto = { sku: product.sku };
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
-      get.body.forEach((prod: ProductModelDto) => {
+      get.body.forEach((prod: ProductDto) => {
         expect(prod).toHaveProperty('sku', listDto.sku);
       });
 
@@ -244,7 +244,7 @@ describe('/products', () => {
       listDto = { companyId: product.companyId };
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
-      get.body.forEach((prod: ProductModelDto) => {
+      get.body.forEach((prod: ProductDto) => {
         expect(prod).toHaveProperty('companyId', listDto.companyId);
       });
 
@@ -253,14 +253,14 @@ describe('/products', () => {
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       expect(get.body.length).toBe(7);
-      get.body.forEach((prod: ProductModelDto) => {
+      get.body.forEach((prod: ProductDto) => {
         expect(prod.name).toBe(nameWith7);
       });
     });
 
     it('200: can list products with pagination', async () => {
       let get: Response;
-      let listDto: ProductListDto;
+      let listDto: ListProductDto;
 
       // has more than 5 results
       get = await request.get(rootPath);
@@ -276,14 +276,14 @@ describe('/products', () => {
       listDto = { options: { limit: 3, page: 2 } };
       get = await request.get(rootPath).send(listDto);
       expect(get.body.length).toBe(3);
-      get.body.forEach((customer: CustomerModelDto) => {
+      get.body.forEach((customer: CustomerDto) => {
         expect(customer.id).not.toBe(firstProduct.id);
       });
     });
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot list products with invalid filters', async () => {
-      let listDto: ProductListDto;
+      let listDto: ListProductDto;
       let get: Response;
 
       // not nullable
@@ -332,14 +332,14 @@ describe('/products/:id', () => {
    */
   describe('get /products/:id', () => {
     it('200: can get Product', async () => {
-      const product: ProductModelDto = await fake.product.create({ companyId: company.id });
+      const product: ProductDto = await fake.product.create({ companyId: company.id });
       const get = await request.get(`${rootPath}/${product.id}`);
       expect(get.statusCode).toBe(200);
       expect(get.body).toMatchObject(product);
     });
 
     it('404: cannot get non-existent Product', async () => {
-      const product: ProductModelDto = await fake.product.create({ companyId: company.id });
+      const product: ProductDto = await fake.product.create({ companyId: company.id });
       const nonExistentResourceId = `${product.id.slice(0, -3)}abc`;
       const get = await request.get(`${rootPath}/${nonExistentResourceId}`);
       expect(get.statusCode).toBe(404);
@@ -351,10 +351,10 @@ describe('/products/:id', () => {
    */
   describe('patch /products/:id', () => {
     it('200: can update Product', async () => {
-      const product: ProductModelDto = await fake.product.create({ companyId: company.id });
-      const dto: ProductCreateDto = await fake.product.dto({ companyId: company.id });
+      const product: ProductDto = await fake.product.create({ companyId: company.id });
+      const dto: CreateProductDto = await fake.product.dto({ companyId: company.id });
 
-      const update: ProductUpdateDto = {
+      const update: UpdateProductDto = {
         ...dto,
         id: product.id,
       };
@@ -368,8 +368,8 @@ describe('/products/:id', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot update Product with invalid parameters', async () => {
-      const product: ProductModelDto = await fake.product.create({ companyId: company.id });
-      let dto: ProductUpdateDto;
+      const product: ProductDto = await fake.product.create({ companyId: company.id });
+      let dto: UpdateProductDto;
       let patch: Response;
 
       // not nullable
@@ -403,18 +403,18 @@ describe('/products/:id', () => {
     });
 
     it('404: cannot update non-existent Product', async () => {
-      const product: ProductModelDto = await fake.product.create({ companyId: company.id });
+      const product: ProductDto = await fake.product.create({ companyId: company.id });
       const nonExistentId = `${product.id.slice(0, -3)}abc`;
       const patch = await request.patch(`${rootPath}/${nonExistentId}`);
       expect(patch.statusCode).toBe(404);
     });
 
     it('409: cannot update Product leading to duplicate sku', async () => {
-      const original: ProductModelDto = await fake.product.create({ companyId: company.id });
-      const another: ProductModelDto = await fake.product.create({ companyId: company.id });
+      const original: ProductDto = await fake.product.create({ companyId: company.id });
+      const another: ProductDto = await fake.product.create({ companyId: company.id });
 
       // duplicate sku
-      const update: Partial<ProductUpdateDto> = { sku: another.sku };
+      const update: Partial<UpdateProductDto> = { sku: another.sku };
       const patch = await request.patch(`${rootPath}/${original.id}`).send(update);
       expect(patch.statusCode).toBe(409);
       expect(patch.body.status).toBe(409);
@@ -430,7 +430,7 @@ describe('/products/:id', () => {
    */
   describe('delete /products/:id', () => {
     it('204: can delete Product', async () => {
-      const product: ProductModelDto = await fake.product.create({ companyId: company.id });
+      const product: ProductDto = await fake.product.create({ companyId: company.id });
       const del = await request.delete(`${rootPath}/${product.id}`);
       expect(del.statusCode).toBe(204);
 
@@ -440,7 +440,7 @@ describe('/products/:id', () => {
     });
 
     it('404: cannot delete same Product twice', async () => {
-      const product: ProductModelDto = await fake.product.create();
+      const product: ProductDto = await fake.product.create();
       const del = await request.delete(`${rootPath}/${product.id}`);
       expect(del.statusCode).toBe(204);
 
@@ -449,7 +449,7 @@ describe('/products/:id', () => {
     });
 
     it('404: cannot delete non-existent Product', async () => {
-      const product: ProductModelDto = await fake.product.create();
+      const product: ProductDto = await fake.product.create();
       const nonExistentResourceId = `${product.id.slice(0, -3)}abc`;
       const get = await request.get(`${rootPath}/${nonExistentResourceId}`);
       expect(get.statusCode).toBe(404);

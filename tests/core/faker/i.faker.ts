@@ -1,10 +1,10 @@
-import { IDto, IModelDto } from '@ear/common';
+import { IDto, IResponseBaseDto } from '@ear/common';
 import { request } from '../request';
 
 /**
  * Base resource faker.
  */
-export abstract class IFaker<CreateDto extends IDto, ModelDto extends IModelDto> {
+export abstract class IFaker<CreateDto extends IDto, ModelDto extends IResponseBaseDto> {
   /**
    * Resources to be deleted.
    */

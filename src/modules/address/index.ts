@@ -1,3 +1,3 @@
-export * from './address.model';
+export * from './address-entity';
 export * from './address-service';
 export * from './dtos';

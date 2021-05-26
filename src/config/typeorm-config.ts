@@ -21,8 +21,8 @@ export const typeormConfig: ConnectionOptions = {
   namingStrategy: new TypeormNamingStrategy(),
 
   entities: (process.env.NODE_ENV === 'production')
-    ? [path.join(__dirname, '../../dist/modules/*/*.model.js')]
-    : [path.join(__dirname, '../modules/*/*.model.ts')],
+    ? [path.join(__dirname, '../../dist/modules/*/*-entity.js')]
+    : [path.join(__dirname, '../modules/*/*-entity.ts')],
 
   // set to true for printing all SQL queries to console
   logging: false,

@@ -1,13 +1,13 @@
 import { fake, request, testUtility } from '@ear-tests/core';
-import { CompanyModelDto } from '@ear/modules/company/dtos';
-import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from '@ear/modules/customer/dtos';
+import { CompanyDto } from '@ear/modules/company';
+import { CreateCustomerDto, CustomerDto, ListCustomerDto, UpdateCustomerDto } from '@ear/modules/customer';
 import { Response } from 'supertest';
 
 // root url path
 const { rootPath } = fake.customer;
 
 // use one company for most of tests
-let company: CompanyModelDto;
+let company: CompanyDto;
 beforeAll(async () => {
   company = await fake.company.create();
 });
@@ -50,7 +50,7 @@ describe('/customers', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Customer with missing parameters', async () => {
-      let dto: CustomerCreateDto;
+      let dto: CreateCustomerDto;
       let post: Response;
 
       // missing root-level parameters and object
@@ -78,13 +78,13 @@ describe('/customers', () => {
       ]);
       // missing nested parameters
       dto = await fake.customer.dto({ companyId: company.id });
-      delete (dto as any).address.address;
+      delete (dto as any).address.line1;
       delete (dto as any).address.postcode;
       delete (dto as any).address.city;
       delete (dto as any).address.province;
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
-        'address.address',
+        'address.line1',
         'address.postcode',
         'address.city',
         'address.province',
@@ -93,7 +93,7 @@ describe('/customers', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot create Customer with invalid parameters', async () => {
-      let dto: CustomerCreateDto;
+      let dto: CreateCustomerDto;
       let post: Response;
 
       // invalid root-level parameters and object
@@ -112,14 +112,14 @@ describe('/customers', () => {
 
       // invalid nested parameters
       dto = await fake.customer.dto({ companyId: company.id });
-      (dto as any).address.address = '';
+      (dto as any).address.line1 = '';
       (dto as any).address.postcode = '';
       (dto as any).address.city = '';
       (dto as any).address.province = '';
       (dto as any).address.country = '';
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
-        'address.address',
+        'address.line1',
         'address.postcode',
         'address.city',
         'address.province',
@@ -176,8 +176,7 @@ describe('/customers', () => {
         'firstName',
         'lastName',
         'email',
-        'address.id',
-        'address.address',
+        'address.line1',
         'address.postcode',
         'address.city',
         'address.province',
@@ -187,15 +186,15 @@ describe('/customers', () => {
 
     it('200: can list customers with zero results', async () => {
       const createDto = await fake.customer.dto();
-      const listDto: CustomerListDto = { companyId: createDto.companyId };
+      const listDto: ListCustomerDto = { companyId: createDto.companyId };
       const get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       expect(get.body.length).toBe(0);
     });
 
     it('200: can list customers with filters', async () => {
-      let customer: CustomerModelDto;
-      let listDto: CustomerListDto;
+      let customer: CustomerDto;
+      let listDto: ListCustomerDto;
       let get: Response;
 
       // results of customers with root filters
@@ -203,7 +202,7 @@ describe('/customers', () => {
       listDto = { email: customer.email };
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
-      get.body.forEach((cust: CustomerModelDto) => {
+      get.body.forEach((cust: CustomerDto) => {
         expect(cust).toHaveProperty('email', listDto.email);
       });
 
@@ -212,7 +211,7 @@ describe('/customers', () => {
       listDto = { address: customer.address };
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
-      get.body.forEach((cust: CustomerModelDto) => {
+      get.body.forEach((cust: CustomerDto) => {
         expect(cust).toHaveProperty('address', listDto.address);
       });
 
@@ -221,14 +220,14 @@ describe('/customers', () => {
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       expect(get.body.length).toBe(7);
-      get.body.forEach((cust: CustomerModelDto) => {
+      get.body.forEach((cust: CustomerDto) => {
         expect(cust.firstName).toBe(firstNameWith7);
       });
     });
 
     it('200: can list customers with pagination', async () => {
       let get: Response;
-      let listDto: CustomerListDto;
+      let listDto: ListCustomerDto;
 
       // has more than 5 results
       get = await request.get(rootPath);
@@ -244,14 +243,14 @@ describe('/customers', () => {
       listDto = { options: { limit: 3, page: 2 } };
       get = await request.get(rootPath).send(listDto);
       expect(get.body.length).toBe(3);
-      get.body.forEach((customer: CustomerModelDto) => {
+      get.body.forEach((customer: CustomerDto) => {
         expect(customer.id).not.toBe(firstCustomer.id);
       });
     });
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot list customers with invalid filters', async () => {
-      let listDto: CustomerListDto;
+      let listDto: ListCustomerDto;
       let get: Response;
 
       // not nullable
@@ -293,14 +292,14 @@ describe('/customers/:id', () => {
    */
   describe('get /customers/:id', () => {
     it('200: can get Customer', async () => {
-      const customer: CustomerModelDto = await fake.customer.create({ companyId: company.id });
+      const customer: CustomerDto = await fake.customer.create({ companyId: company.id });
       const get = await request.get(`${rootPath}/${customer.id}`);
       expect(get.statusCode).toBe(200);
       expect(get.body).toMatchObject(customer);
     });
 
     it('404: cannot get non-existent Customer', async () => {
-      const customer: CustomerModelDto = await fake.customer.create({ companyId: company.id });
+      const customer: CustomerDto = await fake.customer.create({ companyId: company.id });
       const nonExistentResourceId = `${customer.id.slice(0, -3)}abc`;
       const get = await request.get(`${rootPath}/${nonExistentResourceId}`);
       expect(get.statusCode).toBe(404);
@@ -312,10 +311,10 @@ describe('/customers/:id', () => {
    */
   describe('patch /customers/:id', () => {
     it('200: can update Customer', async () => {
-      const customer: CustomerModelDto = await fake.customer.create({ companyId: company.id });
-      const dto: CustomerCreateDto = await fake.customer.dto({ companyId: company.id });
+      const customer: CustomerDto = await fake.customer.create({ companyId: company.id });
+      const dto: CreateCustomerDto = await fake.customer.dto({ companyId: company.id });
 
-      const update: CustomerUpdateDto = {
+      const update: UpdateCustomerDto = {
         ...dto,
         id: customer.id,
       };
@@ -329,8 +328,8 @@ describe('/customers/:id', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('400: cannot update customer with invalid parameters', async () => {
-      const customer: CustomerModelDto = await fake.customer.create({ companyId: company.id });
-      let dto: CustomerUpdateDto;
+      const customer: CustomerDto = await fake.customer.create({ companyId: company.id });
+      let dto: UpdateCustomerDto;
       let patch: Response;
 
       // not nullable
@@ -361,18 +360,18 @@ describe('/customers/:id', () => {
     });
 
     it('404: cannot update non-existent Customer', async () => {
-      const customer: CustomerModelDto = await fake.customer.create({ companyId: company.id });
+      const customer: CustomerDto = await fake.customer.create({ companyId: company.id });
       const nonExistentId = `${customer.id.slice(0, -3)}abc`;
       const patch = await request.patch(`${rootPath}/${nonExistentId}`);
       expect(patch.statusCode).toBe(404);
     });
 
     it('409: cannot update Customer leading to duplicate email', async () => {
-      const original: CustomerModelDto = await fake.customer.create({ companyId: company.id });
-      const another: CustomerModelDto = await fake.customer.create({ companyId: company.id });
+      const original: CustomerDto = await fake.customer.create({ companyId: company.id });
+      const another: CustomerDto = await fake.customer.create({ companyId: company.id });
 
       // duplicate email
-      const update: Partial<CustomerUpdateDto> = { email: another.email };
+      const update: Partial<UpdateCustomerDto> = { email: another.email };
       const patch = await request.patch(`${rootPath}/${original.id}`).send(update);
       expect(patch.statusCode).toBe(409);
       expect(patch.body.status).toBe(409);
@@ -388,7 +387,7 @@ describe('/customers/:id', () => {
    */
   describe('delete /customers/:id', () => {
     it('204: can delete Customer', async () => {
-      const customer: CustomerModelDto = await fake.customer.create({ companyId: company.id });
+      const customer: CustomerDto = await fake.customer.create({ companyId: company.id });
       const del = await request.delete(`${rootPath}/${customer.id}`);
       expect(del.statusCode).toBe(204);
 
@@ -398,7 +397,7 @@ describe('/customers/:id', () => {
     });
 
     it('404: cannot delete same Customer twice', async () => {
-      const customer: CustomerModelDto = await fake.customer.create();
+      const customer: CustomerDto = await fake.customer.create();
       const del = await request.delete(`${rootPath}/${customer.id}`);
       expect(del.statusCode).toBe(204);
 
@@ -407,7 +406,7 @@ describe('/customers/:id', () => {
     });
 
     it('404: cannot delete non-existent Customer', async () => {
-      const customer: CustomerModelDto = await fake.customer.create();
+      const customer: CustomerDto = await fake.customer.create();
       const nonExistentResourceId = `${customer.id.slice(0, -3)}abc`;
       const get = await request.get(`${rootPath}/${nonExistentResourceId}`);
       expect(get.statusCode).toBe(404);

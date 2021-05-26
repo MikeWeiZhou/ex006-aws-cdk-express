@@ -1,6 +1,6 @@
-import { IdDto } from '@ear/common';
+import { ICrudService, RequestIdDto } from '@ear/common';
 import { Controller, ResponseStatusCode } from '@ear/core';
-import { ProductCreateDto, ProductListDto, ProductModelDto, ProductUpdateDto } from './dtos';
+import { CreateProductDto, ListProductDto, ProductDto, UpdateProductDto } from './dtos';
 import { productService } from './product-service';
 
 /**
@@ -9,84 +9,78 @@ import { productService } from './product-service';
 export class ProductController {
   /**
    * {post} /products Create a Product.
-   * @param requestDto contains fields to insert to database
-   * @param req Express Request
-   * @param res Express Response
+   * @param requestDto contains data to create resource
    * @returns Product
    */
   @Controller.decorate({
-    requestDto: ProductCreateDto,
-    responseDto: ProductModelDto,
+    requestDto: CreateProductDto,
+    responseDto: ProductDto,
     responseStatusCode: ResponseStatusCode.CREATED,
   })
-  async create(requestDto: ProductCreateDto): Promise<ProductModelDto> {
-    const id = await productService.create(requestDto);
-    return productService.getOrFail({ id });
+  async create(requestDto: CreateProductDto): Promise<ProductDto> {
+    return ICrudService.transaction(async (manager) => {
+      const id = await productService.create(requestDto, manager);
+      return productService.getOrFail({ id }, manager);
+    });
   }
 
   /**
-   * {get} /products/:id Request Product info.
-   * @param requestDto contains resource id
-   * @param req Express Request
-   * @param res Express Response
+   * {get} /products/:id Returns a Product.
+   * @param requestDto contains resource ID
    * @returns Product
    */
   @Controller.decorate({
     mergeParams: ['id'],
-    requestDto: IdDto,
-    responseDto: ProductModelDto,
+    requestDto: RequestIdDto,
+    responseDto: ProductDto,
     responseStatusCode: ResponseStatusCode.OK,
   })
-  async get(requestDto: IdDto): Promise<ProductModelDto> {
+  async get(requestDto: RequestIdDto): Promise<ProductDto> {
     return productService.getOrFail(requestDto);
   }
 
   /**
-   * {patch} /product/:id Update Product info.
-   * @param requestDto contains fields needing update
-   * @param req Express Request
-   * @param res Express Response
+   * {patch} /product/:id Update a Product.
+   * @param requestDto contains data to update resource
    * @returns updated Product
    */
   @Controller.decorate({
     mergeParams: ['id'],
-    requestDto: ProductUpdateDto,
-    responseDto: ProductModelDto,
+    requestDto: UpdateProductDto,
+    responseDto: ProductDto,
     responseStatusCode: ResponseStatusCode.OK,
   })
-  async update(requestDto: ProductUpdateDto): Promise<ProductModelDto> {
-    await productService.update(requestDto);
-    return productService.getOrFail(requestDto);
+  async update(requestDto: UpdateProductDto): Promise<ProductDto> {
+    return ICrudService.transaction(async (manager) => {
+      await productService.update(requestDto, manager);
+      return productService.getOrFail(requestDto, manager);
+    });
   }
 
   /**
-   * {delete} /products/:id Delete Product info.
-   * @param requestDto contains resource id
-   * @param req Express Request
-   * @param res Express Response
+   * {delete} /products/:id Delete a Product.
+   * @param requestDto contains resource ID
    */
   @Controller.decorate({
     mergeParams: ['id'],
-    requestDto: IdDto,
+    requestDto: RequestIdDto,
     responseStatusCode: ResponseStatusCode.NO_CONTENT,
   })
-  async delete(requestDto: IdDto): Promise<void> {
+  async delete(requestDto: RequestIdDto): Promise<void> {
     await productService.delete(requestDto);
   }
 
   /**
-   * {get} /products Request list of products.
+   * {get} /products List Products.
    * @param listDto contains filters and list options
-   * @param req Express Request
-   * @param res Express Response
-   * @returns products
+   * @returns Products
    */
   @Controller.decorate({
-    requestDto: ProductListDto,
-    responseDto: ProductModelDto,
+    requestDto: ListProductDto,
+    responseDto: ProductDto,
     responseStatusCode: ResponseStatusCode.OK,
   })
-  async list(requestDto: ProductListDto): Promise<ProductModelDto[]> {
+  async list(requestDto: ListProductDto): Promise<ProductDto[]> {
     return productService.list(requestDto);
   }
 }

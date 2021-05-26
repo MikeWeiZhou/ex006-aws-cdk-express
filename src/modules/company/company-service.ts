@@ -1,12 +1,12 @@
-import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { addressService } from '@ear/modules/address';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
-import { Company } from './company.model';
-import { CompanyCreateDto, CompanyListDto, CompanyModelDto, CompanyUpdateDto } from './dtos';
+import { Company, CompanyEntity } from './company-entity';
+import { CreateCompanyDto, ListCompanyDto, UpdateCompanyDto } from './dtos';
 
 /**
- * Service to make changes to Company resources.
+ * Retrieves and modifies Companies.
  */
 export class CompanyService extends ICrudService<Company> {
   /**
@@ -18,47 +18,45 @@ export class CompanyService extends ICrudService<Company> {
 
   /**
    * Create a Company.
-   * @param createDto contains fields to insert to database
+   * @param createDto contains data to create resource
    * @param entityManager used for transactions
-   * @returns resource id
+   * @returns resource ID
    */
-  async create(createDto: CompanyCreateDto, entityManager?: EntityManager): Promise<string> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
+  async create(createDto: CreateCompanyDto, entityManager?: EntityManager): Promise<string> {
+    return ICrudService.transaction(async (manager) => {
       const { address, ...companyInfo } = createDto;
       const addressId = await addressService.create(address, manager);
-      const result = await manager.insert(Company, {
+      const result = await manager.insert(CompanyEntity, {
         id: await this.generateId(),
         addressId,
         ...companyInfo,
       });
       return result.identifiers[0].id;
-    });
+    }, entityManager);
   }
 
   /**
    * Returns a Company.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
    * @returns Company or undefined if not found
    */
-  async get(idDto: IdDto, entityManager?: EntityManager): Promise<Company | undefined> {
+  async get(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Company | undefined> {
     const manager = entityManager ?? getManager();
     return manager.findOne(
-      Company,
+      CompanyEntity,
       { id: idDto.id },
       { relations: ['address'] },
     );
   }
 
   /**
-   * Returns a Company or throw an error if not found.
+   * Returns a Company or fail.
    * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    * @returns Company
    */
-  async getOrFail(idDto: IdDto, entityManager?: EntityManager): Promise<Company> {
+  async getOrFail(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Company> {
     const manager = entityManager ?? getManager();
     const result = await this.get(idDto, manager);
     if (typeof result === 'undefined') {
@@ -69,22 +67,20 @@ export class CompanyService extends ICrudService<Company> {
 
   /**
    * Update a Company.
-   * @param updateDto contains fields needing update
+   * @param updateDto contains data to update resource
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<CompanyModelDto, CompanyUpdateDto>,
+    updateDto: ServiceUpdateOverwrite<Company, UpdateCompanyDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
+    return ICrudService.transaction(async (manager) => {
       const { id, address, ...updates } = updateDto;
-      const result = await manager.update(Company, { id }, updates);
+      const result = await manager.update(CompanyEntity, { id }, updates);
       if (result.raw.affectedRows === 0) {
         throw new NotFoundError(`Cannot update Company. ID ${id} does not exist.`);
       }
-      // update address fields
+
       if (address) {
         const company = await this.getOrFail({ id });
         await addressService.update(
@@ -95,35 +91,33 @@ export class CompanyService extends ICrudService<Company> {
           manager,
         );
       }
-    });
+    }, entityManager);
   }
 
   /**
    * Delete a Company.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
-  async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
+  async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
+    return ICrudService.transaction(async (manager) => {
       const company = await this.getOrFail(idDto, manager);
-      const result = await manager.delete(Company, { id: idDto.id });
+      const result = await manager.delete(CompanyEntity, { id: idDto.id });
       if (result.raw.affectedRows === 0) {
         throw new NotFoundError(`Cannot delete Company. ID ${idDto.id} does not exist.`);
       }
       await addressService.delete({ id: company.addressId }, manager);
-    });
+    }, entityManager);
   }
 
   /**
-   * List all companies.
+   * List Companies.
    * @param listDto contains filters and list options
    * @param entityManager used for transactions
-   * @returns list of companies
+   * @returns Companies
    */
   async list(
-    listDto?: CompanyListDto,
+    listDto?: ListCompanyDto,
     entityManager?: EntityManager,
   ): Promise<Company[]> {
     const manager = entityManager ?? getManager();
@@ -148,7 +142,7 @@ export class CompanyService extends ICrudService<Company> {
       }
     }
 
-    return manager.find(Company, findManyOptions);
+    return manager.find(CompanyEntity, findManyOptions);
   }
 }
 

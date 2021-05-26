@@ -1,12 +1,12 @@
-import { ICrudService, IdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { addressService } from '@ear/modules/address';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
-import { Customer } from './customer.model';
-import { CustomerCreateDto, CustomerListDto, CustomerModelDto, CustomerUpdateDto } from './dtos';
+import { Customer, CustomerEntity } from './customer-entity';
+import { CreateCustomerDto, ListCustomerDto, UpdateCustomerDto } from './dtos';
 
 /**
- * Service to make changes to Customer resources.
+ * Retrieves and modifies Companies.
  */
 export class CustomerService extends ICrudService<Customer> {
   /**
@@ -18,47 +18,45 @@ export class CustomerService extends ICrudService<Customer> {
 
   /**
    * Create a Customer.
-   * @param createDto contains fields to insert to database
+   * @param createDto contains data to create resource
    * @param entityManager used for transactions
-   * @returns resource id
+   * @returns resource ID
    */
-  async create(createDto: CustomerCreateDto, entityManager?: EntityManager): Promise<string> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
+  async create(createDto: CreateCustomerDto, entityManager?: EntityManager): Promise<string> {
+    return ICrudService.transaction(async (manager) => {
       const { address, ...customerInfo } = createDto;
       const addressId = await addressService.create(address, manager);
-      const result = await manager.insert(Customer, {
+      const result = await manager.insert(CustomerEntity, {
         id: await this.generateId(),
         addressId,
         ...customerInfo,
       });
       return result.identifiers[0].id;
-    });
+    }, entityManager);
   }
 
   /**
    * Returns a Customer.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
    * @returns Customer or undefined if not found
    */
-  async get(idDto: IdDto, entityManager?: EntityManager): Promise<Customer | undefined> {
+  async get(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Customer | undefined> {
     const manager = entityManager ?? getManager();
     return manager.findOne(
-      Customer,
+      CustomerEntity,
       { id: idDto.id },
       { relations: ['address'] },
     );
   }
 
   /**
-   * Returns a Customer or throw an error if not found.
+   * Returns a Customer or fail.
    * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    * @returns Customer
    */
-  async getOrFail(idDto: IdDto, entityManager?: EntityManager): Promise<Customer> {
+  async getOrFail(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Customer> {
     const manager = entityManager ?? getManager();
     const result = await this.get(idDto, manager);
     if (typeof result === 'undefined') {
@@ -69,22 +67,20 @@ export class CustomerService extends ICrudService<Customer> {
 
   /**
    * Update a Customer.
-   * @param updateDto contains fields needing update
+   * @param updateDto contains data to update resource
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<CustomerModelDto, CustomerUpdateDto>,
+    updateDto: ServiceUpdateOverwrite<Customer, UpdateCustomerDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
+    return ICrudService.transaction(async (manager) => {
       const { id, address, ...updates } = updateDto;
-      const result = await manager.update(Customer, { id }, updates);
+      const result = await manager.update(CustomerEntity, { id }, updates);
       if (result.raw.affectedRows === 0) {
         throw new NotFoundError(`Cannot update Customer. ID ${id} does not exist.`);
       }
-      // update address fields
+
       if (address) {
         const customer = await this.getOrFail({ id });
         await addressService.update(
@@ -95,34 +91,32 @@ export class CustomerService extends ICrudService<Customer> {
           manager,
         );
       }
-    });
+    }, entityManager);
   }
 
   /**
    * Delete a Customer.
-   * @param idDto contains resource id
+   * @param idDto contains resource ID
    * @param entityManager used for transactions
-   * @throws {NotFoundError}
    */
-  async delete(idDto: IdDto, entityManager?: EntityManager): Promise<void> {
-    return getManager().transaction(async (localEntityManager) => {
-      const manager = entityManager ?? localEntityManager;
+  async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
+    return ICrudService.transaction(async (manager) => {
       const customer = await this.getOrFail(idDto, manager);
-      const result = await manager.delete(Customer, { id: idDto.id });
+      const result = await manager.delete(CustomerEntity, { id: idDto.id });
       if (result.raw.affectedRows === 0) {
         throw new NotFoundError(`Cannot delete Customer. ID ${idDto.id} does not exist.`);
       }
       await addressService.delete({ id: customer.addressId }, manager);
-    });
+    }, entityManager);
   }
 
   /**
-   * List all customers.
+   * List Customers.
    * @param listDto contains filters and list options
    * @param entityManager used for transactions
-   * @returns list of customers
+   * @returns Customers
    */
-  async list(listDto?: CustomerListDto, entityManager?: EntityManager): Promise<Customer[]> {
+  async list(listDto?: ListCustomerDto, entityManager?: EntityManager): Promise<Customer[]> {
     const manager = entityManager ?? getManager();
     const findManyOptions: FindManyOptions<Customer> = {
       relations: ['address'],
@@ -145,7 +139,7 @@ export class CustomerService extends ICrudService<Customer> {
       }
     }
 
-    return manager.find(Customer, findManyOptions);
+    return manager.find(CustomerEntity, findManyOptions);
   }
 }
 
