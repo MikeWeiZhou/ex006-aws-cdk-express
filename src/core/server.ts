@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express, { Router } from 'express';
 import http from 'http';
 import 'reflect-metadata';
@@ -49,6 +50,9 @@ export class Server {
     this.apiPort = apiPort;
     this.connectionOptions = connectionOptions;
     this.started = false;
+
+    // allow cross-origin requests from anyone
+    this.app.use(cors());
 
     // parse application/json
     this.app.use(express.json());
