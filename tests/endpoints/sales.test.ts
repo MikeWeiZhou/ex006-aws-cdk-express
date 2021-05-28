@@ -184,7 +184,7 @@ describe('/sales', () => {
       // base sales
       create.push(
         ...[1, 2, 3].map(
-          () => fake.sale.create({ customerId: customer.id, saleItems }),
+          () => fake.sale.create({ companyId: company.id, customerId: customer.id, saleItems }),
         ),
       );
       await Promise.all(create);
@@ -194,7 +194,7 @@ describe('/sales', () => {
     it('200: can list sales with no filters', async () => {
       const get = await request.get(rootPath).send();
       expect(get.statusCode).toBe(200);
-      expect(get.body.length).toBeGreaterThan(3);
+      expect(get.body.length).toBeGreaterThan(2);
       // contains expected properties
       [
         'id',
@@ -247,9 +247,9 @@ describe('/sales', () => {
       let get: Response;
       let listDto: ListSaleDto;
 
-      // has more than 5 results
+      // has more than 2 results
       get = await request.get(rootPath);
-      expect(get.body.length).toBeGreaterThan(5);
+      expect(get.body.length).toBeGreaterThan(2);
 
       // limit to 1 result
       listDto = { options: { limit: 1, page: 1 } };
