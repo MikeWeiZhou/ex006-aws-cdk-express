@@ -28,7 +28,7 @@ export class ProductFaker extends IFaker<CreateProductDto, ProductDto> {
     const name = dto?.name ?? `${faker.commerce.productName()}`;
     const description = dto?.description ?? `${faker.commerce.productDescription()}`;
     const sku = dto?.sku ?? `${faker.datatype.string(20)}`;
-    const price = dto?.price ?? faker.datatype.number({ min: 0, max: 99999999 });
+    const price = dto?.price ?? faker.datatype.number({ min: 0, max: 10000 });
     return {
       companyId,
       name,

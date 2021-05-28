@@ -2,11 +2,11 @@
  * Different error types for a given request.
  */
 export enum ErrorType {
-  /** Some database-level error. */
+  /** Database constraint duplicate error. */
   DUPLICATE = 'DuplicateError',
   /** Some unexpected error in the server. */
   INTERNAL = 'InternalError',
-  /** Invalid request errors arise when request has invalid parameters. */
+  /** Request has invalid or missing parameters. */
   INVALID_REQUEST = 'InvalidRequestError',
   /** The requested resource doesn't exist. */
   NOT_FOUND = 'NotFoundError',

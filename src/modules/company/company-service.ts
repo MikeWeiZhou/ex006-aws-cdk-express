@@ -1,4 +1,4 @@
-import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateType } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { addressService } from '@ear/modules/address';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
@@ -45,7 +45,7 @@ export class CompanyService extends ICrudService<Company> {
     const manager = entityManager ?? getManager();
     return manager.findOne(
       CompanyEntity,
-      { id: idDto.id },
+      idDto.id,
       { relations: ['address'] },
     );
   }
@@ -71,13 +71,13 @@ export class CompanyService extends ICrudService<Company> {
    * @param entityManager used for transactions
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<Company, UpdateCompanyDto>,
+    updateDto: ServiceUpdateType<Company, UpdateCompanyDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
     return ICrudService.transaction(async (manager) => {
       const { id, address, ...updates } = updateDto;
-      const result = await manager.update(CompanyEntity, { id }, updates);
-      if (result.raw.affectedRows === 0) {
+      const result = await manager.update(CompanyEntity, id, updates);
+      if (result.raw.affectedRows !== 1) {
         throw new NotFoundError(`Cannot update Company. ID ${id} does not exist.`);
       }
 
@@ -102,8 +102,8 @@ export class CompanyService extends ICrudService<Company> {
   async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
     return ICrudService.transaction(async (manager) => {
       const company = await this.getOrFail(idDto, manager);
-      const result = await manager.delete(CompanyEntity, { id: idDto.id });
-      if (result.raw.affectedRows === 0) {
+      const result = await manager.delete(CompanyEntity, idDto);
+      if (result.raw.affectedRows !== 1) {
         throw new NotFoundError(`Cannot delete Company. ID ${idDto.id} does not exist.`);
       }
       await addressService.delete({ id: company.addressId }, manager);

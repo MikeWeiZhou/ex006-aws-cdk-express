@@ -65,7 +65,7 @@ export abstract class ICrudService<Entity> {
 
   /**
    * Returns a resource.
-   * @param getDto contains data identifying a single resource
+   * @param getDto contains resource ID
    * @param entityManager used for transactions
    * @returns resource or undefined if not found
    */
@@ -73,7 +73,7 @@ export abstract class ICrudService<Entity> {
 
   /**
    * Returns a resource or fail.
-   * @param getDto contains data identifying a single resource
+   * @param getDto contains resource ID
    * @param entityManager used for transactions
    * @returns resource
    */
@@ -88,7 +88,7 @@ export abstract class ICrudService<Entity> {
 
   /**
    * Delete a resource.
-   * @param deleteDto contains data identifying a single resource
+   * @param deleteDto contains resource ID
    * @param entityManager used for transactions
    */
   abstract delete(deleteDto: IDto, entityManager?: EntityManager): Promise<void>;

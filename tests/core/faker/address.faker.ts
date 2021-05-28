@@ -40,20 +40,6 @@ export class AddressFaker extends IFaker<NestedCreateAddressDto, any> {
   async create(): Promise<NestedAddressDto> {
     throw new Error('NOT IMPLEMENTED');
   }
-
-  /**
-   * Not implemented.
-   */
-  async cleanGarbage(): Promise<void> {
-    throw new Error('NOT IMPLEMENTED');
-  }
-
-  /**
-   * Not implemented.
-   */
-  async addToGarbageBin(): Promise<void> {
-    throw new Error('NOT IMPLEMENTED');
-  }
 }
 
 export const address = new AddressFaker();

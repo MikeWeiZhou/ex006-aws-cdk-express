@@ -1,9 +1,9 @@
-import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateType } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { EntityManager, getManager } from 'typeorm';
 import { Address, AddressEntity } from './address-entity';
-import { NestedUpdateAddressDto } from './dtos';
 import { NestedCreateAddressDto } from './dtos/nested-create-address-dto';
+import { NestedUpdateAddressDto } from './dtos/nested-update-address-dto';
 
 /**
  * Retrieves and modifies Addresses.
@@ -39,7 +39,7 @@ export class AddressService extends ICrudService<Address> {
    */
   async get(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Address | undefined> {
     const manager = entityManager ?? getManager();
-    return manager.findOne(AddressEntity, { id: idDto.id });
+    return manager.findOne(AddressEntity, idDto.id);
   }
 
   /**
@@ -63,13 +63,13 @@ export class AddressService extends ICrudService<Address> {
    * @param entityManager used for transactions
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<Address, NestedUpdateAddressDto>,
+    updateDto: ServiceUpdateType<Address, NestedUpdateAddressDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
     const manager = entityManager ?? getManager();
     const { id, ...updates } = updateDto;
-    const result = await manager.update(AddressEntity, { id }, updates);
-    if (result.raw.affectedRows === 0) {
+    const result = await manager.update(AddressEntity, id, updates);
+    if (result.raw.affectedRows !== 1) {
       throw new NotFoundError(`Cannot update Address. ID ${id} does not exist.`);
     }
   }
@@ -81,8 +81,8 @@ export class AddressService extends ICrudService<Address> {
    */
   async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
     const manager = entityManager ?? getManager();
-    const result = await manager.delete(AddressEntity, { id: idDto.id });
-    if (result.raw.affectedRows === 0) {
+    const result = await manager.delete(AddressEntity, idDto.id);
+    if (result.raw.affectedRows !== 1) {
       throw new NotFoundError(`Cannot delete Address. ID ${idDto.id} does not exist.`);
     }
   }

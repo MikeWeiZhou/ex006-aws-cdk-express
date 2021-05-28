@@ -52,12 +52,12 @@ export const BaseEntityColumns = {
   } as EntitySchemaColumnOptions,
   createdAt: {
     name: 'created_at',
-    type: 'timestamp',
+    type: 'datetime',
     createDate: true,
   } as EntitySchemaColumnOptions,
   updatedAt: {
     name: 'updated_at',
-    type: 'timestamp',
+    type: 'datetime',
     updateDate: true,
   } as EntitySchemaColumnOptions,
 };

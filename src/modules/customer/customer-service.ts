@@ -1,4 +1,4 @@
-import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateType } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { addressService } from '@ear/modules/address';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
@@ -45,7 +45,7 @@ export class CustomerService extends ICrudService<Customer> {
     const manager = entityManager ?? getManager();
     return manager.findOne(
       CustomerEntity,
-      { id: idDto.id },
+      idDto.id,
       { relations: ['address'] },
     );
   }
@@ -71,13 +71,13 @@ export class CustomerService extends ICrudService<Customer> {
    * @param entityManager used for transactions
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<Customer, UpdateCustomerDto>,
+    updateDto: ServiceUpdateType<Customer, UpdateCustomerDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
     return ICrudService.transaction(async (manager) => {
       const { id, address, ...updates } = updateDto;
-      const result = await manager.update(CustomerEntity, { id }, updates);
-      if (result.raw.affectedRows === 0) {
+      const result = await manager.update(CustomerEntity, id, updates);
+      if (result.raw.affectedRows !== 1) {
         throw new NotFoundError(`Cannot update Customer. ID ${id} does not exist.`);
       }
 
@@ -102,8 +102,8 @@ export class CustomerService extends ICrudService<Customer> {
   async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
     return ICrudService.transaction(async (manager) => {
       const customer = await this.getOrFail(idDto, manager);
-      const result = await manager.delete(CustomerEntity, { id: idDto.id });
-      if (result.raw.affectedRows === 0) {
+      const result = await manager.delete(CustomerEntity, idDto.id);
+      if (result.raw.affectedRows !== 1) {
         throw new NotFoundError(`Cannot delete Customer. ID ${idDto.id} does not exist.`);
       }
       await addressService.delete({ id: customer.addressId }, manager);

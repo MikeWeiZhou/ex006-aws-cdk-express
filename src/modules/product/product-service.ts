@@ -1,4 +1,4 @@
-import { ICrudService, RequestIdDto, ServiceUpdateOverwrite } from '@ear/common';
+import { ICrudService, RequestIdDto, ServiceUpdateType } from '@ear/common';
 import { NotFoundError } from '@ear/core';
 import { EntityManager, FindManyOptions, getManager, SelectQueryBuilder } from 'typeorm';
 import { CreateProductDto, ListProductDto, UpdateProductDto } from './dtos';
@@ -38,7 +38,7 @@ export class ProductService extends ICrudService<Product> {
    */
   async get(idDto: RequestIdDto, entityManager?: EntityManager): Promise<Product | undefined> {
     const manager = entityManager ?? getManager();
-    return manager.findOne(ProductEntity, { id: idDto.id });
+    return manager.findOne(ProductEntity, idDto.id);
   }
 
   /**
@@ -62,13 +62,13 @@ export class ProductService extends ICrudService<Product> {
    * @param entityManager used for transactions
    */
   async update(
-    updateDto: ServiceUpdateOverwrite<Product, UpdateProductDto>,
+    updateDto: ServiceUpdateType<Product, UpdateProductDto>,
     entityManager?: EntityManager,
   ): Promise<void> {
     const manager = entityManager ?? getManager();
     const { id, ...updates } = updateDto;
-    const result = await manager.update(ProductEntity, { id }, updates);
-    if (result.raw.affectedRows === 0) {
+    const result = await manager.update(ProductEntity, id, updates);
+    if (result.raw.affectedRows !== 1) {
       throw new NotFoundError(`Cannot update Product. ID ${id} does not exist.`);
     }
   }
@@ -80,8 +80,8 @@ export class ProductService extends ICrudService<Product> {
    */
   async delete(idDto: RequestIdDto, entityManager?: EntityManager): Promise<void> {
     const manager = entityManager ?? getManager();
-    const result = await manager.delete(ProductEntity, { id: idDto.id });
-    if (result.raw.affectedRows === 0) {
+    const result = await manager.delete(ProductEntity, idDto.id);
+    if (result.raw.affectedRows !== 1) {
       throw new NotFoundError(`Cannot delete Product. ID ${idDto.id} does not exist.`);
     }
   }
