@@ -115,6 +115,27 @@ export class ProductService extends ICrudService<Product> {
 
     return manager.find(ProductEntity, findManyOptions);
   }
+
+  /**
+   * Returns list of Company IDs that Products belong to.
+   * @param productIds list of product IDs
+   * @param entityManager used for transactions
+   * @returns list of Company IDs
+   */
+  async getProductCompanyIds(
+    productIds: string[],
+    entityManager?: EntityManager,
+  ): Promise<string[]> {
+    const manager = entityManager ?? getManager();
+    const query = await manager
+      .createQueryBuilder()
+      .select('company_id')
+      .distinct(true)
+      .from(ProductEntity, 'product')
+      .whereInIds(productIds)
+      .getRawMany();
+    return query.map((product) => product.company_id);
+  }
 }
 
 /**

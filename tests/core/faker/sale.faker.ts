@@ -1,13 +1,17 @@
-import { companyService } from '@ear/modules/company';
-import { CustomerCreateDto, CustomerModelDto } from '@ear/modules/customer/dtos';
-import { SaleCreateDto, SaleModelDto } from '@ear/modules/sale/dtos';
+import { PartialExcept } from '@ear/common';
+import { CompanyDto, companyService } from '@ear/modules/company';
+import { CustomerDto, customerService } from '@ear/modules/customer';
+import { CreateSaleDto, SaleDto } from '@ear/modules/sale';
+import { NestedCreateSaleItemDto } from '@ear/modules/sale-item';
 import faker from 'faker';
 import { request } from '../request';
-import { address } from './address.faker';
 import { company } from './company.faker';
+import { customer } from './customer.faker';
 import { IFaker } from './i.faker';
+import { product } from './product.faker';
+import { saleItem } from './sale-item.faker';
 
-export class SaleFaker extends IFaker<SaleCreateDto, SaleModelDto> {
+export class SaleFaker extends IFaker<CreateSaleDto, SaleDto> {
   /**
    * Constructor.
    */
@@ -22,30 +26,54 @@ export class SaleFaker extends IFaker<SaleCreateDto, SaleModelDto> {
    * @returns DTO
    */
   async dto(
-    dto?: Partial<SaleCreateDto>,
+    dto?: Partial<CreateSaleDto>,
     noDatabaseWrites: boolean = false,
-  ): Promise<SaleCreateDto> {
-    const companyId = dto?.companyId
-      ?? ((noDatabaseWrites && await companyService.generateId()) || (await company.create()).id);
-    const firstName = dto?.firstName ?? `${faker.name.firstName()}`;
-    const lastName = dto?.lastName ?? `${faker.name.lastName()}`;
-    const email = dto?.email ?? `${faker.internet.email(firstName, lastName)}`;
-    const addr = await address.dto(dto?.address, noDatabaseWrites);
+  ): Promise<CreateSaleDto> {
+    // shared resources
+    const comments = dto?.comments ?? `${faker.company.catchPhraseDescriptor()}`;
+
+    // do not create prerequisite entities in database
+    if (noDatabaseWrites) {
+      const companyId = dto?.companyId ?? await companyService.generateId();
+      const customerId = dto?.customerId ?? await customerService.generateId();
+      const saleItems = dto?.saleItems ?? [await saleItem.dto(undefined, true)];
+      return {
+        companyId,
+        customerId,
+        comments,
+        saleItems,
+      };
+    }
+
+    // create prerequisite entities in database if needed
+    const createdCompany: PartialExcept<CompanyDto, 'id'> = (dto?.companyId)
+      ? { id: dto.companyId }
+      : await company.create();
+
+    const createdCustomer: PartialExcept<CustomerDto, 'id'> = (dto?.customerId)
+      ? { id: dto.customerId }
+      : await customer.create({ companyId: createdCompany.id });
+
+    let saleItems: NestedCreateSaleItemDto[] | undefined = dto?.saleItems;
+    if (!saleItems) {
+      const createdProduct = await product.create({ companyId: createdCompany.id });
+      saleItems = [await saleItem.dto({ productId: createdProduct.id })];
+    }
+
     return {
-      companyId,
-      firstName,
-      lastName,
-      email,
-      address: addr,
+      companyId: createdCompany.id,
+      customerId: createdCustomer.id,
+      comments,
+      saleItems,
     };
   }
 
   /**
-   * Creates a Customer on test API server.
+   * Creates a Sale on test API server.
    * @param dto uses any provided properties over generated ones
    * @returns a model-like DTO
    */
-  async create(dto?: Partial<CustomerCreateDto>): Promise<CustomerModelDto> {
+  async create(dto?: Partial<CreateSaleDto>): Promise<SaleDto> {
     const createDto = await this.dto(dto);
     const create = await request.post(this.rootPath).send(createDto);
     this.addToGarbageBin(create.body);
@@ -53,13 +81,14 @@ export class SaleFaker extends IFaker<SaleCreateDto, SaleModelDto> {
   }
 
   /**
-   * @override
    * All resources in garbage bin will be deleted from the server.
    */
   async cleanGarbage(): Promise<void> {
     await super.cleanGarbage();
+    await product.cleanGarbage();
+    await customer.cleanGarbage();
     await company.cleanGarbage();
   }
 }
 
-export const customer = new SaleFaker();
+export const sale = new SaleFaker();

@@ -294,15 +294,15 @@ describe('/companies/:id', () => {
     it('400: cannot update Company with invalid parameters', async () => {
       const company = await fake.company.create();
       let dto: UpdateCompanyDto;
-      let get: Response;
+      let patch: Response;
 
       // not nullable
       dto = {
         name: null,
         email: null,
       } as any;
-      get = await request.patch(`${rootPath}/${company.id}`).send(dto);
-      testUtility.expectRequestInvalidParams(get, [
+      patch = await request.patch(`${rootPath}/${company.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(patch, [
         'name',
         'email',
       ]);
@@ -312,8 +312,8 @@ describe('/companies/:id', () => {
         name: '',
         email: 'not_an_email',
       } as any;
-      get = await request.patch(`${rootPath}/${company.id}`).send(dto);
-      testUtility.expectRequestInvalidParams(get, [
+      patch = await request.patch(`${rootPath}/${company.id}`).send(dto);
+      testUtility.expectRequestInvalidParams(patch, [
         'name',
         'email',
       ]);

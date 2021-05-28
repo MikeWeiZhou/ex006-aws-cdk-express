@@ -1,7 +1,7 @@
 CREATE TABLE `address` (
 `id` char(25) NOT NULL,
-`created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-`updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `line1` varchar(150) NOT NULL,
 `postcode` varchar(10) NOT NULL,
 `city` varchar(100) NOT NULL,
@@ -12,8 +12,8 @@ PRIMARY KEY (`id`)
 ;
 CREATE TABLE `company` (
 `id` char(25) NOT NULL,
-`created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-`updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `name` varchar(50) NOT NULL,
 `email` varchar(100) NOT NULL,
 `address_id` char(25) NOT NULL,
@@ -24,8 +24,8 @@ PRIMARY KEY (`id`)
 ;
 CREATE TABLE `customer` (
 `id` char(25) NOT NULL,
-`created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-`updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `first_name` varchar(50) NOT NULL,
 `last_name` varchar(50) NOT NULL,
 `email` varchar(100) NOT NULL,
@@ -38,8 +38,8 @@ PRIMARY KEY (`id`)
 ;
 CREATE TABLE `product` (
 `id` char(25) NOT NULL,
-`created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-`updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `name` varchar(100) NOT NULL,
 `description` varchar(255) NOT NULL,
 `sku` varchar(100) NOT NULL,
@@ -51,8 +51,8 @@ PRIMARY KEY (`id`)
 ;
 CREATE TABLE `sale_item` (
 `id` char(25) NOT NULL,
-`created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-`updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `quantity` int UNSIGNED NOT NULL,
 `price_per_unit` int UNSIGNED NOT NULL,
 `total` int UNSIGNED NOT NULL,
@@ -64,11 +64,12 @@ PRIMARY KEY (`id`)
 ;
 CREATE TABLE `sale` (
 `id` char(25) NOT NULL,
-`created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-`updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `status_code` varchar(25) NOT NULL,
 `comments` varchar(255) NOT NULL,
 `total` int UNSIGNED NOT NULL,
+`company_id` char(25) NOT NULL,
 `customer_id` char(25) NOT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -90,6 +91,9 @@ ADD CONSTRAINT `fk_sale_item_sale_id` FOREIGN KEY (`sale_id`) REFERENCES `sale`(
 ;
 ALTER TABLE `sale_item`
 ADD CONSTRAINT `fk_sale_item_product_id` FOREIGN KEY (`product_id`) REFERENCES `product`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+ALTER TABLE `sale`
+ADD CONSTRAINT `fk_sale_company_id` FOREIGN KEY (`company_id`) REFERENCES `company`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ;
 ALTER TABLE `sale`
 ADD CONSTRAINT `fk_sale_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION

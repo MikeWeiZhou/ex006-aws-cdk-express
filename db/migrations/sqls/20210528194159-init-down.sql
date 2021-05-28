@@ -1,5 +1,7 @@
 ALTER TABLE `sale` DROP FOREIGN KEY `fk_sale_customer_id`
 ;
+ALTER TABLE `sale` DROP FOREIGN KEY `fk_sale_company_id`
+;
 ALTER TABLE `sale_item` DROP FOREIGN KEY `fk_sale_item_product_id`
 ;
 ALTER TABLE `sale_item` DROP FOREIGN KEY `fk_sale_item_sale_id`
