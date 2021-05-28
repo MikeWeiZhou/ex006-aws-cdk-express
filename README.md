@@ -2,13 +2,17 @@
 
 An exercise in creating a small Express.js API with AWS Cloud Development Kit (CDK).
 
-The idea is to build the foundations (dev environment, infrastructure, and a small reference API) as a sample boilerplate.
+The idea is to build the foundations and tooling (dev environment, infrastructure, and a small reference API) as a sample boilerplate.
 
 
 ## Contents
 - [Express API Reference](#express-api-reference)
   - [Contents](#contents)
   - [1. API Design](#1-api-design)
+    - [1.1 Request Data Flow](#11-request-data-flow)
+    - [1.2 Data Models](#12-data-models)
+      - [Company - Customer Relations](#company---customer-relations)
+      - [Sale - Product Relations](#sale---product-relations)
   - [2. Development Environment](#2-development-environment)
     - [2.1 Features](#21-features)
     - [2.2 Prerequisites](#22-prerequisites)
@@ -23,17 +27,37 @@ The idea is to build the foundations (dev environment, infrastructure, and a sma
     - [6.1 Deployments (automated migrations)](#61-deployments-automated-migrations)
     - [6.2 Local Environment (run migrations)](#62-local-environment-run-migrations)
     - [6.3 New Migration (generate sql automatically)](#63-new-migration-generate-sql-automatically)
-    - [6.4 Migration Strategy (no breaking changes)](#64-migration-strategy-no-breaking-changes)
+    - [6.4 Migration Strategy (break up breaking changes)](#64-migration-strategy-break-up-breaking-changes)
 
 
 ## 1. API Design
 
-TODO
+
+### 1.1 Request Data Flow
+
+There are many more modules that are required for this to work as a real-world API, such as user authentication and authorization. Many existing modules also needs more refinement.
+
+![](docs/assets/request-data-flow.png)
+
+
+### 1.2 Data Models
+
+These are over-simplified data models. Real-world business models will have more complicated relations and business logic.
+
+#### Company - Customer Relations
+![](docs/assets/data-model-company-customer.png)
+
+#### Sale - Product Relations
+![](docs/assets/data-model-sale.png)
 
 
 ## 2. Development Environment
 
 All the development and deployments will be done within a development container ([devcontainer](https://code.visualstudio.com/docs/remote/containers)) running a variation of Debian.
+
+A couple things devcontainer does not contain:
+- all Docker commands in devcontainer are forwarded and are run on the host's Docker engine
+- host's `~/.aws` credentials are forwareded into the devcontainer for CDK deployments
 
 ### 2.1 Features
 
@@ -66,8 +90,8 @@ The devcontainer setup process is automated and should only take 5 - 10 minutes.
 
 3. Run database migration scripts for one or both environments:
     ```
-    ear dev:migrations:run
-    ear test:migrations:run
+    ear migrations:run
+    ear 2:migrations:run
     ```
 
 All environment variables are in the file **.devcontainer/.env**. The defaults does not need to be changed for local development and testing, but can be changed.
@@ -76,24 +100,32 @@ Anytime you want to develop in the devcontainer, run **Remote-Containers: Reopen
 
 ### 2.4 Commands
 
-There are two environments: `dev` or `test`. Both environments have identical features. For example: **ear test:mysql** would start the mysql client for test environment.
+There are two environments: `dev` or `test`. Both environments have identical features.
+
+Running commands as listed below uses the `dev` environment, whereas appending `2:` to the command would use the `test` environment:
+- e.g. `ear mysql` starts mysql client for `dev`
+- e.g. `ear 2:mysql` starts mysql client for `test`
 
 The `ear` command is a bash alias to `npm run`.
 
+Environment specific commands:
+- `ear mysql` - start mysql client
+- `ear server` - start server with hot-reload
+- `ear server:debug` - start server with hot-reload in debug mode (F5 to start debugging)
+- `ear server:production` - start server in Docker container (will be compiled)
+- `ear test` - run tests in watch mode
+- `ear test [test-suite-name]` - only run tests matching test-suite-name, in watch mode
+- `ear test:production` - run tests against server running in a Docker container
+- `ear migrations:run` - run all upgrade migrations scripts
+- `ear migrations:run 0` - run all downgrade migrations scripts (results in empty database)
+- `ear migrations:run [target-version]` - run migration scripts to targetted db schema version
+- `ear migrations:reset` - run all downgrade migration scripts, then all upgrade migration scripts
+- `ear migrations:generate [migration-name]` - generate new migration based on differences in current database schema and TypeORM models (.model.ts files)
+- `ear api [model] [method] -- [--arguments=value]` invoke a faker call to create a resource/dto for specified model
+
+Environment-agnostic commands:
 - `ear help` - shows this command list
-- `ear [env]:mysql` - start mysql client
-- `ear [env]:server` - start server with hot-reload
-- `ear [env]:server:debug` - start server with hot-reload in debug mode (F5 to start debugging)
-- `ear [env]:server:production` - start server in Docker container (will be compiled)
-- `ear [env]:test` - run tests in watch mode
-- `ear [env]:test [test-suite-name]` - only run tests matching test-suite-name, in watch mode
-- `ear [env]:test:production` - run tests against server running in a Docker container
-- `ear [env]:migrations:run` - run all upgrade migrations scripts
-- `ear [env]:migrations:run 0` - run all downgrade migrations scripts (results in empty database)
-- `ear [env]:migrations:run [target-version]` - run migration scripts to targetted db schema version
-- `ear [env]:migrations:reset` - run all downgrade migration scripts, then all upgrade migration scripts
-- `ear [env]:migrations:generate [migration-name]` - generate new migration based on differences in current database schema and TypeORM models (.model.ts files)
-- `ear [env]:util:generate-index-export [target-folder]` - generate index.ts exporting all files within target folder
+- `ear gen:index-export [target-folder]` - generate index.ts exporting all files within target folder
 
 
 ## 3. Run API Server
@@ -102,15 +134,15 @@ Once the API server is started (default listens to port 4000 in `dev` -- **.devc
 
 - development mode (hot-reloads)
   ```
-  ear dev:server
+  ear server
   ```
 - debug mode (`F5` to start debugger)
   ```
-  ear dev:server:debug
+  ear server:debug
   ```
 - production mode (Docker container - deployments to AWS use this)
   ```
-  ear dev:server:production
+  ear server:production
   ```
 
 
@@ -120,15 +152,15 @@ The tests run against a live server. So an instance of the API server must be ru
 
 - run tests
   ```
-  ear dev:test
+  ear test
   ```
 - only run tests matching test-suite-name (e.g. **ear dev:test /companies**)
   ```
-  ear dev:test [test-suite-name]
+  ear test [test-suite-name]
   ```
 - run tests against production mode (API server running in Docker container)
   ```
-  ear dev:test:production
+  ear test:production
   ```
 
 
@@ -190,15 +222,15 @@ new MainStack(app, 'dev-api-usw1', {
 
 - run all migration up scripts
   ```
-  ear dev:migrations:run
+  ear migrations:run
   ```
 - run all migration down scripts
   ```
-  ear dev:migrations:run 0
+  ear migrations:run 0
   ```
 - run all migration up or down scripts up to targetted db schema version
   ```
-  ear dev:migrations:run [target-version]
+  ear migrations:run [target-version]
   ```
 
 ### 6.3 New Migration (generate sql automatically)
@@ -207,7 +239,7 @@ Generate a new migration script (raw SQL) based on differences in the actual MyS
 
 Run command (name can be something short, such as **init**):
 ```
-ear dev:migrations:generate [name]
+ear migrations:generate [name]
 ```
 This will generate 3 files with filename consiting of `[timestamp]-[name]`. This is the db schema version.
 ```
@@ -217,7 +249,7 @@ db/migrations/sqls/20210503101932-init-down.sql
 db/migrations/sqls/20210503101932-init-up.sql
 ```
 
-### 6.4 Migration Strategy (no breaking changes)
+### 6.4 Migration Strategy (break up breaking changes)
 
 [Expand and Contract](https://www.tim-wellhausen.de/papers/ExpandAndContract/ExpandAndContract.html). Besides the regular database backup, any breaking changes should be implemented in multiple migrations and individual migrations are not breaking changes themselves.
 
