@@ -1,3 +1,4 @@
+import config from '@ear-tests/config';
 import { IDto, IResponseBaseDto } from '@ear/common';
 import { request } from '../request';
 
@@ -8,7 +9,7 @@ export abstract class IFaker<CreateDto extends IDto, ModelDto extends IResponseB
   /**
    * Resources to be deleted.
    */
-  private readonly garbage: ModelDto[];
+  protected readonly garbage: ModelDto[];
 
   /**
    * Resource URL root path (after the domain name).
@@ -43,8 +44,10 @@ export abstract class IFaker<CreateDto extends IDto, ModelDto extends IResponseB
    * All resources in garbage bin will be deleted from the server.
    */
   async cleanGarbage(): Promise<void> {
-    const deleteTasks = this.garbage.map((resource) => request.delete(`${this.rootPath}/${resource.id}`));
-    await Promise.all(deleteTasks);
+    if (config.cleanup) {
+      const deleteTasks = this.garbage.map((resource) => request.delete(`${this.rootPath}/${resource.id}`));
+      await Promise.all(deleteTasks);
+    }
   }
 
   /**
