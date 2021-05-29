@@ -83,6 +83,10 @@ export class Server {
     this.server = this.app.listen(this.apiPort, () => {
       console.log(`Express API server running on port ${this.apiPort}.`); // eslint-disable-line no-console
     });
+
+    // ensure all inactive connections are terminated by the ALB, by setting this a few seconds
+    // higher than the ALB idle timeout
+    this.server.keepAliveTimeout = 65000;
   }
 
   /**
