@@ -1,5 +1,5 @@
-import { constants } from '@ear/config';
 import { registerDecorator, ValidationArguments } from 'class-validator';
+import { BaseEntityConstraints } from '../i-base-entity';
 
 /**
  * Checks if string is a resource ID.
@@ -15,7 +15,7 @@ export function IsResourceId() {
       },
       validator: {
         validate(value: any, args: ValidationArguments) {
-          return typeof value === 'string' && value.length === constants.RESOURCE_ID_TOTAL_LENGTH;
+          return typeof value === 'string' && value.length === BaseEntityConstraints.RESOURCE_ID_TOTAL_LENGTH;
         },
       },
     });

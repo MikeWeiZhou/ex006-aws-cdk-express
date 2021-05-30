@@ -6,9 +6,5 @@ import { dbMigrate } from './core/dbmigrate';
 
 // This script should only be triggered by npm run scripts.
 // The third argument onwards would be extra variable passed in by user.
-let targetVersion;
-if (process.argv.length > 2) {
-  [,, targetVersion] = process.argv;
-}
-
+const targetVersion = process.argv[2];
 dbMigrate(targetVersion);
