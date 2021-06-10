@@ -1,7 +1,7 @@
 import { ICrudService, IDto, RequestIdDto } from '@ear/common';
 import { InternalError, NotFoundError } from '@ear/core';
 import { EntityManager, getManager } from 'typeorm';
-import { CreateSaleItemDto } from './dtos';
+import { ICreateSaleItemDto } from './dtos';
 import { IBatchDeleteSaleItemDto } from './dtos/i-batch-delete-sale-item-dto';
 import { SaleItem, SaleItemEntity } from './sale-item-entity';
 
@@ -22,7 +22,7 @@ export class SaleItemService extends ICrudService<SaleItem> {
    * @param entityManager used for transactions
    * @returns resource ID
    */
-  async create(createDto: CreateSaleItemDto, entityManager?: EntityManager): Promise<string> {
+  async create(createDto: ICreateSaleItemDto, entityManager?: EntityManager): Promise<string> {
     const manager = entityManager ?? getManager();
     const result = await manager.insert(SaleItemEntity, {
       id: await this.generateId(),
@@ -65,7 +65,7 @@ export class SaleItemService extends ICrudService<SaleItem> {
   }
 
   /**
-   * Not implemented
+   * Not implemented.
    */
   delete(deleteDto: IDto, entityManager?: EntityManager): Promise<void> {
     throw new InternalError('SaleItemService.delete() not implemented.');

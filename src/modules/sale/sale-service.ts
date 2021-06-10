@@ -29,7 +29,7 @@ export class SaleService extends ICrudService<Sale> {
       const { saleItems, ...saleInfo } = createDto;
       const saleId = await this.generateId();
 
-      // validate all products belong to single company
+      // validate all products belong to Customer's Company
       const productIds = saleItems.map((saleItem) => saleItem.productId);
       const companyIds = await productService.getProductCompanyIds(productIds);
       if (companyIds.length !== 1) {
@@ -39,7 +39,7 @@ export class SaleService extends ICrudService<Sale> {
         throw new InvalidRequestError(undefined, 'Cannot create Sale. Products must belong same Company as Customer.');
       }
 
-      // calculate sale total
+      // calculate Sale total
       const saleTotal = saleItems.reduce((total, saleItem) => total + saleItem.total, 0);
 
       // create Sale
@@ -60,7 +60,7 @@ export class SaleService extends ICrudService<Sale> {
       }, manager));
       await Promise.all(createSaleItems);
 
-      // return Sale id
+      // return Sale ID
       return result.identifiers[0].id;
     }, entityManager);
   }

@@ -15,7 +15,7 @@ export class SaleController {
    * @param res Express Response
    * @returns Sale
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: CreateSaleDto,
     responseDto: SaleDto,
     responseStatusCode: ResponseStatusCode.CREATED,
@@ -34,7 +34,7 @@ export class SaleController {
    * @param res Express Response
    * @returns Sale
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseDto: SaleDto,
@@ -51,7 +51,7 @@ export class SaleController {
    * @param res Express Response
    * @returns updated Sale
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: UpdateSaleDto,
     responseDto: SaleDto,
@@ -71,7 +71,7 @@ export class SaleController {
    * @param res Express Response
    * @returns Sale
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseDto: SaleDto,
@@ -91,7 +91,7 @@ export class SaleController {
    * @param res Express Response
    * @returns Sale
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseDto: SaleDto,
@@ -111,7 +111,7 @@ export class SaleController {
    * @param res Express Response
    * @returns Sale
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseDto: SaleDto,
@@ -130,7 +130,7 @@ export class SaleController {
    * @param req Express Request
    * @param res Express Response
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseStatusCode: ResponseStatusCode.NO_CONTENT,
@@ -146,7 +146,7 @@ export class SaleController {
    * @param res Express Response
    * @returns sales
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: ListSaleDto,
     responseDto: SaleDto,
     responseStatusCode: ResponseStatusCode.OK,

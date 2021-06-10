@@ -59,7 +59,11 @@ async function invoke(method: ValidMethods, model: string, args?: any): Promise<
   const input = (typeof args === 'function')
     ? JSON.parse(await args())
     : args;
-  const modelFaker = (await import(`../tests/core/faker/${model}.faker`))[model];
+  const modelCamelCase = model.replace(
+    /[-][a-z]/ig,
+    ($1) => $1.toUpperCase().replace('-', ''),
+  );
+  const modelFaker = (await import(`../tests/core/faker/${model}.faker`))[modelCamelCase];
   const response = await modelFaker[method](input, true);
   const prettyJson = JSON.stringify(response, null, 2);
   console.log(prettyJson);

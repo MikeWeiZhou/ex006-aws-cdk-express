@@ -13,7 +13,7 @@ export class CompanyController {
    * @param requestDto contains data to create resource
    * @returns Company
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: CreateCompanyDto,
     responseDto: CompanyDto,
     responseStatusCode: ResponseStatusCode.CREATED,
@@ -30,7 +30,7 @@ export class CompanyController {
    * @param requestDto contains resource ID
    * @returns Company
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseDto: CompanyDto,
@@ -45,7 +45,7 @@ export class CompanyController {
    * @param requestDto contains data to update resource
    * @returns updated Company
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: UpdateCompanyDto,
     responseDto: CompanyDto,
@@ -62,7 +62,7 @@ export class CompanyController {
    * {delete} /companies/:id Delete a Company.
    * @param requestDto contains resource id
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseStatusCode: ResponseStatusCode.NO_CONTENT,
@@ -76,7 +76,7 @@ export class CompanyController {
    * @param requestDto contains filters and list options
    * @returns Companies
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: ListCompanyDto,
     responseDto: CompanyDto,
     responseStatusCode: ResponseStatusCode.OK,

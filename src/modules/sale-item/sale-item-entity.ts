@@ -1,4 +1,5 @@
 import { BaseEntityColumns, BaseEntityConstraints, IBaseEntity } from '@ear/common';
+import { constants } from '@ear/config';
 import { EntitySchema } from 'typeorm';
 import { Product } from '../product';
 import { Sale } from '../sale/sale-entity';
@@ -46,7 +47,22 @@ export interface SaleItem extends IBaseEntity {
 /**
  * SaleItem entity constraints.
  */
-export const SaleItemEntityConstraints = {};
+export const SaleItemEntityConstraints = {
+  /**
+   * Maximum positive integer value for quantity.
+   */
+  QUANTITY_MAX_VALUE: 1000,
+
+  /**
+   * Maximum positive integer value for SaleItem price per unit in cents.
+   */
+  PRICE_PER_UNIT_MAX_VALUE: 99999999,
+
+  /**
+   * Maximum positive integer value for SaleItem total price in cents.
+   */
+  TOTAL_MAX_VALUE: constants.MAX_MYSQL_UNSIGNED_INT_VALUE,
+};
 
 /**
  * SaleItem entity schema.

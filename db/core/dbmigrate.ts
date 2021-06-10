@@ -51,10 +51,6 @@ export async function latestDbSchemaVersion(): Promise<string> {
  *                        empty or not set, then all migration scripts will run.
  */
 export async function dbMigrate(targetVersion?: string): Promise<void> {
-  if (typeof targetVersion === 'undefined' && typeof process.env.EAR_DB_VERSION === 'undefined') {
-    throw new Error('No DB version specified.');
-  }
-
   const dbm = dbmigrate.getInstance(true, { env: 'default' });
   const version = targetVersion
     || process.env.EAR_DB_VERSION

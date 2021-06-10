@@ -7,7 +7,7 @@ import { ResponseStatusCode } from './types';
 import { ControllerDecoratorProperties } from './types/controller-decorator-properties';
 
 /**
- * CRUD controller decorators help process request data and generate responses.
+ * Controller decorator help sanitize and validate request body and santize response data.
  */
 export class ControllerDecorator<ReqDto, ResDto extends IDto> {
   /**
@@ -16,15 +16,15 @@ export class ControllerDecorator<ReqDto, ResDto extends IDto> {
    *
    * Expects the decorated method signature to be:
    *    ```typescript
-   *    (requestDto) => Promise<responseDto>
+   *    (requestDto) => Promise<responseDto-like>
    *    ```
    *
    * @param props options for decorator
    * @returns MethodDecorator
    */
-  decorate(props: ControllerDecoratorProperties<ReqDto, ResDto>): MethodDecorator {
+  process(props: ControllerDecoratorProperties<ReqDto, ResDto>): MethodDecorator {
     // save this reference
-    const controllerDecorator = this;
+    const thisArg = this;
 
     return function (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
       // controller function that is decorated
@@ -37,7 +37,7 @@ export class ControllerDecorator<ReqDto, ResDto extends IDto> {
         try {
           // merge req.params into req.body
           if (props.mergeParams) {
-            controllerDecorator.mergeUrlParamsOrFail(props.mergeParams, req, res);
+            thisArg.mergeUrlParamsOrFail(props.mergeParams, req, res);
           }
 
           // sanitize and validate request body against requestDTO
@@ -45,7 +45,7 @@ export class ControllerDecorator<ReqDto, ResDto extends IDto> {
           if (Array.isArray(requestDto)) {
             throw new InvalidRequestError(undefined, 'Request body cannot be an array. Must be an object');
           }
-          await controllerDecorator.validateDtoOrFail(requestDto);
+          await thisArg.validateDtoOrFail(requestDto);
 
           // call controller method with requestDto
           const args = [requestDto];
@@ -64,7 +64,7 @@ export class ControllerDecorator<ReqDto, ResDto extends IDto> {
           }
 
           // send response back to client
-          const apiResponse = controllerDecorator
+          const apiResponse = thisArg
             .getApiResponseObjectOrFail(props.responseStatusCode);
           apiResponse.send(res, responseData);
         } catch (error) {

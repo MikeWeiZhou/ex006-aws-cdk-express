@@ -1,6 +1,7 @@
-import { IDto, IsResourceId } from '@ear/common';
+import { IDto, IsCurrencyAmount, IsResourceId } from '@ear/common';
 import { Expose } from 'class-transformer';
-import { IsInt, IsPositive } from 'class-validator';
+import { IsInt, Max, Min } from 'class-validator';
+import { SaleItemEntityConstraints } from '../sale-item-entity';
 
 /**
  * Create SaleItem request parameters sanitized and validated to spec.
@@ -10,18 +11,17 @@ import { IsInt, IsPositive } from 'class-validator';
  */
 export class NestedCreateSaleItemDto implements IDto {
   @Expose()
-  @IsPositive()
   @IsInt()
+  @Min(1)
+  @Max(SaleItemEntityConstraints.QUANTITY_MAX_VALUE)
   readonly quantity!: number;
 
   @Expose()
-  @IsPositive()
-  @IsInt()
+  @IsCurrencyAmount(SaleItemEntityConstraints.PRICE_PER_UNIT_MAX_VALUE)
   readonly pricePerUnit!: number;
 
   @Expose()
-  @IsPositive()
-  @IsInt()
+  @IsCurrencyAmount(SaleItemEntityConstraints.TOTAL_MAX_VALUE)
   readonly total!: number;
 
   @Expose()

@@ -12,7 +12,7 @@ export class ProductController {
    * @param requestDto contains data to create resource
    * @returns Product
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: CreateProductDto,
     responseDto: ProductDto,
     responseStatusCode: ResponseStatusCode.CREATED,
@@ -29,7 +29,7 @@ export class ProductController {
    * @param requestDto contains resource ID
    * @returns Product
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseDto: ProductDto,
@@ -44,7 +44,7 @@ export class ProductController {
    * @param requestDto contains data to update resource
    * @returns updated Product
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: UpdateProductDto,
     responseDto: ProductDto,
@@ -61,7 +61,7 @@ export class ProductController {
    * {delete} /products/:id Delete a Product.
    * @param requestDto contains resource ID
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseStatusCode: ResponseStatusCode.NO_CONTENT,
@@ -75,7 +75,7 @@ export class ProductController {
    * @param listDto contains filters and list options
    * @returns Products
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: ListProductDto,
     responseDto: ProductDto,
     responseStatusCode: ResponseStatusCode.OK,

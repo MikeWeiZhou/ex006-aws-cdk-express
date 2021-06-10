@@ -13,7 +13,7 @@ export class CustomerController {
    * @param requestDto contains data to create resource
    * @returns Customer
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: CreateCustomerDto,
     responseDto: CustomerDto,
     responseStatusCode: ResponseStatusCode.CREATED,
@@ -32,7 +32,7 @@ export class CustomerController {
    * @param res Express Response
    * @returns Customer
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseDto: CustomerDto,
@@ -47,7 +47,7 @@ export class CustomerController {
    * @param requestDto contains data to update resource
    * @returns updated Customer
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: UpdateCustomerDto,
     responseDto: CustomerDto,
@@ -64,7 +64,7 @@ export class CustomerController {
    * {delete} /companies/:id Delete a Customer.
    * @param requestDto contains resource ID
    */
-  @Controller.decorate({
+  @Controller.process({
     mergeParams: ['id'],
     requestDto: RequestIdDto,
     responseStatusCode: ResponseStatusCode.NO_CONTENT,
@@ -78,7 +78,7 @@ export class CustomerController {
    * @param requestDto contains filters and list options
    * @returns Customers
    */
-  @Controller.decorate({
+  @Controller.process({
     requestDto: ListCustomerDto,
     responseDto: CustomerDto,
     responseStatusCode: ResponseStatusCode.OK,
