@@ -36,12 +36,10 @@ describe('/companies', () => {
 
       // missing root-level parameters and object
       dto = await fake.company.dto();
-      delete (dto as any).email;
       delete (dto as any).name;
       delete (dto as any).address;
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
-        'email',
         'name',
         'address',
       ]);
@@ -75,12 +73,10 @@ describe('/companies', () => {
 
       // invalid root-level parameters and object
       dto = await fake.company.dto();
-      (dto as any).email = 'notAnEmail';
       (dto as any).name = '';
       (dto as any).address = '';
       post = await request.post(rootPath).send(dto);
       testUtility.expectRequestInvalidParams(post, [
-        'email',
         'name',
         'address',
       ]);
@@ -100,20 +96,6 @@ describe('/companies', () => {
         'address.province',
         'address.country',
       ]);
-    });
-
-    it('409: cannot create Company with identical email', async () => {
-      const company1Dto = await fake.company.dto();
-      const post1 = await request.post(rootPath).send(company1Dto);
-      expect(post1.statusCode).toBe(201);
-
-      // no duplicate email
-      const company2Dto = await fake.company.dto({ email: company1Dto.email });
-      const post2 = await request.post(rootPath).send(company2Dto);
-      expect(post2.statusCode).toBe(409);
-      expect(post2.body.status).toBe(409);
-
-      fake.company.addToGarbageBin(post1.body);
     });
   });
 
@@ -146,7 +128,6 @@ describe('/companies', () => {
       [
         'id',
         'name',
-        'email',
         'address.line1',
         'address.postcode',
         'address.city',
@@ -156,8 +137,8 @@ describe('/companies', () => {
     });
 
     it('200: can list companies with zero results', async () => {
-      const createDto = await fake.company.dto();
-      const listDto: ListCompanyDto = { email: createDto.email };
+      const name = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      const listDto: ListCompanyDto = { name };
       const get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       expect(get.body.length).toBe(0);
@@ -170,11 +151,11 @@ describe('/companies', () => {
 
       // results of companies with root filters
       company = await fake.company.create();
-      listDto = { email: company.email };
+      listDto = { name: company.name };
       get = await request.get(rootPath).send(listDto);
       expect(get.statusCode).toBe(200);
       get.body.forEach((comp: CompanyDto) => {
-        expect(comp).toHaveProperty('email', listDto.email);
+        expect(comp).toHaveProperty('name', listDto.name);
       });
 
       // results of companies with nested filters
@@ -227,23 +208,19 @@ describe('/companies', () => {
       // not nullable
       listDto = {
         name: null,
-        email: null,
       } as any;
       get = await request.get(rootPath).send(listDto);
       testUtility.expectRequestInvalidParams(get, [
         'name',
-        'email',
       ]);
 
       // invalids
       listDto = {
         name: '',
-        email: 'not_an_email',
       } as any;
       get = await request.get(rootPath).send(listDto);
       testUtility.expectRequestInvalidParams(get, [
         'name',
-        'email',
       ]);
     });
   });
@@ -299,23 +276,19 @@ describe('/companies/:id', () => {
       // not nullable
       dto = {
         name: null,
-        email: null,
       } as any;
       patch = await request.patch(`${rootPath}/${company.id}`).send(dto);
       testUtility.expectRequestInvalidParams(patch, [
         'name',
-        'email',
       ]);
 
       // invalids
       dto = {
         name: '',
-        email: 'not_an_email',
       } as any;
       patch = await request.patch(`${rootPath}/${company.id}`).send(dto);
       testUtility.expectRequestInvalidParams(patch, [
         'name',
-        'email',
       ]);
     });
 
@@ -324,21 +297,6 @@ describe('/companies/:id', () => {
       const nonExistentId = `${company.id.slice(0, -3)}abc`;
       const patch = await request.patch(`${rootPath}/${nonExistentId}`);
       expect(patch.statusCode).toBe(404);
-    });
-
-    it('409: cannot update Company leading to duplicate email', async () => {
-      const original: CompanyDto = await fake.company.create();
-      const another: CompanyDto = await fake.company.create();
-
-      // duplicate email
-      const update: Partial<UpdateCompanyDto> = { email: another.email };
-      const patch = await request.patch(`${rootPath}/${original.id}`).send(update);
-      expect(patch.statusCode).toBe(409);
-      expect(patch.body.status).toBe(409);
-
-      // confirm no change
-      const get = await request.get(`${rootPath}/${original.id}`);
-      expect(get.body).toMatchObject(original);
     });
   });
 

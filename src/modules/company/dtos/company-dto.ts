@@ -10,9 +10,6 @@ export class CompanyDto extends IResponseBaseDto {
   readonly name!: string;
 
   @Expose()
-  readonly email!: string;
-
-  @Expose()
   @Type(() => NestedAddressDto)
   readonly address!: NestedAddressDto;
 }

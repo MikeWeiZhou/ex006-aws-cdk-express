@@ -1,7 +1,7 @@
 import { IDto, IsMaxLength } from '@ear/common';
 import { NestedCreateAddressDto } from '@ear/modules/address';
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsObject, ValidateNested } from 'class-validator';
+import { IsObject, ValidateNested } from 'class-validator';
 import { CompanyEntityConstraints } from '../company-entity';
 
 /**
@@ -17,9 +17,4 @@ export class CreateCompanyDto implements IDto {
   @Expose()
   @IsMaxLength(CompanyEntityConstraints.NAME_MAX_LENGTH)
   readonly name!: string;
-
-  @Expose()
-  @IsEmail()
-  @IsMaxLength(CompanyEntityConstraints.EMAIL_MAX_LENGTH)
-  readonly email!: string;
 }

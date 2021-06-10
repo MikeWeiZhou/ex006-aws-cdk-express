@@ -23,15 +23,9 @@ export class CompanyFaker extends IFaker<CreateCompanyDto, CompanyDto> {
     noDatabaseWrites: boolean = false,
   ): Promise<CreateCompanyDto> {
     const name = dto?.name ?? `${faker.company.companyName()}`;
-    const email = dto?.email ?? `${faker.internet.email(
-      undefined,
-      undefined,
-      `${faker.helpers.slugify(name)}.com`,
-    )}`;
     const addr = await address.dto(dto?.address, noDatabaseWrites);
     return {
       name,
-      email,
       address: addr,
     };
   }
