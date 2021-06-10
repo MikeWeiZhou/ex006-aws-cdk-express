@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Runs tests against a URL.
+
+echo RUNNING TESTS AGAINST URL: $1
+
+# Run tests
+EAR_TEST_URL=$1 jest
