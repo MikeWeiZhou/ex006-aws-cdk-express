@@ -10,14 +10,23 @@ CREATE TABLE `address` (
 PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
 ;
+CREATE TABLE `company_user` (
+`id` char(25) NOT NULL,
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`company_id` char(25) NOT NULL,
+`user_id` char(25) NOT NULL,
+UNIQUE INDEX `idx_company_user_unique` (`company_id`, `user_id`),
+UNIQUE INDEX `rel_company_user_user_id` (`user_id`),
+PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+;
 CREATE TABLE `company` (
 `id` char(25) NOT NULL,
 `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 `name` varchar(50) NOT NULL,
-`email` varchar(100) NOT NULL,
 `address_id` char(25) NOT NULL,
-UNIQUE INDEX `idx_company_unique_email` (`email`),
 UNIQUE INDEX `rel_company_address_id` (`address_id`),
 PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -73,6 +82,23 @@ CREATE TABLE `sale` (
 `customer_id` char(25) NOT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
+;
+CREATE TABLE `user` (
+`id` char(25) NOT NULL,
+`created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+`updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+`email` varchar(100) NOT NULL,
+`passwordHash` varchar(255) NOT NULL,
+`salt` char(15) NOT NULL,
+UNIQUE INDEX `idx_user_unique_email` (`email`),
+PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+;
+ALTER TABLE `company_user`
+ADD CONSTRAINT `fk_company_user_company_id` FOREIGN KEY (`company_id`) REFERENCES `company`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+ALTER TABLE `company_user`
+ADD CONSTRAINT `fk_company_user_user_id` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ;
 ALTER TABLE `company`
 ADD CONSTRAINT `fk_company_address_id` FOREIGN KEY (`address_id`) REFERENCES `address`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
